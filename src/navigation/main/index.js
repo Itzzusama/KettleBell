@@ -32,6 +32,7 @@ import WorkoutPlanDetails from '../../screens/main/workoutPlanDetails';
 import InstructorTabs from '../instructorTabs';
 import RouteName from '../RouteName';
 import TabStack from '../tabs';
+import AddClient from '../../screens/main/instructorTabs/client/AddClient';
 
 const Stack = createNativeStackNavigator();
 
@@ -75,6 +76,7 @@ const MainStack = () => {
       <Stack.Screen name={RouteName.Update_Password} component={UpdatedPassword} />
       <Stack.Screen name={RouteName.Client_Meal} component={ClientMeal} />
       <Stack.Screen name={RouteName.Create_Meal} component={createMeal} />
+      <Stack.Screen name={RouteName.AddClient} component={AddClient} />
     </Stack.Navigator>
   );
 };

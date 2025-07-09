@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   SafeAreaView,
@@ -14,34 +14,38 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native"
-import * as Progress from "react-native-progress"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import fonts from "../../../../assets/fonts"
-import { Images } from "../../../../assets/images"
-import RouteName from "../../../../navigation/RouteName"
-import { GetApiRequest } from "../../../../services/api"
-import { COLORS } from "../../../../utils/COLORS"
+} from "react-native";
+import * as Progress from "react-native-progress";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../../assets/fonts";
+import { Images } from "../../../../assets/images";
+import RouteName from "../../../../navigation/RouteName";
+import { GetApiRequest } from "../../../../services/api";
+import { COLORS } from "../../../../utils/COLORS";
 
 export default function ClientScreen() {
-  const navigation = useNavigation()
-  const [searchText, setSearchText] = useState("")
-  const { t } = useTranslation()
-  const [client, setClient] = useState([])
+  const navigation = useNavigation();
+  const [searchText, setSearchText] = useState("");
+  const { t } = useTranslation();
+  const [client, setClient] = useState([]);
+  const isFocus = useIsFocused();
 
   const handleAddClient = () => {
-    console.log("Add new client")
-  }
+    console.log("Add new client");
+    navigation.navigate(RouteName.AddClient);
+  };
 
   const handleClientPress = (client) => {
-    console.log("Client pressed:", client.name)
-    navigation.navigate(RouteName.Client_profile)
-  }
+    console.log("Client pressed:", client.name);
+    navigation.navigate(RouteName.Client_profile);
+  };
 
   const getapirequest = async () => {
     try {
-      const res = await GetApiRequest("api/clients")
-      console.log("clients", res.data)
+      const res = await GetApiRequest("api/clients");
       setClient(
         res.data.data.map((item) => ({
           id: item._id,
@@ -50,26 +54,40 @@ export default function ClientScreen() {
           status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
           consistency: item.consistencyPercentage, // Use API consistency field
         }))
-      )
+      );
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
     }
-  }
+  };
 
   useEffect(() => {
-    getapirequest()
-  }, [])
+    getapirequest();
+  }, [isFocus]);
+
+  const filteredClients = client.filter((item) =>
+  item.name.toLowerCase().includes(searchText.toLowerCase())
+);
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("Client.title")}</Text>
-        <TouchableOpacity style={styles.headerAddButton} onPress={handleAddClient}>
+        <TouchableOpacity
+          style={styles.headerAddButton}
+          onPress={handleAddClient}
+        >
           <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -91,19 +109,29 @@ export default function ClientScreen() {
 
         {/* Client Count */}
         <View style={styles.clientCountContainer}>
-          <Text style={styles.clientCountText}>{client.length} {t("Client.clients")}</Text>
+          <Text style={styles.clientCountText}>
+            {client.length} {t("Client.clients")}
+          </Text>
         </View>
 
         {/* Client List */}
         <View style={styles.clientList}>
-          {client.map((client) => (
-            <TouchableOpacity key={client.id} style={styles.clientCard} onPress={() => handleClientPress(client)}>
+          {filteredClients?.map((client) => (
+            <TouchableOpacity
+              key={client.id}
+              style={styles.clientCard}
+              onPress={() => handleClientPress(client)}
+            >
               <View style={styles.clientInfo}>
                 {client.image ? (
-                  <Image source={{ uri: client.image }} style={styles.clientImage} />
+                  <Image
+                    source={{ uri: client.image }}
+                    style={styles.clientImage}
+                  />
                 ) : (
-                  <View style={[styles.clientImage, styles.placeholderImage]}>]
-                  <Image source={Images.dumyImg} style={styles.clientImage} />
+                  <View style={[styles.clientImage, styles.placeholderImage]}>
+                    ]
+                    <Image source={Images.dumyImg} style={styles.clientImage} />
                   </View>
                 )}
                 <View style={styles.clientDetails}>
@@ -114,7 +142,9 @@ export default function ClientScreen() {
                     </View>
                   </View>
                   <View style={styles.consistencyContainer}>
-                    <Text style={styles.consistencyLabel}>{t("Client.Consistency")}</Text>
+                    <Text style={styles.consistencyLabel}>
+                      {t("Client.Consistency")}
+                    </Text>
                     <View style={styles.progressContainer}>
                       <Progress.Bar
                         progress={client.consistency / 100}
@@ -125,14 +155,20 @@ export default function ClientScreen() {
                         borderWidth={0}
                         borderRadius={hp(0.4)}
                       />
-                      <Text style={styles.progressText}>{client.consistency}%</Text>
+                      <Text style={styles.progressText}>
+                        {client.consistency}%
+                      </Text>
                     </View>
                   </View>
                 </View>
               </View>
               <View style={styles.clientActions}>
                 <TouchableOpacity style={styles.messageBadge}>
-                  <MaterialCommunityIcons name="message-text-outline" size={20} color="white" />
+                  <MaterialCommunityIcons
+                    name="message-text-outline"
+                    size={20}
+                    color="white"
+                  />
                 </TouchableOpacity>
                 <TouchableOpacity>
                   <Ionicons
@@ -147,7 +183,7 @@ export default function ClientScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -302,4 +338,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: wp(2),
   },
-})
+});

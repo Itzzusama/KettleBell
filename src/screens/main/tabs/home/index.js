@@ -106,8 +106,8 @@ const Home = () => {
         GetApiRequest("api/workout-plans"),
       ]);
 
-      // console.log("Workout plans response:", workoutRes?.data);
-      // console.log("Exercises response:", exercisesRes?.data);
+      console.log("Workout plans response:", workoutRes?.data);
+      console.log("Exercises response:", exercisesRes?.data);
 
       if (exercisesRes?.data?.data) {
         setExercisesState(exercisesRes.data.data);

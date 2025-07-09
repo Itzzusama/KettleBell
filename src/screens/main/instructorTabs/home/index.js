@@ -44,7 +44,7 @@ export default function InstructorHome() {
       }
     } catch (error) {
       console.log(error)
-      Alert.alert("Error", "Failed to load plans")
+      // Alert.alert("Error", "Failed to load plans")
     } finally {
       setIsLoading(false)
     }
@@ -62,7 +62,7 @@ export default function InstructorHome() {
       }
     } catch (error) {
       console.log(error)
-      Alert.alert("Error", "Failed to load categories")
+      // Alert.alert("Error", "Failed to load categories")
     }
   }
 
