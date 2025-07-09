@@ -1,0 +1,885 @@
+{
+  "login": {
+    "welcome": "Welcome Back!",
+    "signInToContinue": "Enter Your Details Below",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "login": "Login",
+    "startAsInstructor": "Start as an Instructor",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign Up"
+  },
+  "fitnessCoach": {
+    "title": "Welcome to Fitness Coach",
+    "description1": "Let's set up your profile to help your coach create the perfect fitness plan for you",
+    "description2": "This will only take a few minutes and help us understand your fitness goals and needs",
+    "description3": "Swipe through the following screens to complete your profile",
+    "button": "Next",
+    "greeting": "Hi {{name}}!"
+  },
+  "CaloricNeeds": {
+    "title": "Caloric Needs",
+    "description": "Based on your information, we've calculated your estimated caloric needs",
+    "bmrLabel": "Basal Metabolic Rate (BMR)",
+    "bmrDescription": "The calories your body needs at complete rest",
+    "tdeeLabel": "Total Daily Energy Expenditure (TDEE)",
+    "tdeeDescription": "Your BMR adjusted for activity level",
+    "targetDailyCaloriesLabel": "Target Daily Calories",
+    "targetDailyCaloriesDescription": "Adjusted for your maintenance goal",
+    "recommendedMacros": "Recommended Macros",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "note": "Note: These calculations provide estimates, your coach will help refine these based on your progress.",
+    "next": "Next",
+    "caloriesPerDay": "{{value}} Calories/ day",
+    "grams": "{{value}}g",
+    "calories": "{{value}} Calories"
+  },
+  "AllSet": {
+    "title": "All Set!",
+    "successTitle": "You are all set!",
+    "description": "Thank you for completing your health profile, your coach now has all the information needed to create a personalized fitness plan for you",
+    "subDescription": "You can always update your health profile from your account settings",
+    "button": "Start Your Journey"
+  },
+  "SignUp": {
+    "title": "Sign Up",
+    "subtitle": "Enter Your Details Below",
+    "upload_profile_image": "Click to upload Profile Image",
+    "drag_and_drop": " or drag and drop",
+    "image_info": "SVG, PNG, JPG or GIF (max. 800x400px)",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "confirm_password_placeholder": "Confirm Password",
+    "signup_button": "Signup",
+    "already_have_account": "Already have an account? ",
+    "signin_link": "Sign In"
+  },
+  "ForgotPassword": {
+    "title": "Forgot Password",
+    "description": "Please enter your email address, you will receive a link to create a new password via email.",
+    "email_placeholder": "Email",
+    "send_button": "Send"
+  },
+  "ResetPassword": {
+    "title": "Reset Password",
+    "description": "Enter new password and confirm password to change the password .",
+    "password_placeholder": "Password",
+    "confirm_password_placeholder": "Confirm Password",
+    "change_password_button": "Change Password"
+  },
+  "ResetSuccess": {
+    "title": "Password Updated",
+    "subtitle": "Your Password had been successfully updated"
+  },
+  "Onboarding": {
+    "skip_button": "Skip",
+    "slides": [
+      {
+        "heading": "Meet Our Expert Trained Instructors",
+        "description": "Train in the container gym built for strength, freedom, and results."
+      },
+      {
+        "heading": "Secure Your Health Journey",
+        "description": "Improve your Fitness Routine with Cutting edge features"
+      },
+      {
+        "heading": "Start Your Journey With Kettleflow",
+        "description": "Improve your Fitness Routine with Cutting edge features"
+      }
+    ]
+  },
+  "AccountCreated": {
+    "title": "Account Created",
+    "subtitle": "Your account had been created successfully"
+  },
+  "ExerciseComplete": {
+    "burn_calories_label": "Burn Calories",
+    "completed_label": "Completed",
+    "remaining_label": "Remaining",
+    "title": "Completed Exercise",
+    "subtitle": "You have completed {{percentage}}% of your exercise"
+  },
+  "ExerciseStart": {
+    "title": "Kettlebell Swing",
+    "description": "A dynamic exercise that targets the posterior chain, including the hamstrings, glutes, and lower back.",
+    "next_button": "Next",
+    "exercise_cards": [
+      {
+        "title": "Kettlebell Swing",
+        "description": "Focus on hip hinge & explosive movement",
+        "equipment": "Kettlebell",
+        "duration": "5 min"
+      },
+      {
+        "title": "Kettlebell Swing",
+        "description": "Focus on hip hinge & explosive movement",
+        "equipment": "Kettlebell",
+        "duration": "5 min"
+      },
+      {
+        "title": "Kettlebell Swing",
+        "description": "Focus on hip hinge & explosive movement",
+        "equipment": "Kettlebell",
+        "duration": "5 min"
+      }
+    ]
+  },
+  "MealDetail": {
+    "header_title": "Weight Loss",
+    "recipe_title": "Weight Loss",
+    "recipe_description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "info_labels": {
+      "breakfast": "Breakfast",
+      "time": "9:00 am",
+      "details": "Protein Chicken Bowl, mint drink"
+    },
+    "instructions_title": "Instructions",
+    "start_button": "Start",
+    "ingredients": [
+      { "amount": "300 g", "name": "chicken breast" },
+      { "amount": "150 g", "name": "Brown Rice" },
+      { "amount": "200 g", "name": "broccoli" },
+      { "amount": "200 g", "name": "sweet potato" },
+      { "amount": "15 ml", "name": "Olive oil" },
+      { "amount": "1 tsp", "name": "salt" },
+      { "amount": "0.5 tsp", "name": "black pepper" },
+      { "amount": "1 tsp", "name": "Garlic Powder" }
+    ],
+    "instructions": [
+      "Stand with your feet shoulder-width apart.",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands"
+    ]
+  },
+  "Message": {
+    "header_title": "Message",
+    "notification_text": "Wait for a Specialist to join the chat.",
+    "date_text": "Today, Jun 6",
+    "sample_message": "Hi there!",
+    "input_placeholder": "Write a message..."
+  },
+  "YourRecipes": {
+    "header_title": "Your Recipes",
+    "search_placeholder": "Search",
+    "recipes": [
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      },
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      },
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      },
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      },
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      },
+      {
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "Core"
+      }
+    ]
+  },
+  "RecipeDetail": {
+    "title": "High Protein Chicken Bowl",
+    "description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "pre_time_label": "Pre Time",
+    "pre_time_value": "40 min",
+    "cook_time_label": "Cook Time",
+    "cook_time_value": "15 prep, 25 cook",
+    "serving_label": "Serving",
+    "serving_value": "2 person",
+    "ingredients_title": "Ingredients",
+    "ingredients": [
+      { "amount": "300 g", "name": "chicken breast" },
+      { "amount": "150 g", "name": "Brown Rice" },
+      { "amount": "200 g", "name": "broccoli" },
+      { "amount": "200 g", "name": "sweet potato" },
+      { "amount": "15 ml", "name": "Olive oil" },
+      { "amount": "1 tsp", "name": "salt" },
+      { "amount": "0.5 tsp", "name": "black pepper" },
+      { "amount": "1 tsp", "name": "Garlic Powder" }
+    ],
+    "nutrition_title": "Nutrition Information",
+    "nutrition": {
+      "calories": "450",
+      "protein": "40g",
+      "carbs": "45g",
+      "fat": "10g"
+    },
+    "instructions_title": "Instructions",
+    "instructions": [
+      "Stand with your feet shoulder-width apart.",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands"
+    ],
+    "next_button": "Next"
+  },
+  "MealScreen": {
+    "header_title": "Meal",
+    "main_title": "Weight Loss",
+    "main_description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "meals_plan_title": "Meals Plan",
+    "time_label": "Time: ",
+    "start_button": "Start",
+    "meals": [
+      {
+        "title": "Weight Loss",
+        "description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+        "time": "9:00 am"
+      },
+      {
+        "title": "Vegetarian Food",
+        "description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+        "time": "9:00 am"
+      },
+      {
+        "title": "Protein Food",
+        "description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+        "time": "9:00 am"
+      }
+    ],
+    "week_days": [
+      { "short": "Mon", "full": "Monday" },
+      { "short": "Tues", "full": "Tuesday" },
+      { "short": "Wed", "full": "Wednesday" },
+      { "short": "Thurs", "full": "Thursday" },
+      { "short": "Fri", "full": "Friday" },
+      { "short": "Sat", "full": "Saturday" },
+      { "short": "Sun", "full": "Sunday" }
+    ],
+    "meal_times": ["All", "Morning", "Lunch", "Dinner"]
+  },
+  "RecipeTime2": {
+    "exercise_title": "Weight Loss",
+    "exercise_description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "time_text": "Time: 9:00 am",
+    "next_button": "Next"
+  },
+  "Home": {
+    "search_placeholder": "Search",
+    "active_plans": "Active Plans",
+    "total_exercise": "Total Exercise",
+    "completed_exercise_stats": "Completed Exercise",
+    "weekly_progress_title": "Weekly Progress",
+    "exercise_button": "Exercise",
+    "calories_label": "Calories",
+    "burn_fat_label": "Burn Fat",
+    "completed_exercise_label": "Completed Exercise",
+    "uncompleted_exercise_label": "Uncompleted Exercise",
+    "active_workout_plan_title": "Active Workout Plan",
+    "see_all_link": "See All",
+    "workout_card_title": "Kettlebell Fundamentals",
+    "workout_card_challenge": "7 Day Challenge",
+    "workout_card_duration": "5 min",
+    "todays_meal_plan_title": "Today's Meal Plan",
+    "recommended_exercise_title": "Recommended Exercise",
+    "filter_all": "All",
+    "filter_swing": "Swing",
+    "filter_goblet_squat": "Goblet Squat",
+    "filter_snatch": "Snatch",
+    "filter_turkish": "Turkish",
+    "kettlebell_fundamentals_title": "Kettlebell Fundamentals",
+    "strength_builder_title": "Strength Builder",
+    "exercise_details": "9 Exercise",
+    "exercise_duration": "5days"
+  },
+  "WorkoutPlanDetails": {
+    "header_title": "Strength Builder",
+    "hero_title": "Kettlebell Fundamentals",
+    "hero_description": "A beginner-friendly program focusing on kettlebell basics for full body strength and conditioning",
+    "info_started": "Started: October 1, 2025",
+    "info_exercise_days": "7 Day Exercise",
+    "info_program_days": "5 Days Program",
+    "schedule_title": "Workout Schedule",
+    "day_prefix": "Day",
+    "exercises_label": "Exercises",
+    "duration_label": "Duration",
+    "equipment_label": "Equipment",
+    "workout_days": [
+      {
+        "day": 1,
+        "title": "Full Body Basics",
+        "description": "A beginner-friendly program focusing on kettlebell basics for full body strength and conditioning",
+        "exercises": 3,
+        "duration": "5 min",
+        "exerciseList": [
+          {
+            "name": "Kettlebell Swing",
+            "focus": "Focus on hip hinge & explosive movement",
+            "equipment": "Kettlebell",
+            "duration": "5 min"
+          },
+          {
+            "name": "Kettlebell Goblet Squat",
+            "focus": "Focus on lower body strength",
+            "equipment": "Kettlebell",
+            "duration": "5 min"
+          },
+          {
+            "name": "Kettlebell Press",
+            "focus": "Focus on upper body strength",
+            "equipment": "Kettlebell",
+            "duration": "5 min"
+          }
+        ]
+      },
+      {
+        "day": 2,
+        "title": "Active Recovery",
+        "description": "A beginner-friendly program focusing on mobility and recovery",
+        "exercises": 3,
+        "duration": "5 min",
+        "exerciseList": []
+      },
+      {
+        "day": 3,
+        "title": "Strength Focus",
+        "description": "A beginner-friendly program focusing on kettlebell basics for full body strength",
+        "exercises": 3,
+        "duration": "5 min",
+        "exerciseList": []
+      },
+      {
+        "day": 4,
+        "title": "Full Body Basics",
+        "description": "A beginner-friendly program focusing on kettlebell basics for full body strength",
+        "exercises": 3,
+        "duration": "5 min",
+        "exerciseList": []
+      },
+      {
+        "day": 5,
+        "title": "Active Recovery",
+        "description": "A beginner-friendly program focusing on mobility and recovery",
+        "exercises": 3,
+        "duration": "5 min",
+        "exerciseList": []
+      },
+      {
+        "day": 6,
+        "title": "Strength Focus",
+        "description": "A beginner-friendly program focusing on kettlebell basics for full body strength",
+        "exercises": 5,
+        "duration": "5 min",
+        "exerciseList": []
+      },
+      {
+        "day": 7,
+        "title": "Strength Focus",
+        "description": "A beginner-friendly program focusing on kettlebell basics for full body strength",
+        "exercises": 5,
+        "duration": "5 min",
+        "exerciseList": []
+      }
+    ]
+  },
+  "ExerciseDetail2": {
+    "header_title": "Kettlebell Swing",
+    "exercise_title": "Kettlebell Swing",
+    "exercise_description": "A dynamic exercise that targets the posterior chain, including the hamstrings, glutes and lower back.",
+    "category_label": "Category",
+    "category_value": "Kettlebell",
+    "difficulty_label": "Difficulty",
+    "difficulty_value": "Intermediate",
+    "target_muscles_title": "Target Muscles",
+    "equipment_title": "Equipment",
+    "instructions_title": "Instructions",
+    "start_button": "Start",
+    "target_muscles": ["Chest", "Back", "Shoulder", "Arms", "Biceps"],
+    "equipment": ["Kettlebell", "Barbell", "Squat Rack", "Bench"],
+    "instructions": [
+      "Stand with your feet shoulder-width apart",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands"
+    ]
+  },
+  "ExerciseDetail": {
+    "header_title": "Kettlebell Swing",
+    "exercise_title": "Kettlebell Swing",
+    "exercise_description": "A dynamic exercise that targets the posterior chain, including the hamstrings, glutes and lower back.",
+    "category_label": "Category",
+    "category_value": "Kettlebell",
+    "target_muscles_title": "Target Muscles",
+    "equipment_title": "Equipment",
+    "instructions_title": "Instructions",
+    "start_button": "Start",
+    "target_muscles": ["Chest", "Back", "Shoulder", "Arms", "Biceps"],
+    "equipment": ["Kettlebell", "Barbell", "Squat Rack", "Bench"],
+    "instructions": [
+      "Stand with your feet shoulder-width apart",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+      "Stand with feet shoulder-width apart, holding a kettlebell with both hands"
+    ]
+  },
+  "Exercise": {
+    "header_title": "Exercises",
+    "search_placeholder": "Search ",
+    "category_label": "Categories"
+  },
+  "Nutrition": {
+    "title": "Nutrition",
+    "mainTitle": "Dietary Preferences and Restriction",
+    "dietaryRestriction": "Dietary Restriction",
+    "vegetarianExample": "e.g Vegetarian",
+    "add": "Add",
+    "enterDietaryRestriction": "Enter dietary restriction",
+    "mealPreferences": "Meal Preferences",
+    "highProteinExample": "e.g High protein",
+    "enterMealPreference": "Enter meal preference",
+    "next": "Next",
+    "header_title": "Nutrition",
+    "kcal_left": "kcal left",
+    "eaten_label": "Eaten",
+    "burn_label": "Burn",
+    "kcal_unit": "kcal",
+    "grams_unit": "g",
+    "percent_unit": "%",
+    "avg_calories_label": "Avg. Calories",
+    "avg_protein_label": "Avg. Protein",
+    "completion_label": "Completion",
+    "active_meal_plan_title": "Active Meal Plan",
+    "recent_logs_title": "Recent logs",
+    "recommended_recipes_title": "Recommended Recipes",
+    "view_all": "View All",
+    "see_all": "See All",
+    "no_logs_text": "No logs recorded yet",
+    "meal_plan_categories": [
+      {
+        "id": "1",
+        "name": "All",
+        "active": true
+      },
+      {
+        "id": "2",
+        "name": "Weight loss",
+        "active": false
+      },
+      {
+        "id": "3",
+        "name": "Weight gain",
+        "active": false
+      },
+      {
+        "id": "4",
+        "name": "Healthy Recipes",
+        "active": false
+      }
+    ],
+    "meal_plans": [
+      {
+        "id": "1",
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "SPICY",
+        "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&crop=center"
+      },
+      {
+        "id": "2",
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "SPICY",
+        "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&crop=center"
+      }
+    ],
+    "recommended_recipes": [
+      {
+        "id": "1",
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "SPICY",
+        "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop&crop=center"
+      },
+      {
+        "id": "2",
+        "title": "High Protein Chicken Bowl",
+        "client": "2 Client",
+        "duration": "40 min",
+        "tag": "SPICY",
+        "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop&crop=center"
+      },
+      {
+        "id": "3",
+        "title": "Veggie Stir Fry",
+        "client": "1 Client",
+        "duration": "30 min",
+        "tag": "VEGAN",
+        "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop&crop=center"
+      },
+      {
+        "id": "4",
+        "title": "Salmon Delight",
+        "client": "2 Client",
+        "duration": "45 min",
+        "tag": "HEALTHY",
+        "image": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop&crop=center"
+      }
+    ]
+  },
+  "FitnessGoal": {
+    "title": "Fitness Goal",
+    "mainTitle": "What is your primary fitness goal?",
+    "subtitle": "This helps your coach create a personalized plan",
+    "primaryGoal": "Primary Goal",
+    "specificGoals": "Specific Goals",
+    "addGoalPlaceholder": "Enter specific goal",
+    "add": "Add",
+    "save": "Save",
+    "next": "Next",
+    "primaryGoalOptions": {
+      "weightLoss": "Weight Loss",
+      "muscleGain": "Muscle Gain",
+      "endurance": "Endurance",
+      "strength": "Strength",
+      "generalFitness": "General Fitness",
+      "flexibility": "Flexibility"
+    }
+  },
+  "BasicInfo": {
+    "title": "Basic Information",
+    "description": "Basic Information about you",
+    "name": "Name",
+    "age": "Age",
+    "gender": "Gender",
+    "weight": "Weight",
+    "height": "Height",
+    "height_cm": "Height (cm)",
+    "weight_kg": "Weight (kg)",
+    "next": "Next",
+    "genders": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    }
+  },
+  "BodyMeasurements": {
+    "title": "Body Measurements",
+    "sectionTitle": "Current body measurements",
+    "subtitle": "All measurements are in centimeter (cm)",
+    "chest": "Chest",
+    "waist": "Waist",
+    "hips": "Hips",
+    "thighs": "Thighs",
+    "arms": "Arms",
+    "next": "Next"
+  },
+  "HealthInformation": {
+    "title": "Health Information",
+    "sectionTitle": "Health information",
+    "subtitle": "Relevant to your fitness journey",
+    "medicalConditions": "Medical Conditions",
+    "addMedicalCondition": "Add medical condition",
+    "add": "+ Add",
+    "enterMedicalCondition": "Enter medical condition",
+    "save": "Save",
+    "injuries": "Injuries or Physical Limitations",
+    "addInjury": "Add",
+    "enterInjury": "Enter injury or limitation",
+    "next": "Next"
+  },
+  "FitnessBackground": {
+    "title": "Fitness Background",
+    "sectionTitle": "Fitness Background",
+    "subtitle": "Fitness experience and current activity level",
+    "fitnessLevel": "Fitness Level",
+    "activityLevel": "Activity Level",
+    "exerciseFrequency": "How many times per week do you currently exercise",
+    "exerciseHistory": "Brief exercise history",
+    "next": "Next",
+    "fitnessLevels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advance": "Advance"
+    },
+    "activityLevels": {
+      "sedentary": "Sedentary (Little or no exercise)",
+      "light": "Light (Exercise 1-3 times/week)",
+      "moderate": "Moderate (Exercise 3-5 times/week)",
+      "active": "Active (Exercise 6-7 times/week)",
+      "veryActive": "Very Active (Hard exercise daily)"
+    }
+  },
+
+  "Profile": {
+    "title": "Profile",
+    "health": "Health Profile",
+    "specialties": "Specialties",
+    "notification": "Notification",
+    "settings": "Settings",
+    "health_items": {
+      "primary_goal": "Primary Goal",
+      "fitness_level": "Fitness Level",
+      "daily_calories": "Daily Calories",
+      "protein_goal": "Protein Goal"
+    },
+    "specialties_items": {
+      "bmr_calculator": "BMR Calculator",
+      "message": "Message",
+      "workout_progress": "Workout Progress"
+    },
+    "notification_items": {
+      "pop_up_notification": "Pop-up Notification"
+    },
+    "settings_items": {
+      "app_settings": "App Settings",
+      "privacy_policy": "Privacy Policy",
+      "logout": "Logout"
+    }
+  },
+  "InstructorHome": {
+    "search_placeholder": "Search ",
+    "activePlans": "Active Plans",
+    "myExercises": "My Exercises",
+    "seeall": "See All",
+    "clientReport": "Client Report"
+  },
+  "Plan": {
+    "title": " Workout Plans",
+    "search_placeholder": "Search ",
+    "category": "Category",
+    "addbtn": "+ Add Category",
+    "addcategory": "Add Category",
+    "name": "Name",
+    "add": "Add"
+  },
+  "InstructorNutrition": {
+    "title": "Nutrition",
+    "placeHolder": "Search Recipes",
+    "yourrecipes": "Your Recipes",
+    "Viewall": "View All",
+    "mealPlan": "Meal Plans"
+  },
+  "Client": {
+    "title": "Client",
+    "placeholder": "Search",
+    "clients": "clients",
+    "Consistency": "Consistency"
+  },
+  "CreateWorkoutPlans": {
+    "title": "Create Workout Plans",
+    "images": "Upload Multiple Images",
+    "workname": "Workout Plan Name",
+    "description": "Description",
+    "weeknumb": "Number of week",
+    "plancreate": "Create Plan"
+  },
+  "ClientWorkoutPlan": {
+    "title": "Strength Builder",
+    "title2": "Kettlebell Fundamentals",
+    "desc": "A beginner friendly program focusing on kettlebell basics for full body strength and conditioning",
+    "Schedule": "Weekly Schedule",
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Sunday": "Sunday",
+    "FullBodyBasics": "Full Body Basics",
+    "ExercisesCount": "Exercises",
+    "ExerciseButton": "Exercise",
+    "NameLabel": "Name",
+    "DescriptionLabel": "Description",
+    "AddButton": "Add",
+    "WorkoutPlan": "Workout Plan"
+  },
+
+  "DayDetails": {
+    "title": "Day 1: Full Body Basics",
+    "Exercises": "Exercises",
+    "ModalTitle": "Monday: Full Body Basics",
+    "ModalHeader": "Add Exercise",
+    "CreateNewExercise": "Create New Exercise",
+    "SelectExistingExercise": "Select Existing Exercise",
+    "Sets": "Sets",
+    "Reps": "Reps",
+    "Time": "Time",
+    "Notes": "Notes",
+    "NoExercises": "No exercises added yet",
+    "AddExercisePrompt": "Tap the + button to add your first exercise"
+  },
+
+  "CreateExercise": {
+    "title": "Create Exercise",
+    "UploadMultipleImages": "Upload Multiple Images",
+    "ExerciseName": "Exercise Name",
+    "Category": "Category",
+    "Description": "Description",
+    "Difficulty": "Difficulty",
+    "Equipment": "Equipment",
+    "TargetMuscles": "Target Muscles",
+    "Instruction": "Instruction",
+    "NamePlaceholder": "Name",
+    "DescriptionPlaceholder": "Description",
+    "EquipmentPlaceholder": "Enter equipment",
+    "MusclePlaceholder": "Enter target muscle",
+    "InstructionPlaceholder": "Instruction",
+    "AddButton": "+ Add",
+    "AddStepButton": "+ Add Step",
+    "CreateExerciseButton": "Create Exercise",
+    "InstructionSubtitle": "Add step by step instructions for performing the exercise",
+    "SelectCategory": "Select Category",
+    "Beginner": "Beginner"
+  },
+  "ClientExerciseDetail": {
+    "title": "Kettlebell Swing",
+    "Description": "A dynamic exercise that targets the posterior chain, including the hamstrings, glutes and lower back.",
+    "Category": "Category",
+    "Difficulty": "Difficulty",
+    "TargetMuscles": "Target Muscles",
+    "Equipment": "Equipment",
+    "Instructions": "Instructions",
+    "Intermediate": "Intermediate"
+  },
+  "ClientRecipe": {
+    "title": "Your Recipes",
+    "placeholder": "Search"
+  },
+  "ClientRecipeDetail": {
+    "title": "High Protein Chicken Bowl",
+    "description": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "instruction1": "Stand with your feet shoulder-width apart.",
+    "instruction2": "Stand with feet shoulder-width apart, holding a kettlebell with both hands",
+    "time": "Pre Time",
+    "cook": "Cook Time",
+    "serve": "Serving",
+    "Ingredients": "Ingredients",
+    "nutri": "Nutrition Information",
+    "Instructions": "Instructions",
+    "next": "Next"
+  },
+  "AddRecipe": {
+    "title": "Add Recipes",
+    "dec1": "Banner",
+    "desc2": "Recipe Name",
+    "desc3": "Description",
+    "pretime": "Pre Time (min)",
+    "cook": "Cook Time (min)",
+    "serve": "Servings",
+    "ingredients": "Ingredients",
+    "addbtn": "+ Add",
+    "info": "Nutrition Information",
+    "cal": "Calories",
+    "protein": "Protein",
+    "carb": "Carbs",
+    "fat": "Fat",
+    "tags": "Tags",
+    "Instruction": "Instruction",
+    "description": "Add step by step instructions for preparing this recipe",
+    "addstep": "+ Add Step",
+    "btn": "create Recipe"
+  },
+  "mealPlan": {
+    "title": "Meal Plan",
+    "placeholder": "Search"
+  },
+  "AddMeal": {
+    "title": "Add Meal",
+    "subTitle": "Day-wise Meal",
+    "Breakfast": "Breakfast",
+    "Lunch": "Lunch",
+    "Dinner": "Dinner",
+    "images": "Upload Multiple Images",
+    "mealname": "Meal Name",
+    "addrecipe": "Add Recipe",
+    "description": "Description",
+    "addbtn": "+ Add",
+    "time": "Time",
+    "instruction": "Instruction",
+    "description1": "Add step by step instructions for preparing this recipe",
+    "addstep": "+ Add Step",
+    "add": "Add"
+  },
+  "ClientMealDetail": {
+    "title": "Meal",
+    "weightLoss": "Weight Loss",
+    "desc": "A delicious and nutritious bowl packed with protein to fuel workouts",
+    "mealplan": "Meals Plan",
+    "addbtn": "+ Add Meal plan",
+    "time": "Time",
+    "start": "Start"
+  },
+  "clientExerciseStart": {
+    "title": "Weight Loss",
+    "desc": "A delicious and nutritious bowl packed with protein to fuel workouts.",
+    "time": "Time",
+    "done": "Done"
+  },
+  "clientProfile": {
+    "title": "Profile",
+    "Special": "Specialties",
+    "bmr_calculator": "BMR Calculator",
+    "message": "Message",
+    "workout_progress": "Workout Progress",
+    "notification": "Notification",
+    "pop_up_notification": "Pop-up Notification",
+    "setting": "Settings",
+    "app_settings": "App Settings",
+    "privacy_policy": "Privacy Policy",
+    "logout": "Logout"
+  },
+  "ClientProgress": {
+    "title": "Profile",
+    "title2": "Daily Progress",
+    "consumed": "Consumed",
+    "Remaining": "Remaining",
+    "target": "Target",
+    "weekly_progress_title": "Weekly Progress",
+    "exercise": "Exercise",
+    "calories": "Calories",
+    "burn_fat_label": "Burn Fat",
+    "completed_exercise_label": "Completed Exercise",
+    "uncompleted_exercise_label": "Uncompleted Exercise",
+    "active_workout_plan_title": "Active Workout Plans",
+    "create": "+ Create",
+    "recent_workout": "Recent Workout",
+    "seeall": "See All",
+    "recentNutrition": "Recent Nutrition",
+    "complete": "% Complete"
+  },
+  "ClientMessage": {
+    "title": "Message",
+    "msg": "Messages"
+  },
+  "Otp": {
+    "title": "Verify Your Email",
+    "subtitle": "Please enter the 4-digit code sent to your email address",
+    "verify_button": "Verify",
+    "did_not_receive_code": "Didn't receive the code?",
+    "resend_link": "Resend"
+  }
+}

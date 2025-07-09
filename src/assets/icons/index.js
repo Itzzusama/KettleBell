@@ -1,0 +1,16 @@
+export const Icons = {
+ messageIcon:require("../icons/message_Icon.png"),
+ lockIcon:require("../icons/lock_icon.png"),
+ arrow:require("../icons/arrow.png"),
+ mask:require("../icons/Mask.png"),
+ flame:require("../icons/flame.png"),
+ cloud:require("../icons/cloud.png"),
+ circles:require("../icons/circles.png"),
+ profile:require("../icons/profileIcon.png"),
+ home:require("../icons/home.png"),
+ exercise:require("../icons/exerciseTab.png"),
+ nutrition:require("../icons/nutrition.png"),
+ profileTab:require("../icons/profileTab.png"),
+ plan:require("../icons/plan.png"),
+ dumble:require("../icons/dumble.png"),
+};
