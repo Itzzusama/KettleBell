@@ -17,13 +17,17 @@ const MyWorkoutPlans = ({
   loading,
   plan,
   setPlan,
+  type,
 }) => {
   const [myPlans, setMyPlans] = useState([]);
 
   const getMyWorkoutPlan = async () => {
     try {
-      const response = await GetApiRequest("api/workout-plans/my-plans");
-      setMyPlans(response.data?.data);
+      const response = await GetApiRequest(
+        type ? "api/meal-plans/my-meal-plans" : "api/workout-plans/my-plans"
+      );
+
+      setMyPlans(type == "meal" ? response.data : response.data?.data);
     } catch (error) {}
   };
 

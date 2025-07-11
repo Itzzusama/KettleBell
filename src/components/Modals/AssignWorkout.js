@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View, TextInput } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  TextInput,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 
 import CustomButton from "../CustomButton";
@@ -17,30 +23,17 @@ const AssignWorkout = ({
   onDisable,
   onPress,
   plan,
-  clientId, // Add clientId prop
+  clientId,
+  type,
 }) => {
   const [myPlans, setMyPlans] = useState([]);
-  const [selectedPlanId, setSelectedPlanId] = useState("");
   const [startDate, setStartDate] = useState("");
   const [notes, setNotes] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const toast = useToast();
 
-  const getMyWorkoutPlan = async () => {
-    try {
-      const response = await GetApiRequest("api/workout-plans/my-plans");
-      setMyPlans(response.data?.data);
-    } catch (error) {
-      console.log("Error fetching workout plans:", error);
-    }
-  };
-
-  useEffect(() => {
-    getMyWorkoutPlan();
-  }, []);
-
   const handleAssignPlan = async () => {
-    if (!selectedPlanId) {
+    if (!plan) {
       toast.showToast({
         type: "error",
         message: "Please select a workout plan",
@@ -60,42 +53,58 @@ const AssignWorkout = ({
 
     try {
       setAssignLoading(true);
+
       const payload = {
-        workoutPlanId: selectedPlanId,
+        workoutPlanId: plan,
         startDate: startDate,
         notes: notes.trim() || "",
       };
-      console.log("pay----", payload);
-      
 
-      const response = await PostApiRequest(`api/clients/${clientId}/assign-workout-plan`, payload);
-      
+      const payload1 = {
+        mealPlanId: plan,
+        startDate: startDate,
+        notes: notes.trim() || "",
+      };
+
+      // Use correct payload based on type
+      const finalPayload = type === "meal" ? payload1 : payload;
+
+      // Use correct endpoint based on type
+      const api =
+        type === "meal"
+          ? `api/clients/${clientId}/assign-meal`
+          : `api/clients/${clientId}/assign-workout`;
+
+      const response = await PostApiRequest(api, finalPayload);
 
       if (response.data?.success) {
         toast.showToast({
           type: "success",
-          message: "Workout plan assigned successfully!",
+          message:
+            type === "meal"
+              ? "Meal plan assigned successfully!"
+              : "Workout plan assigned successfully!",
           duration: 3000,
         });
+
         onDisable();
-        // Reset form
-        setSelectedPlanId("");
         setStartDate("");
         setNotes("");
-        // Call the onPress callback if provided
         if (onPress) onPress();
       } else {
         toast.showToast({
           type: "error",
-          message: response.data?.message || "Failed to assign workout plan",
+          message: response.data?.message || "Failed to assign plan",
           duration: 3000,
         });
       }
     } catch (error) {
-      console.log("Error assigning workout plan:", error);
+      console.log("Error assigning plan:", error);
       toast.showToast({
         type: "error",
-        message: error.response?.data?.message || "An error occurred while assigning the plan",
+        message:
+          error.response?.data?.message ||
+          "An error occurred while assigning the plan",
         duration: 3000,
       });
     } finally {
@@ -127,15 +136,13 @@ const AssignWorkout = ({
               color={COLORS.black}
               marginBottom={8}
             />
-              <TextInput
-                style={styles.dropdownInput}
-                placeholder="Select a workout plan"
-                value={plan}
-                editable={false}
-                placeholderTextColor={COLORS.gray2}
-              />
-            
-            
+            <TextInput
+              style={styles.dropdownInput}
+              placeholder="Select a workout plan"
+              value={plan}
+              editable={false}
+              placeholderTextColor={COLORS.gray2}
+            />
           </View>
 
           {/* Start Date */}

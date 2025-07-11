@@ -2,9 +2,14 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useIsFocused,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import {
+  FlatList,
   Image,
   SafeAreaView,
   ScrollView,
@@ -91,6 +96,7 @@ const ProgressCircle = ({
 
 export default function ProfileDashboard({ route }) {
   const navigation = useNavigation();
+  const isFocus = useIsFocused();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
@@ -167,21 +173,24 @@ export default function ProfileDashboard({ route }) {
   ];
 
   const [assignWorkoutModal, setAssignWorkoutModal] = useState(false);
-  const [taskModal, setTaskModal] = useState(false);
   const [workoutPlans, setWorkoutPlans] = useState([]);
+  const [taskModal, setTaskModal] = useState(false);
+  const [planType, setPlanType] = useState("");
 
   const [plan, setPlan] = useState("");
 
   const getClientPlan = async () => {
     try {
       const response = await GetApiRequest(`api/clients/${client?.id}/plans`);
-      setWorkoutPlans(response.data?.data?.assignedWorkoutPlans);
+      console.log("tes====", response.data?.data?.workoutPlans);
+
+      setWorkoutPlans(response.data?.data?.workoutPlans);
     } catch (error) {}
   };
 
   useEffect(() => {
     getClientPlan();
-  }, []);
+  }, [isFocus]);
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
@@ -336,37 +345,85 @@ export default function ProfileDashboard({ route }) {
         {/* Active Workout Plans */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t("ClientProgress.active_workout_plan_title")}
-            </Text>
+            <Text style={styles.sectionTitle}>{t("Active Workout Plan")}</Text>
             <TouchableOpacity
               style={styles.seeAllButton}
-              onPress={() => setTaskModal(true)}
+              onPress={() => {
+                setPlanType("workout");
+                setTaskModal(true);
+              }}
             >
               <Text style={styles.seeAllText}>{t("Assign Plan")}</Text>
             </TouchableOpacity>
           </View>
-          {workoutPlans?.map((plan) => (
-            <TouchableOpacity key={plan.id} style={styles.workoutCard}>
-              <Image
-                source={{ uri: plan?.image }}
-                style={styles.workoutCardImage}
-              />
-              <View style={styles.workoutCardOverlay}>
-                <Text style={styles.workoutCardTitle}>
-                  {plan?.workoutPlan?.name}
-                </Text>
-                <View style={styles.workoutCardStats}>
-                  <Text style={styles.workoutCardStat}>
-                    {plan.exercises} {t("ClientProgress.exercise")}
+
+          <FlatList
+            horizontal
+            data={workoutPlans}
+            renderItem={() => (
+              <TouchableOpacity key={plan.id} style={styles.workoutCard}>
+                <Image
+                  source={{ uri: plan?.image }}
+                  style={styles.workoutCardImage}
+                />
+                <View style={styles.workoutCardOverlay}>
+                  <Text style={styles.workoutCardTitle}>
+                    {plan?.workoutPlan?.name}
                   </Text>
-                  <Text style={styles.workoutCardStat}>
-                    {plan?.workoutPlan?.numberOfWeeks} Weeks
-                  </Text>
+                  <View style={styles.workoutCardStats}>
+                    <Text style={styles.workoutCardStat}>
+                      {plan.exercises} {t("ClientProgress.exercise")}
+                    </Text>
+                    <Text style={styles.workoutCardStat}>
+                      {plan?.workoutPlan?.numberOfWeeks} Weeks
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        {/* Active Meal Plans */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t("Active Meal Plan")}</Text>
+            <TouchableOpacity
+              style={styles.seeAllButton}
+              onPress={() => {
+                setPlanType("meal");
+                setTaskModal(true);
+              }}
+            >
+              <Text style={styles.seeAllText}>{t("Assign Plan")}</Text>
             </TouchableOpacity>
-          ))}
+          </View>
+
+          <FlatList
+            horizontal
+            data={workoutPlans}
+            renderItem={() => (
+              <TouchableOpacity key={plan.id} style={styles.workoutCard}>
+                <Image
+                  source={{ uri: plan?.image }}
+                  style={styles.workoutCardImage}
+                />
+                <View style={styles.workoutCardOverlay}>
+                  <Text style={styles.workoutCardTitle}>
+                    {plan?.workoutPlan?.name}
+                  </Text>
+                  <View style={styles.workoutCardStats}>
+                    <Text style={styles.workoutCardStat}>
+                      {plan.exercises} {t("ClientProgress.exercise")}
+                    </Text>
+                    <Text style={styles.workoutCardStat}>
+                      {plan?.workoutPlan?.numberOfWeeks} Weeks
+                    </Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         </View>
 
         {/* Recent Workout */}
@@ -485,6 +542,7 @@ export default function ProfileDashboard({ route }) {
         onDisable={() => setTaskModal(false)}
         plan={plan}
         setPlan={setPlan}
+        type={planType}
         onPress={() => {
           setTaskModal(false);
           setTimeout(() => {
@@ -496,6 +554,7 @@ export default function ProfileDashboard({ route }) {
         isVisible={assignWorkoutModal}
         onDisable={() => setAssignWorkoutModal(false)}
         plan={plan}
+        type={planType}
         clientId={client?.id}
       />
     </SafeAreaView>
@@ -712,6 +771,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     height: hp(28),
     width: wp(90),
+    marginRight: 6,
     alignSelf: "center",
   },
   workoutCardImage: {
