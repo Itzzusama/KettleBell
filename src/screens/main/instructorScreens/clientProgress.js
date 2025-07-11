@@ -1,33 +1,62 @@
-"use client"
+"use client";
 
-import { Ionicons } from "@expo/vector-icons"
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons"
-import { useNavigation } from "@react-navigation/native"
-import { useTranslation } from "react-i18next"
-import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import * as Progress from "react-native-progress"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import Svg, { Circle } from 'react-native-svg'
-import fonts from "../../../assets/fonts"
-import { Icons } from "../../../assets/icons"
-import { COLORS } from "../../../utils/COLORS"
+import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import * as Progress from "react-native-progress";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle } from "react-native-svg";
+import fonts from "../../../assets/fonts";
+import { Icons } from "../../../assets/icons";
+import { COLORS } from "../../../utils/COLORS";
+import { GetApiRequest } from "../../../services/api";
+import { useEffect, useState } from "react";
+import MyWorkoutPlans from "../../../components/Modals/MyWorkoutPlans";
+import AssignWorkout from "../../../components/Modals/AssignWorkout";
 
 // Custom Progress Semicircle component
-const ProgressCircle = ({ 
-  percentage, 
-  completedColor = '#FFB800', 
-  remainingColor = COLORS.gray3, 
+const ProgressCircle = ({
+  percentage,
+  completedColor = "#FFB800",
+  remainingColor = COLORS.gray3,
   size = wp(60),
-  strokeWidth = wp(4)
+  strokeWidth = wp(4),
 }) => {
+  const route = useRoute();
   const radius = (size - strokeWidth) / 2;
+  const client = route.params?.client;
   const circumference = Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+  const [clientInfo, setClientInfo] = useState([]);
+
+  const getClient = async () => {
+    try {
+      const response = await GetApiRequest(`api/clients/${client?.id}`);
+      setClientInfo(response.data?.data);
+    } catch (error) {}
+  };
+  useEffect(() => {
+    getClient();
+  }, []);
   return (
     <View style={styles.progressCircleContainer}>
-      <Svg width={size} height={size / 2 + strokeWidth}> 
+      <Svg width={size} height={size / 2 + strokeWidth}>
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -36,7 +65,7 @@ const ProgressCircle = ({
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}
-          transform={`rotate(180, ${size / 2}, ${size / 2})`} 
+          transform={`rotate(180, ${size / 2}, ${size / 2})`}
         />
         <Circle
           cx={size / 2}
@@ -48,7 +77,7 @@ const ProgressCircle = ({
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          transform={`rotate(180, ${size / 2}, ${size / 2})`} 
+          transform={`rotate(180, ${size / 2}, ${size / 2})`}
         />
       </Svg>
       <View style={styles.progressContent}>
@@ -60,33 +89,36 @@ const ProgressCircle = ({
   );
 };
 
-export default function ProfileDashboard() {
-  const navigation = useNavigation()
-  const {t}=useTranslation()
-  const insets=useSafeAreaInsets()
+export default function ProfileDashboard({ route }) {
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+
+  const client = route.params?.client;
+
   const dailyProgress = {
     consumed: 64.87,
     remaining: 300,
     target: 1200,
-  }
+  };
 
   const weeklyProgress = {
     calories: 1284,
     burnFat: 29,
     completedExercise: 65,
     uncompletedExercise: 85,
-  }
+  };
 
-  const workoutPlans = [
-    {
-      id: 1,
-      title: "Kettlebell Fundamentals",
-      exercises: 9,
-      days: 5,
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    },
-  ]
+  // const workoutPlans = [
+  //   {
+  //     id: 1,
+  //     title: "Kettlebell Fundamentals",
+  //     exercises: 9,
+  //     days: 5,
+  //     image:
+  //       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+  //   },
+  // ];
 
   const recentWorkouts = [
     {
@@ -107,14 +139,16 @@ export default function ProfileDashboard() {
       image:
         "https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
-  ]
+  ];
 
-  const recentNutrition = [// Custom Progress Semicircle component
+  const recentNutrition = [
+    // Custom Progress Semicircle component
 
     {
       id: 1,
       title: "Weight Loss",
-      description: "A delicious and nutritious bowl packed with protein to fuel workouts",
+      description:
+        "A delicious and nutritious bowl packed with protein to fuel workouts",
       time: "9:00 am",
       completion: 90,
       image:
@@ -123,29 +157,62 @@ export default function ProfileDashboard() {
     {
       id: 2,
       title: "Weight Loss",
-      description: "A delicious and nutritious bowl packed with protein to fuel workouts",
+      description:
+        "A delicious and nutritious bowl packed with protein to fuel workouts",
       time: "5:00 am",
       completion: 90,
-      image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+      image:
+        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
     },
-  ]
+  ];
+
+  const [assignWorkoutModal, setAssignWorkoutModal] = useState(false);
+  const [taskModal, setTaskModal] = useState(false);
+  const [workoutPlans, setWorkoutPlans] = useState([]);
+
+  const [plan, setPlan] = useState("");
+
+  const getClientPlan = async () => {
+    try {
+      const response = await GetApiRequest(`api/clients/${client?.id}/plans`);
+      setWorkoutPlans(response.data?.data?.assignedWorkoutPlans);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getClientPlan();
+  }, []);
 
   return (
-    <SafeAreaView style={[styles.container,{paddingBottom:insets.bottom}]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={hp(3)} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("ClientProgress.title")}</Text>
         <TouchableOpacity style={styles.menuButton}>
-          <Ionicons name="ellipsis-vertical" size={hp(3)} color={COLORS.white} />
+          <Ionicons
+            name="ellipsis-vertical"
+            size={hp(3)}
+            color={COLORS.white}
+          />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
@@ -156,10 +223,14 @@ export default function ProfileDashboard() {
               style={styles.profileImage}
             />
             <TouchableOpacity style={styles.editButton}>
-              <MaterialCommunityIcons name="message-text-outline" size={hp(2)} color="white" />
+              <MaterialCommunityIcons
+                name="message-text-outline"
+                size={hp(2)}
+                color="white"
+              />
             </TouchableOpacity>
           </View>
-          <Text style={styles.profileName}>Madison Smith</Text>
+          <Text style={styles.profileName}>{"Madison Smith"}</Text>
           <Text style={styles.profileEmail}>madisons@example.com</Text>
         </View>
 
@@ -171,11 +242,15 @@ export default function ProfileDashboard() {
             <View style={styles.progressStats}>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{dailyProgress.remaining}</Text>
-                <Text style={styles.statLabel}>{t("ClientProgress.Remaining")}</Text>
+                <Text style={styles.statLabel}>
+                  {t("ClientProgress.Remaining")}
+                </Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{dailyProgress.target}</Text>
-                <Text style={styles.statLabel}>{t("ClientProgress.target")}</Text>
+                <Text style={styles.statLabel}>
+                  {t("ClientProgress.target")}
+                </Text>
               </View>
             </View>
           </View>
@@ -184,17 +259,25 @@ export default function ProfileDashboard() {
         {/* Weekly Progress */}
         <View style={styles.sectionContainer2}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("ClientProgress.weekly_progress_title")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ClientProgress.weekly_progress_title")}
+            </Text>
             <View style={styles.caloriesBadge}>
-              <Text style={styles.caloriesText}>{t("ClientProgress.exercise")}</Text>
+              <Text style={styles.caloriesText}>
+                {t("ClientProgress.exercise")}
+              </Text>
             </View>
           </View>
           <View style={styles.weeklyProgressContainer}>
             <View style={styles.caloriesContainer}>
-              <Text style={styles.caloriesLabel}>{t("ClientProgress.calories")}</Text>
+              <Text style={styles.caloriesLabel}>
+                {t("ClientProgress.calories")}
+              </Text>
               <View style={styles.caloriesRow}>
                 <Image source={Icons.flame} style={styles.caloriesIcon} />
-                <Text style={styles.caloriesNumber}>{weeklyProgress.calories.toLocaleString()}</Text>
+                <Text style={styles.caloriesNumber}>
+                  {weeklyProgress.calories.toLocaleString()}
+                </Text>
               </View>
             </View>
             <View style={styles.progressCircles}>
@@ -210,7 +293,9 @@ export default function ProfileDashboard() {
                   textStyle={styles.circleText}
                   formatText={() => `${weeklyProgress.burnFat}%`}
                 />
-                <Text style={styles.circleLabel}>{t("ClientProgress.burn_fat_label")}</Text>
+                <Text style={styles.circleLabel}>
+                  {t("ClientProgress.burn_fat_label")}
+                </Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
@@ -224,7 +309,9 @@ export default function ProfileDashboard() {
                   textStyle={styles.circleText}
                   formatText={() => `${weeklyProgress.completedExercise}%`}
                 />
-                <Text style={styles.circleLabel}>{t("ClientProgress.completed_exercise_label")}</Text>
+                <Text style={styles.circleLabel}>
+                  {t("ClientProgress.completed_exercise_label")}
+                </Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
@@ -238,7 +325,9 @@ export default function ProfileDashboard() {
                   textStyle={styles.circleText}
                   formatText={() => `${weeklyProgress.uncompletedExercise}%`}
                 />
-                <Text style={styles.circleLabel}>{t("ClientProgress.uncompleted_exercise_label")}</Text>
+                <Text style={styles.circleLabel}>
+                  {t("ClientProgress.uncompleted_exercise_label")}
+                </Text>
               </View>
             </View>
           </View>
@@ -247,19 +336,33 @@ export default function ProfileDashboard() {
         {/* Active Workout Plans */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("ClientProgress.active_workout_plan_title")}</Text>
-            <TouchableOpacity style={styles.seeAllButton}>
-              <Text style={styles.seeAllText}>{t("ClientProgress.create")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ClientProgress.active_workout_plan_title")}
+            </Text>
+            <TouchableOpacity
+              style={styles.seeAllButton}
+              onPress={() => setTaskModal(true)}
+            >
+              <Text style={styles.seeAllText}>{t("Assign Plan")}</Text>
             </TouchableOpacity>
           </View>
-          {workoutPlans.map((plan) => (
+          {workoutPlans?.map((plan) => (
             <TouchableOpacity key={plan.id} style={styles.workoutCard}>
-              <Image source={{ uri: plan.image }} style={styles.workoutCardImage} />
+              <Image
+                source={{ uri: plan?.image }}
+                style={styles.workoutCardImage}
+              />
               <View style={styles.workoutCardOverlay}>
-                <Text style={styles.workoutCardTitle}>{plan.title}</Text>
+                <Text style={styles.workoutCardTitle}>
+                  {plan?.workoutPlan?.name}
+                </Text>
                 <View style={styles.workoutCardStats}>
-                  <Text style={styles.workoutCardStat}>{plan.exercises} {t("ClientProgress.exercise")}</Text>
-                  <Text style={styles.workoutCardStat}>{plan.days}days</Text>
+                  <Text style={styles.workoutCardStat}>
+                    {plan.exercises} {t("ClientProgress.exercise")}
+                  </Text>
+                  <Text style={styles.workoutCardStat}>
+                    {plan?.workoutPlan?.numberOfWeeks} Weeks
+                  </Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -269,22 +372,37 @@ export default function ProfileDashboard() {
         {/* Recent Workout */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("ClientProgress.recent_workout")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ClientProgress.recent_workout")}
+            </Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllLink}>{t("ClientProgress.seeall")}</Text>
+              <Text style={styles.seeAllLink}>
+                {t("ClientProgress.seeall")}
+              </Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentWorkoutScroll}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.recentWorkoutScroll}
+          >
             {recentWorkouts.map((workout) => (
               <TouchableOpacity key={workout.id} style={styles.recentCard}>
-                <Image source={{ uri: workout.image }} style={styles.recentCardImage} />
+                <Image
+                  source={{ uri: workout.image }}
+                  style={styles.recentCardImage}
+                />
                 <View style={styles.recentCardOverlay}>
                   <View style={styles.recentCardContent}>
                     <Text style={styles.recentCardTitle}>{workout.title}</Text>
-                    <Text style={styles.recentCardDuration}>{workout.duration}</Text>
+                    <Text style={styles.recentCardDuration}>
+                      {workout.duration}
+                    </Text>
                   </View>
                   <View style={styles.recentCardFooter}>
-                    <Text style={styles.recentCardDescription}>{workout.description}</Text>
+                    <Text style={styles.recentCardDescription}>
+                      {workout.description}
+                    </Text>
                     <View style={styles.completionBadge}>
                       <Progress.Circle
                         size={wp(10)}
@@ -308,20 +426,37 @@ export default function ProfileDashboard() {
         {/* Recent Nutrition */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("ClientProgress.recentNutrition")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ClientProgress.recentNutrition")}
+            </Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllLink}>{t("ClientProgress.seeall")}</Text>
+              <Text style={styles.seeAllLink}>
+                {t("ClientProgress.seeall")}
+              </Text>
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.nutritionScroll}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.nutritionScroll}
+          >
             {recentNutrition.map((nutrition) => (
               <TouchableOpacity key={nutrition.id} style={styles.nutritionCard}>
-                <Image source={{ uri: nutrition.image }} style={styles.nutritionCardImage} />
+                <Image
+                  source={{ uri: nutrition.image }}
+                  style={styles.nutritionCardImage}
+                />
                 <View style={styles.nutritionCardOverlay}>
                   <View style={styles.nutritionCardContent}>
-                    <Text style={styles.nutritionCardTime}>Time: {nutrition.time}</Text>
-                    <Text style={styles.nutritionCardTitle}>{nutrition.title}</Text>
-                    <Text style={styles.nutritionCardDescription}>{nutrition.description}</Text>
+                    <Text style={styles.nutritionCardTime}>
+                      Time: {nutrition.time}
+                    </Text>
+                    <Text style={styles.nutritionCardTitle}>
+                      {nutrition.title}
+                    </Text>
+                    <Text style={styles.nutritionCardDescription}>
+                      {nutrition.description}
+                    </Text>
                   </View>
                   <View style={styles.nutritionCompletionContainer}>
                     <Progress.Bar
@@ -333,7 +468,10 @@ export default function ProfileDashboard() {
                       borderWidth={0}
                       borderRadius={hp(0.4)}
                     />
-                    <Text style={styles.nutritionCompletionText}>{nutrition.completion}{t("ClientProgress.complete")}</Text>
+                    <Text style={styles.nutritionCompletionText}>
+                      {nutrition.completion}
+                      {t("ClientProgress.complete")}
+                    </Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -341,8 +479,27 @@ export default function ProfileDashboard() {
           </ScrollView>
         </View>
       </ScrollView>
+
+      <MyWorkoutPlans
+        isVisible={taskModal}
+        onDisable={() => setTaskModal(false)}
+        plan={plan}
+        setPlan={setPlan}
+        onPress={() => {
+          setTaskModal(false);
+          setTimeout(() => {
+            setAssignWorkoutModal(true);
+          }, 800);
+        }}
+      />
+      <AssignWorkout
+        isVisible={assignWorkoutModal}
+        onDisable={() => setAssignWorkoutModal(false)}
+        plan={plan}
+        clientId={client?.id}
+      />
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -402,7 +559,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   profileEmail: {
-    fontSize:13,
+    fontSize: 13,
     fontFamily: fonts.regular,
     color: "#888888",
   },
@@ -522,7 +679,7 @@ const styles = StyleSheet.create({
   caloriesIcon: {
     width: wp(4),
     height: wp(4),
-    resizeMode:"contain"
+    resizeMode: "contain",
   },
   caloriesNumber: {
     fontSize: 16,
@@ -530,7 +687,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   progressCircles: {
-    flexDirection: "row", 
+    flexDirection: "row",
     gap: wp(3),
   },
   progressCircleItem: {
@@ -541,7 +698,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     color: COLORS.white,
   },
-  circleLabel: { 
+  circleLabel: {
     fontSize: 10,
     fontFamily: fonts.regular,
     color: "#888888",
@@ -570,7 +727,7 @@ const styles = StyleSheet.create({
     padding: hp(2.5),
   },
   workoutCardTitle: {
-    fontSize:20,
+    fontSize: 20,
     fontFamily: fonts.semiBold,
     color: COLORS.white,
   },
@@ -696,4 +853,4 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     alignSelf: "flex-end",
   },
-})
+});

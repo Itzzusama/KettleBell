@@ -33,6 +33,8 @@ import InstructorTabs from '../instructorTabs';
 import RouteName from '../RouteName';
 import TabStack from '../tabs';
 import AddClient from '../../screens/main/instructorTabs/client/AddClient';
+import InboxScreen from '../../screens/main/instructorScreens/InboxScreen';
+import Profile from '../../screens/main/tabs/profile.js';
 
 const Stack = createNativeStackNavigator();
 
@@ -77,6 +79,7 @@ const MainStack = () => {
       <Stack.Screen name={RouteName.Client_Meal} component={ClientMeal} />
       <Stack.Screen name={RouteName.Create_Meal} component={createMeal} />
       <Stack.Screen name={RouteName.AddClient} component={AddClient} />
+      <Stack.Screen name={RouteName.InboxScreen} component={InboxScreen} />
     </Stack.Navigator>
   );
 };

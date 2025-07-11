@@ -39,21 +39,45 @@ export default function ClientScreen() {
   };
 
   const handleClientPress = (client) => {
-    console.log("Client pressed:", client.name);
-    navigation.navigate(RouteName.Client_profile);
+    // navigation.navigate(RouteName.Client_profile, { client });
+    navigation.navigate(RouteName.Client_Progress, { client });
   };
 
   const getapirequest = async () => {
     try {
       const res = await GetApiRequest("api/clients");
       setClient(
-        res.data.data.map((item) => ({
-          id: item._id,
-          name: item.name,
-          image: item.avatar, // Avatar might be null
-          status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
-          consistency: item.consistencyPercentage, // Use API consistency field
-        }))
+        res.data.data.map((item) => {
+          // Consistency calculation
+          let filledSections = 0;
+          // Check basicInfo
+          const basicInfoFilled = item.basicInfo && Object.values(item.basicInfo).some(v => v !== null && v !== '' && v !== undefined && !(Array.isArray(v) && v.length === 0));
+          if (basicInfoFilled) filledSections++;
+          // Check fitnessGoals
+          const fitnessGoalsFilled = item.fitnessGoals && (
+            (item.fitnessGoals.primaryGoal && item.fitnessGoals.primaryGoal !== null && item.fitnessGoals.primaryGoal !== '') ||
+            (Array.isArray(item.fitnessGoals.specificGoals) && item.fitnessGoals.specificGoals.length > 0)
+          );
+          if (fitnessGoalsFilled) filledSections++;
+          // Check healthInfo
+          const healthInfoFilled = item.healthInfo && (
+            (Array.isArray(item.healthInfo.medicalConditions) && item.healthInfo.medicalConditions.length > 0) ||
+            (Array.isArray(item.healthInfo.injuriesOrLimitations) && item.healthInfo.injuriesOrLimitations.length > 0)
+          );
+          if (healthInfoFilled) filledSections++;
+          let consistency = 0;
+          if (filledSections === 1) consistency = 33;
+          else if (filledSections === 2) consistency = 66;
+          else if (filledSections === 3) consistency = 100;
+          // ... fallback to 0 if none
+          return {
+            id: item._id,
+            name: item.name,
+            image: item.avatar, // Avatar might be null
+            status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
+            consistency,
+          };
+        })
       );
     } catch (error) {
       console.log("error", error);
@@ -65,8 +89,8 @@ export default function ClientScreen() {
   }, [isFocus]);
 
   const filteredClients = client.filter((item) =>
-  item.name.toLowerCase().includes(searchText.toLowerCase())
-);
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -130,7 +154,7 @@ export default function ClientScreen() {
                   />
                 ) : (
                   <View style={[styles.clientImage, styles.placeholderImage]}>
-                    ]
+                  
                     <Image source={Images.dumyImg} style={styles.clientImage} />
                   </View>
                 )}
@@ -148,7 +172,7 @@ export default function ClientScreen() {
                     <View style={styles.progressContainer}>
                       <Progress.Bar
                         progress={client.consistency / 100}
-                        width={wp(25)}
+                        width={wp(22)}
                         height={hp(0.8)}
                         color={COLORS.primaryColor}
                         unfilledColor={COLORS.white}
@@ -163,14 +187,21 @@ export default function ClientScreen() {
                 </View>
               </View>
               <View style={styles.clientActions}>
-                <TouchableOpacity style={styles.messageBadge}>
+                <TouchableOpacity
+                  style={styles.messageBadge}
+                  activeOpacity={0.6}
+                  onPress={() => navigation.navigate(RouteName.InboxScreen,{client})}
+                >
                   <MaterialCommunityIcons
                     name="message-text-outline"
                     size={20}
                     color="white"
                   />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate(RouteName.Client_Progress)}
+                  // onPress={() => navigation.navigate(RouteName.PROFILE)}
+                >
                   <Ionicons
                     name="chevron-forward"
                     size={hp(2.5)}

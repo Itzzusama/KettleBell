@@ -5,15 +5,11 @@ import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
-  Text,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+  StatusBar,
   TouchableOpacity,
+  View,
+  Platform,
 } from "react-native";
 import {
   heightPercentageToDP as hp,
@@ -22,6 +18,8 @@ import {
 import fonts from "../../../../assets/fonts";
 import CustomInput from "../../../../components/CustomInput";
 import CustomButton from "../../../../components/CustomButton";
+import CustomText from "../../../../components/CustomText";
+import ScreenWrapper from "../../../../components/ScreenWrapper";
 import { PostApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 import { useToast } from "../../../../utils/Toast/toastContext";
@@ -30,6 +28,8 @@ export default function AddClient() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const toast = useToast();
+
+  const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -131,130 +131,169 @@ export default function AddClient() {
     }
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor="transparent"
-        translucent
-      />
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {t("Client.title") || "Add Client"}
-        </Text>
-        <View style={{ width: 32 }} />
-      </View>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+  const Header = () => (
+    <View style={[styles.header, { marginTop: topInset }]}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
       >
-        <ScrollView
-          contentContainerStyle={styles.formContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <CustomInput
-            placeholder="Name"
-            value={name}
-            onChangeText={(text) => {
-              setName(text);
-              setNameError("");
-            }}
-            keyboardType="default"
-            autoCapitalize="words"
-            marginBottom={hp(2)}
-            error={nameError}
-            leftIcon={undefined}
+        <Ionicons name="arrow-back" size={wp(6)} color={COLORS.white} />
+      </TouchableOpacity>
+      <CustomText
+        label={t("Client.title") || "Add Client"}
+        color={COLORS.white}
+        fontSize={hp(2.3)}
+        fontFamily={fonts.medium}
+        textAlign="center"
+        style={styles.headerTitle}
+      />
+      <View style={styles.headerSpacer} />
+    </View>
+  );
+
+  return (
+    <ScreenWrapper
+      backgroundColor={COLORS.backgroundColor}
+      statusBarColor={COLORS.backgroundColor}
+      barStyle="light-content"
+      headerUnScrollable={Header}
+      scrollEnabled
+      paddingHorizontal={wp(4)}
+    >
+      <View style={styles.container}>
+        <View style={styles.formSection}>
+          <CustomText
+            label="Client Information"
+            color={COLORS.white}
+            fontSize={hp(2.2)}
+            fontFamily={fonts.semiBold}
+            marginBottom={hp(3)}
+            textAlign="center"
           />
-          <CustomInput
-            placeholder="Email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              setEmailError("");
-            }}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            marginBottom={hp(2)}
-            error={emailError}
-            leftIcon={undefined}
-          />
-          <CustomInput
-            placeholder="Phone"
-            value={phone}
-            onChangeText={(text) => {
-              setPhone(text);
-              setPhoneError("");
-            }}
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-            marginBottom={hp(2)}
-            error={phoneError}
-            leftIcon={undefined}
-          />
-          <CustomInput
-            placeholder="Password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              setPasswordError("");
-            }}
-            secureTextEntry={!showPassword}
-            leftIcon={undefined}
-            rightIcon={
-              <Ionicons
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color={COLORS.gray2}
-                onPress={() => setShowPassword(!showPassword)}
-              />
-            }
-            marginBottom={hp(2)}
-            error={passwordError}
-          />
-          <CustomButton
-            title="Create Client"
-            onPress={handleCreateClient}
-            loading={loading}
-            disabled={loading}
-            marginTop={hp(6)}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+          <View style={styles.inputGroup}>
+            <CustomInput
+              placeholder="Full Name"
+              value={name}
+              onChangeText={(text) => {
+                setName(text);
+                setNameError("");
+              }}
+              keyboardType="default"
+              autoCapitalize="words"
+              marginBottom={hp(2)}
+              error={nameError}
+              leftIcon={undefined}
+            />
+
+            <CustomInput
+              placeholder="Email Address"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError("");
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              marginBottom={hp(2)}
+              error={emailError}
+              leftIcon={undefined}
+            />
+
+            <CustomInput
+              placeholder="Phone Number"
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                setPhoneError("");
+              }}
+              keyboardType="phone-pad"
+              autoCapitalize="none"
+              marginBottom={hp(2)}
+              error={phoneError}
+              leftIcon={undefined}
+            />
+
+            <CustomInput
+              placeholder="Password"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError("");
+              }}
+              secureTextEntry={!showPassword}
+              leftIcon={undefined}
+              rightIcon={
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye" : "eye-off"}
+                    size={20}
+                    color={COLORS.gray2}
+                  />
+                </TouchableOpacity>
+              }
+              marginBottom={hp(2)}
+              error={passwordError}
+            />
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title="Create Client"
+              onPress={handleCreateClient}
+              loading={loading}
+              disabled={loading}
+              marginTop={hp(2)}
+              height={hp(6)}
+              borderRadius={wp(2.5)}
+              fontSize={hp(1.8)}
+              fontFamily={fonts.medium}
+            />
+          </View>
+        </View>
+      </View>
+    </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundColor,
-    paddingTop: hp(6),
-  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: wp(5),
+    paddingHorizontal: wp(4),
     paddingVertical: hp(2),
+    backgroundColor: COLORS.backgroundColor,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.gray3,
   },
   backButton: {
-    padding: wp(2.5),
+    padding: wp(2),
+    borderRadius: wp(2),
+    backgroundColor: COLORS.darkGray,
   },
   headerTitle: {
-    color: "#FFF",
-    fontSize: hp(2.3),
-    textAlign: "center",
     flex: 1,
-    fontFamily: fonts.medium,
+    marginHorizontal: wp(2),
   },
-  formContainer: {
-    flexGrow: 1,
-    paddingHorizontal: wp(4),
+  headerSpacer: {
+    width: wp(12),
+  },
+  container: {
+    flex: 1,
+    paddingTop: hp(2),
+  },
+  formSection: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: wp(2),
+  },
+  inputGroup: {
+    marginBottom: hp(4),
+  },
+  buttonContainer: {
+    marginTop: hp(2),
   },
 });
