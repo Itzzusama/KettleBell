@@ -1,9 +1,9 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { CustomToast, TOAST_TYPES } from './customToast';
+import React, { createContext, useCallback, useContext, useState } from "react";
+import { CustomToast, TOAST_TYPES } from "./customToast";
 
 const ToastContext = createContext({
-  showToast: () => { },
-  hideToast: () => { },
+  showToast: () => {},
+  hideToast: () => {},
 });
 
 export const useToast = () => useContext(ToastContext);
@@ -11,36 +11,55 @@ export const useToast = () => useContext(ToastContext);
 export const ToastProvider = ({ children }) => {
   const [visible, setVisible] = useState(false);
   const [toastProps, setToastProps] = useState({
-    message: '',
+    message: "",
     type: TOAST_TYPES.INFO,
     duration: 3000,
-    position: 'top',
+    position: "top",
   });
 
-  const showToast = useCallback(({
-    message,
-    type = TOAST_TYPES.INFO,
-    duration = 3000,
-    position = 'top',
-    title,
-    action = false,
-    actionText,
-    actionOnPress,
-  }) => {
-    setToastProps({
+  const showToast = useCallback(
+    ({
       message,
-      type,
-      duration,
-      position,
+      type = TOAST_TYPES.INFO,
+      duration = 3000,
+      position = "top",
       title,
-      action,
+      action = false,
       actionText,
       actionOnPress,
-    });
-    setVisible(true);
-  }, []);
+    }) => {
+      // Immediately update state with the new toast props
+      const newToastProps = {
+        message,
+        type,
+        duration,
+        position,
+        title,
+        action,
+        actionText,
+        actionOnPress:
+          action && actionOnPress
+            ? (event) => {
+                // If it's a synthetic event, persist it
+                if (event && event.persist) {
+                  event.persist();
+                }
+                actionOnPress(event);
+              }
+            : undefined,
+      };
+
+      setToastProps(newToastProps);
+      setVisible(true);
+    },
+    []
+  );
 
   const hideToast = useCallback(() => {
+    setVisible(false);
+  }, []);
+
+  const handleClose = useCallback(() => {
     setVisible(false);
   }, []);
 
@@ -50,7 +69,7 @@ export const ToastProvider = ({ children }) => {
       <CustomToast
         visible={visible}
         isGlobal={true}
-        onClose={() => setVisible(false)}
+        onClose={handleClose}
         {...toastProps}
       />
     </ToastContext.Provider>
@@ -62,36 +81,48 @@ export const useToastHelpers = () => {
   const { showToast } = useToast();
 
   return {
-    success: useCallback((message, options = {}) => {
-      showToast({
-        message,
-        type: TOAST_TYPES.SUCCESS,
-        ...options,
-      });
-    }, [showToast]),
+    success: useCallback(
+      (message, options = {}) => {
+        showToast({
+          message,
+          type: TOAST_TYPES.SUCCESS,
+          ...options,
+        });
+      },
+      [showToast]
+    ),
 
-    error: useCallback((message, options = {}) => {
-      showToast({
-        message,
-        type: TOAST_TYPES.ERROR,
-        ...options,
-      });
-    }, [showToast]),
+    error: useCallback(
+      (message, options = {}) => {
+        showToast({
+          message,
+          type: TOAST_TYPES.ERROR,
+          ...options,
+        });
+      },
+      [showToast]
+    ),
 
-    info: useCallback((message, options = {}) => {
-      showToast({
-        message,
-        type: TOAST_TYPES.INFO,
-        ...options,
-      });
-    }, [showToast]),
+    info: useCallback(
+      (message, options = {}) => {
+        showToast({
+          message,
+          type: TOAST_TYPES.INFO,
+          ...options,
+        });
+      },
+      [showToast]
+    ),
 
-    warning: useCallback((message, options = {}) => {
-      showToast({
-        message,
-        type: TOAST_TYPES.WARNING,
-        ...options,
-      });
-    }, [showToast]),
+    warning: useCallback(
+      (message, options = {}) => {
+        showToast({
+          message,
+          type: TOAST_TYPES.WARNING,
+          ...options,
+        });
+      },
+      [showToast]
+    ),
   };
 };

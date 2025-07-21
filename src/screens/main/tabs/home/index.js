@@ -22,7 +22,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, G } from "react-native-svg";
 import { useSelector } from "react-redux";
 import fonts from "../../../../assets/fonts";
 import { Icons } from "../../../../assets/icons";
@@ -92,7 +92,7 @@ const Home = () => {
     try {
       await fetchInitialData();
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error("Error refreshing data:", error);
       Alert.alert("Error", "Failed to refresh data");
     } finally {
       setRefreshing(false);
@@ -106,7 +106,7 @@ const Home = () => {
         GetApiRequest("api/workout-plans"),
       ]);
 
-      // console.log("Workout plans response:", workoutRes?.data);
+      console.log("Workout plans response:", workoutRes?.data);
       // console.log("Exercises response:", exercisesRes?.data);
 
       if (exercisesRes?.data?.data) {
@@ -159,10 +159,14 @@ const Home = () => {
         <View style={styles.exerciseInfo}>
           <Text style={styles.exerciseTitle}>{item.name || "N/A"}</Text>
           <View style={styles.exerciseMeta}>
-            <Text style={styles.exerciseDetails}>{item.difficulty || "N/A"}</Text>
+            <Text style={styles.exerciseDetails}>
+              {item.difficulty || "N/A"}
+            </Text>
             <View style={styles.durationContainer}>
               <Ionicons name="time-outline" size={wp(3.5)} color="#FEC635" />
-              <Text style={styles.exerciseDuration}>{item.duration || "N/A"} weeks</Text>
+              <Text style={styles.exerciseDuration}>
+                {item.duration || "N/A"} weeks
+              </Text>
             </View>
           </View>
         </View>
@@ -394,7 +398,7 @@ const Home = () => {
               {t("Home.active_workout_plan_title")}
             </Text>
             <TouchableOpacity
-              // onPress={() => navigation.navigate(RouteName.WorkoutPlans)}
+            // onPress={() => navigation.navigate(RouteName.WorkoutPlans)}
             >
               <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
             </TouchableOpacity>
@@ -405,7 +409,8 @@ const Home = () => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={[
               styles.scrollViewContent,
-              (!workdata?.data || workdata.data.length === 0) && styles.emptyScrollViewContent
+              (!workdata?.data || workdata.data.length === 0) &&
+                styles.emptyScrollViewContent,
             ]}
           >
             {workdata?.data && workdata.data.length > 0 ? (
@@ -414,7 +419,7 @@ const Home = () => {
                   key={workout.id}
                   onPress={() =>
                     navigation.navigate(RouteName.WorkoutPlans_Details, {
-                      workoutId: workout.id
+                      workoutId: workout.id,
                     })
                   }
                   style={[
@@ -425,13 +430,15 @@ const Home = () => {
                 >
                   <Image
                     source={{
-                      uri: workout.images?.[0] || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop"
+                      uri:
+                        workout.images?.[0] ||
+                        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
                     }}
                     style={styles.workoutImage}
                     resizeMode="cover"
-                    defaultSource={require('../../../../assets/images/onboarding1.png')}
+                    defaultSource={require("../../../../assets/images/onboarding1.png")}
                     onError={({ nativeEvent: { error } }) => {
-                      console.log('Image load error:', error);
+                      console.log("Image load error:", error);
                     }}
                   />
                   <LinearGradient
@@ -448,10 +455,14 @@ const Home = () => {
                       </Text>
                       <View style={styles.workoutMeta}>
                         <Text style={styles.workoutDetails} numberOfLines={1}>
-                          {workout.exercisesCount} {workout.exercisesCount === 1 ? 'exercise' : 'exercises'}
+                          {workout.exercisesCount}{" "}
+                          {workout.exercisesCount === 1
+                            ? "exercise"
+                            : "exercises"}
                         </Text>
                         <Text style={styles.workoutDuration}>
-                          {workout.numberOfWeeks} {workout.numberOfWeeks === 1 ? 'week' : 'weeks'}
+                          {workout.numberOfWeeks}{" "}
+                          {workout.numberOfWeeks === 1 ? "week" : "weeks"}
                         </Text>
                       </View>
                     </View>
@@ -472,7 +483,7 @@ const Home = () => {
               {t("Home.recommended_exercise_title")}
             </Text>
             <TouchableOpacity
-              // onPress={() => navigation.navigate(RouteName.Exercises)}
+            // onPress={() => navigation.navigate(RouteName.Exercises)}
             >
               <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
             </TouchableOpacity>
@@ -682,21 +693,21 @@ const styles = StyleSheet.create({
   },
   emptyScrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: hp(4)
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: hp(4),
   },
   noWorkoutsContainer: {
     width: width - wp(10),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: hp(5),
   },
   noWorkoutsText: {
     color: COLORS.white,
     fontSize: wp(4),
     fontFamily: fonts.medium,
-    textAlign: 'center',
+    textAlign: "center",
     opacity: 0.7,
   },
   workoutCard: {
@@ -759,7 +770,7 @@ const styles = StyleSheet.create({
   exerciseImage: {
     width: "100%",
     height: "100%",
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,

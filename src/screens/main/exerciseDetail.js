@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import {
   Image,
@@ -20,15 +20,19 @@ import { Images } from "../../assets/images";
 import CustomButton from "../../components/CustomButton";
 import RouteName from "../../navigation/RouteName";
 import { COLORS } from "../../utils/COLORS";
+import AddToLogsModal from "../../components/AddToLogsModal";
+import { useState } from "react";
 
 const KettlebellSwing = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { detail, workoutId, clientId } = route?.params || {};
+
   const { t } = useTranslation();
-
-  const targetMuscles = t("ExerciseDetail.target_muscles", { returnObjects: true });
-  const equipment = t("ExerciseDetail.equipment", { returnObjects: true });
-  const instructions = t("ExerciseDetail.instructions", { returnObjects: true });
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const instructions = t("ExerciseDetail.instructions", {
+    returnObjects: true,
+  });
   return (
     <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
       <StatusBar
@@ -45,7 +49,7 @@ const KettlebellSwing = () => {
         >
           <Ionicons name="arrow-back" size={wp(6)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t("ExerciseDetail.header_title")}</Text>
+        <Text style={styles.headerTitle}>{detail?.name}</Text>
       </View>
 
       <ScrollView
@@ -56,7 +60,6 @@ const KettlebellSwing = () => {
         {/* Main Image */}
         <View style={styles.imageContainer}>
           <Image
-
             source={{
               uri: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop",
             }}
@@ -66,10 +69,8 @@ const KettlebellSwing = () => {
         </View>
 
         <View style={styles.infoContainer}>
-          <Text style={styles.exerciseTitle}>{t("ExerciseDetail.exercise_title")}</Text>
-          <Text style={styles.exerciseDescription}>
-            {t("ExerciseDetail.exercise_description")}
-          </Text>
+          <Text style={styles.exerciseTitle}>{detail?.name}</Text>
+          <Text style={styles.exerciseDescription}>{detail?.description}</Text>
           <View
             style={{
               borderWidth: 0.5,
@@ -94,9 +95,13 @@ const KettlebellSwing = () => {
                 }}
               >
                 <Image source={Images.dumble} style={styles.detailImage} />
-                <Text style={styles.detailLabel}>{t("ExerciseDetail.category_label")}</Text>
+                <Text style={styles.detailLabel}>
+                  {t("ExerciseDetail.category_label")}
+                </Text>
               </View>
-              <Text style={styles.detailValue}>{t("ExerciseDetail.category_value")}</Text>
+              <Text style={styles.detailValue}>
+                {t("ExerciseDetail.category_value")}
+              </Text>
             </View>
             <View
               style={{
@@ -120,9 +125,9 @@ const KettlebellSwing = () => {
                 }}
               >
                 <Image source={Images.dumble} style={styles.detailImage} />
-                <Text style={styles.detailLabel}>{t("ExerciseDetail.category_label")}</Text>
+                <Text style={styles.detailLabel}>Difficulty</Text>
               </View>
-              <Text style={styles.detailValue}>{t("ExerciseDetail.category_value")}</Text>
+              <Text style={styles.detailValue}>{detail?.difficulty}</Text>
             </View>
           </View>
           <View
@@ -136,9 +141,11 @@ const KettlebellSwing = () => {
 
           {/* Target Muscles */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t("ExerciseDetail.target_muscles_title")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ExerciseDetail.target_muscles_title")}
+            </Text>
             <View style={styles.tagsContainer}>
-              {targetMuscles.map((muscle, index) => (
+              {detail?.targetMuscles.map((muscle, index) => (
                 <View key={index} style={styles.tag}>
                   <Text style={styles.tagText}>{muscle}</Text>
                 </View>
@@ -148,9 +155,11 @@ const KettlebellSwing = () => {
 
           {/* Equipment */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t("ExerciseDetail.equipment_title")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("ExerciseDetail.equipment_title")}
+            </Text>
             <View style={styles.tagsContainer}>
-              {equipment.map((item, index) => (
+              {detail?.equipment.map((item, index) => (
                 <View key={index} style={styles.tag}>
                   <Text style={styles.tagText}>{item}</Text>
                 </View>
@@ -161,7 +170,9 @@ const KettlebellSwing = () => {
           {/* Instructions */}
           <View style={styles.section2}>
             <View style={styles.instructionsContainer}>
-              <Text style={styles.instructionsTitle}>{t("ExerciseDetail.instructions_title")}</Text>
+              <Text style={styles.instructionsTitle}>
+                {t("ExerciseDetail.instructions_title")}
+              </Text>
               {instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionItem}>
                   <Text style={styles.instructionNumber}>{index + 1}.</Text>
@@ -173,11 +184,19 @@ const KettlebellSwing = () => {
         </View>
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={t("ExerciseDetail.start_button")}
-            onPress={() => navigation.navigate(RouteName.Exercise_Start)}
+            title={"Add to Logs"}
+            // onPress={() => navigation.navigate(RouteName.Exercise_Start)}
+            onPress={() => setIsModalVisible(true)}
           />
         </View>
       </ScrollView>
+      <AddToLogsModal
+        isVisible={isModalVisible}
+        onDisable={() => setIsModalVisible(false)}
+        clientId={clientId}
+        exerciseId={detail?._id}
+        workoutId={workoutId}
+      />
     </SafeAreaView>
   );
 };

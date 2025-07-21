@@ -15,7 +15,7 @@ const CustomModal = ({
   overflow,
   children,
   isChange,
-}) => { 
+}) => {
   return (
     <Modal
       isVisible={isVisible}

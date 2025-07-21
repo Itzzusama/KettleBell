@@ -60,7 +60,8 @@ export default function SignUp() {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     return passwordRegex.test(password);
   };
 
@@ -144,7 +145,10 @@ export default function SignUp() {
         return;
       }
 
-      const otpResponse = await PostApiRequest("api/auth/send-signup-otp", data);
+      const otpResponse = await PostApiRequest(
+        "api/auth/send-signup-otp",
+        data
+      );
       toast.showToast({
         type: "success",
         message: otpResponse.data.message,

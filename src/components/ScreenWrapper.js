@@ -28,11 +28,11 @@ const FocusAwareStatusBar = ({ barStyle, backgroundColor, translucent }) => {
 
 const ScreenWrapper = ({
   children,
-  statusBarColor = COLORS.mainBg,
+  statusBarColor = COLORS.backgroundColor,
   translucent = false,
   scrollEnabled = false,
   backgroundImage,
-  backgroundColor = COLORS.mainBg,
+  backgroundColor = COLORS.backgroundColor,
   headerUnScrollable = () => null,
   footerUnScrollable = () => null,
   barStyle = "dark-content",

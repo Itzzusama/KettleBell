@@ -8,7 +8,10 @@ const Stack = createNativeStackNavigator();
 
 const Rootnavigator = () => {
   return (
-    <Stack.Navigator initialRouteName={RouteName.SPLASH_SCREEN} screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName={RouteName.SPLASH_SCREEN}
+      screenOptions={{ headerShown: false }}
+    >
       <Stack.Screen name={RouteName.SPLASH_SCREEN} component={SplashScreen} />
       <Stack.Screen name={RouteName.AuthStack} component={AuthStack} />
       <Stack.Screen name={RouteName.MainStack} component={MainStack} />

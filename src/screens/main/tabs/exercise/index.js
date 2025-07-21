@@ -29,6 +29,7 @@ export default function Exercise() {
   const { t } = useTranslation();
   const [categoriesState, setCategoriesState] = useState([]);
   const [exercisesState, setExercisesState] = useState([]);
+
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const fetchInitialData = async () => {
@@ -38,8 +39,7 @@ export default function Exercise() {
         GetApiRequest("api/exercise-categories"),
         GetApiRequest("api/exercises"),
       ]);
-      console.log("Categories response:", categoriesRes?.data);
-      console.log("Exercises response:", exercisesRes?.data);
+
       // Process categories
       if (categoriesRes?.data?.data) {
         const fetchedCategories = categoriesRes.data.data.map((cat) => ({
@@ -60,7 +60,6 @@ export default function Exercise() {
         setExercisesState([]);
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
       Alert.alert("Error", "Failed to load data");
       setExercisesState([]);
     }

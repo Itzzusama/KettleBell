@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from "react";
 import {
   Animated,
   Platform,
@@ -6,18 +6,21 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import Icon from 'react-native-vector-icons/Feather';
-import Fonts from '../../assets/fonts';
-import { COLORS } from '../COLORS';
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import Icon from "react-native-vector-icons/Feather";
+import Fonts from "../../assets/fonts";
+import { COLORS } from "../COLORS";
 
 const TOAST_TYPES = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  INFO: 'info',
-  WARNING: 'warning',
+  SUCCESS: "success",
+  ERROR: "error",
+  INFO: "info",
+  WARNING: "warning",
 };
 
 const ToastIcon = ({ type }) => {
@@ -37,29 +40,29 @@ const ToastIcon = ({ type }) => {
 const getBackgroundColor = (type) => {
   switch (type) {
     case TOAST_TYPES.SUCCESS:
-      return '#10B981'; // Emerald green
+      return "#10B981"; // Emerald green
     case TOAST_TYPES.ERROR:
-      return '#EF4444'; // Red
+      return "#EF4444"; // Red
     case TOAST_TYPES.WARNING:
-      return '#F59E0B'; // Amber
+      return "#F59E0B"; // Amber
     case TOAST_TYPES.INFO:
     default:
-      return '#3B82F6'; // Blue
+      return "#3B82F6"; // Blue
   }
 };
 
 const CustomToast = ({
   visible = false,
-  message = '',
+  message = "",
   type = TOAST_TYPES.INFO,
   duration = 3000,
-  onClose = () => { },
-  position = 'top',
+  onClose = () => {},
+  position = "top",
   title,
   action,
   actionText,
   actionOnPress,
-  isGlobal = false
+  isGlobal = false,
 }) => {
   // Use refs to store animated values
   const translateYRef = useRef(null);
@@ -101,7 +104,10 @@ const CustomToast = ({
 
     Animated.parallel([
       Animated.timing(translateY, {
-        toValue: position === 'top' ? StatusBar.currentHeight + (Platform.OS === 'ios' ? hp(6) : hp(1)) : -hp(1),
+        toValue:
+          position === "top"
+            ? StatusBar.currentHeight + (Platform.OS === "ios" ? hp(6) : hp(1))
+            : -hp(1),
         duration: 300,
         useNativeDriver: true,
       }),
@@ -116,7 +122,14 @@ const CustomToast = ({
         useNativeDriver: false, // Width animation doesn't support native driver
       }),
     ]).start();
-  }, [position, isGlobal, duration, getTranslateY, getOpacity, getProgressWidth]);
+  }, [
+    position,
+    isGlobal,
+    duration,
+    getTranslateY,
+    getOpacity,
+    getProgressWidth,
+  ]);
 
   const hideToast = useCallback(() => {
     const translateY = getTranslateY();
@@ -131,7 +144,7 @@ const CustomToast = ({
 
     Animated.parallel([
       Animated.timing(translateY, {
-        toValue: position === 'top' ? -100 : 100,
+        toValue: position === "top" ? -100 : 100,
         duration: 300,
         useNativeDriver: true,
       }),
@@ -183,15 +196,21 @@ const CustomToast = ({
 
   const toastStyles = {
     backgroundColor: getBackgroundColor(type),
-    transform: [{ translateY: position === 'top' ? translateY : undefined }],
-    bottom: position === 'bottom' ? translateY : undefined,
-    top: position === 'top' ? 0 : undefined,
+    transform: [{ translateY: position === "top" ? translateY : undefined }],
+    bottom: position === "bottom" ? translateY : undefined,
+    top: position === "top" ? 0 : undefined,
     opacity,
     width: wp(isGlobal ? 90 : 85),
   };
 
   return (
-    <Animated.View style={[styles.container, toastStyles, position === 'bottom' && styles.bottomContainer]}>
+    <Animated.View
+      style={[
+        styles.container,
+        toastStyles,
+        position === "bottom" && styles.bottomContainer,
+      ]}
+    >
       <View style={styles.contentContainer}>
         {/* <View style={styles.iconContainer}>
           <ToastIcon type={type} />
@@ -204,7 +223,7 @@ const CustomToast = ({
 
         {action && (
           <TouchableOpacity onPress={actionOnPress} style={styles.actionButton}>
-            <Text style={styles.actionText}>{actionText || 'Action'}</Text>
+            <Text style={styles.actionText}>{actionText || "Action"}</Text>
           </TouchableOpacity>
         )}
 
@@ -213,33 +232,38 @@ const CustomToast = ({
         </TouchableOpacity>
       </View>
 
-      <Animated.View style={[styles.progressBar, {
-        width: progressWidth,
-      }]} />
+      <Animated.View
+        style={[
+          styles.progressBar,
+          {
+            width: progressWidth,
+          },
+        ]}
+      />
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    alignSelf: 'center',
+    position: "absolute",
+    alignSelf: "center",
     minHeight: hp(6),
     borderRadius: 12,
     elevation: 6,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.27,
     shadowRadius: 4.65,
     zIndex: 999,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   bottomContainer: {
     bottom: hp(2),
   },
   contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: wp(4),
     paddingVertical: hp(1.5),
   },
@@ -271,16 +295,15 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontFamily: Fonts.bold,
     fontSize: hp(1.6),
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
   progressBar: {
     height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    position: 'absolute',
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    position: "absolute",
     bottom: 0,
     left: 0,
-  }
+  },
 });
 
 export { CustomToast, TOAST_TYPES };
-
