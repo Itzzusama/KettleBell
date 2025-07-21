@@ -57,6 +57,8 @@ const RouteName = {
   Update_Password: "updatePassword",
   Client_Meal: "clientMeal",
   Create_Meal: "createMeal",
+  AddClient: "AddClient",
+  InboxScreen: "InboxScreen",
 };
 
 export default RouteName;

@@ -7,6 +7,8 @@ export const baseUrl = "https://fitnessbackend-b7hg.onrender.com/";
 
 const getHeaders = async (contentType = "application/json") => {
   const token = await AsyncStorage.getItem("token");
+  // console.log(token);
+
   const refreshToken = await AsyncStorage.getItem("refreshToken");
   const headers = {
     Accept: "application/json",

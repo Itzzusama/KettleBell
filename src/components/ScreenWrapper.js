@@ -62,7 +62,7 @@ const ScreenWrapper = ({
           contentContainerStyle={{
             paddingTop: topInset,
             paddingBottom:
-              paddingBottom ?? (Platform.OS === "android" ? 0 : 20),
+              paddingBottom ?? (Platform.OS === "android" ? 10 : 20),
             paddingHorizontal,
             flexGrow: 1,
             backgroundColor,
@@ -78,6 +78,7 @@ const ScreenWrapper = ({
             paddingHorizontal,
             flex: 1,
             paddingTop: topInset,
+            paddingBottom
           }}
         >
           {children}

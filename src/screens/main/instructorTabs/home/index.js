@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Feather, Ionicons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
-import { LinearGradient } from "expo-linear-gradient"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   FlatList,
@@ -17,79 +17,92 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import fonts from "../../../../assets/fonts"
-import { Images } from "../../../../assets/images"
-import ClientReportChart from "../../../../components/chart"
-import RouteName from "../../../../navigation/RouteName"
-import { GetApiRequest } from "../../../../services/api"
-import { COLORS } from "../../../../utils/COLORS"
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../../assets/fonts";
+import { Images } from "../../../../assets/images";
+import ClientReportChart from "../../../../components/chart";
+import RouteName from "../../../../navigation/RouteName";
+import { GetApiRequest } from "../../../../services/api";
+import { COLORS } from "../../../../utils/COLORS";
+import { useSelector } from "react-redux";
 
 export default function InstructorHome() {
-  const navigation = useNavigation()
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [searchText, setSearchText] = useState("")
-  const [exercise, setExercise] = useState([])
-  const [categories, setCategories] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const { t } = useTranslation()
+  const navigation = useNavigation();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchText, setSearchText] = useState("");
+  const [exercise, setExercise] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const userData = useSelector((state) => state.users);
+  // console.log("userData====", userData);
+
+  const { t } = useTranslation();
 
   const getMyPlans = async () => {
     try {
-      setIsLoading(true)
-      const res = await GetApiRequest("api/exercises/my-exercises")
+      setIsLoading(true);
+      const res = await GetApiRequest("api/exercises/my-exercises");
       if (res.data && res.data.data) {
-        setExercise(res.data.data)
+        setExercise(res.data.data);
       }
     } catch (error) {
-      console.log(error)
-      Alert.alert("Error", "Failed to load plans")
+      console.log(error);
+      // Alert.alert("Error", "Failed to load plans")
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const getCategories = async () => {
     try {
-      const res = await GetApiRequest("api/exercise-categories/my-categories")
+      const res = await GetApiRequest("api/exercise-categories/my-categories");
       if (res && res.data && res.data.data) {
         const fetchedCategories = res.data.data.map((cat) => ({
           ...cat,
           active: false,
-        }))
-        setCategories([{ id: "all", name: "All", active: true }, ...fetchedCategories])
+        }));
+        setCategories([
+          { id: "all", name: "All", active: true },
+          ...fetchedCategories,
+        ]);
       }
     } catch (error) {
-      console.log(error)
-      Alert.alert("Error", "Failed to load categories")
+      console.log(error);
+      // Alert.alert("Error", "Failed to load categories")
     }
-  }
+  };
 
   const handleCategorySelect = (category) => {
     setCategories(
       categories.map((cat) => ({
         ...cat,
         active: cat.name === category.name,
-      })),
-    )
-    setSelectedCategory(category.name)
-  }
+      }))
+    );
+    setSelectedCategory(category.name);
+  };
 
   const filteredExercises =
     selectedCategory === "All"
-      ? exercise.filter((ex) => ex.name.toLowerCase().includes(searchText.toLowerCase()))
+      ? exercise.filter((ex) =>
+          ex.name.toLowerCase().includes(searchText.toLowerCase())
+        )
       : exercise.filter(
-        (ex) =>
-          ex.category &&
-          ex.category.name === selectedCategory &&
-          ex.name.toLowerCase().includes(searchText.toLowerCase()),
-      )
+          (ex) =>
+            ex.category &&
+            ex.category.name === selectedCategory &&
+            ex.name.toLowerCase().includes(searchText.toLowerCase())
+        );
 
   useEffect(() => {
-    getCategories()
-    getMyPlans()
-  }, [])
+    getCategories();
+    getMyPlans();
+  }, []);
 
   const ActivePlanCard = ({ number = "03" }) => (
     <LinearGradient
@@ -100,24 +113,48 @@ export default function InstructorHome() {
     >
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>{t("InstructorHome.activePlans")}</Text>
-        <View style={{ backgroundColor: COLORS.white, borderRadius: 100, padding: 4 }}>
-          <Image source={Images.dumble} style={{ width: wp(5), height: wp(5), resizeMode: "contain" }} />
+        <View
+          style={{
+            backgroundColor: COLORS.white,
+            borderRadius: 100,
+            padding: 4,
+          }}
+        >
+          <Image
+            source={Images.dumble}
+            style={{ width: wp(5), height: wp(5), resizeMode: "contain" }}
+          />
         </View>
       </View>
       <Text style={styles.cardNumber}>{number}</Text>
-      <Ionicons name="arrow-up" size={wp(4)} color="#FFF" style={styles.cardArrow} />
+      <Ionicons
+        name="arrow-up"
+        size={wp(4)}
+        color="#FFF"
+        style={styles.cardArrow}
+      />
     </LinearGradient>
-  )
+  );
 
   const Categories = () => (
     <FlatList
       data={categories}
       renderItem={({ item }) => (
         <TouchableOpacity
-          style={[styles.categoryButton, item.active && styles.activeCategoryButton]}
+          style={[
+            styles.categoryButton,
+            item.active && styles.activeCategoryButton,
+          ]}
           onPress={() => handleCategorySelect(item)}
         >
-          <Text style={[styles.categoryText, item.active && styles.activeCategoryText]}>{item.name}</Text>
+          <Text
+            style={[
+              styles.categoryText,
+              item.active && styles.activeCategoryText,
+            ]}
+          >
+            {item.name}
+          </Text>
         </TouchableOpacity>
       )}
       keyExtractor={(item) => item.id.toString()}
@@ -125,34 +162,51 @@ export default function InstructorHome() {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.categoryList}
     />
-  )
+  );
 
   const ExerciseCard = ({ exercise }) => (
     <TouchableOpacity
       style={styles.exerciseCard}
-      onPress={() => navigation.navigate(RouteName.Client_Exercise_Detail, { exercise })}
+      onPress={() =>
+        navigation.navigate(RouteName.Client_Exercise_Detail, { exercise })
+      }
     >
       <Image
-        source={exercise.images && exercise.images.length > 0 ? { uri: exercise.images[0] } : Images.dumyImg}
+        source={
+          exercise.images && exercise.images.length > 0
+            ? { uri: exercise.images[0] }
+            : Images.dumyImg
+        }
         style={styles.exerciseImage}
       />
-      <LinearGradient colors={["transparent", "rgba(0,0,0,0.8)"]} style={styles.exerciseOverlay}>
+      <LinearGradient
+        colors={["transparent", "rgba(0,0,0,0.8)"]}
+        style={styles.exerciseOverlay}
+      >
         <View style={styles.exerciseInfo}>
           <Text style={styles.exerciseTitle} numberOfLines={2}>
             {exercise.name}
           </Text>
           <View style={styles.exerciseMeta}>
-            <Text style={styles.exerciseDetails}>{exercise.duration || 0} min</Text>
-            <Text style={styles.exerciseDetails}>• {exercise.difficulty || "Beginner"}</Text>
+            <Text style={styles.exerciseDetails}>
+              {exercise.duration || 0} min
+            </Text>
+            <Text style={styles.exerciseDetails}>
+              • {exercise.difficulty || "Beginner"}
+            </Text>
           </View>
         </View>
       </LinearGradient>
     </TouchableOpacity>
-  )
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={"transparent"} translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={"transparent"}
+        translucent
+      />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: hp(10) }}
@@ -164,15 +218,24 @@ export default function InstructorHome() {
             <View style={styles.logoContainer}>
               <Image source={Images.SplashImage} style={styles.img} />
             </View>
-            <Text style={styles.userName}>John Abraham</Text>
+            <Text style={styles.userName}>
+              {userData?.userData?.name || "John Abraham"}
+            </Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() => navigation.navigate(RouteName.Client_Message)}
+            >
               <Ionicons name="chatbubble-outline" size={wp(6)} color="#fff" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton}>
               <View style={styles.notificationDot} />
-              <Ionicons name="notifications-outline" size={wp(6)} color="#fff" />
+              <Ionicons
+                name="notifications-outline"
+                size={wp(6)}
+                color="#fff"
+              />
             </TouchableOpacity>
             <TouchableOpacity style={styles.profileButton}>
               <Image
@@ -216,9 +279,15 @@ export default function InstructorHome() {
         {/* My Exercise */}
         <View style={styles.myExerciseSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("InstructorHome.myExercises")}</Text>
-            <TouchableOpacity onPress={() => navigation.navigate(RouteName.Client_exercise)}>
-              <Text style={styles.seeAllText}>{t("InstructorHome.seeall")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("InstructorHome.myExercises")}
+            </Text>
+            <TouchableOpacity
+              onPress={() => navigation.navigate(RouteName.Client_exercise)}
+            >
+              <Text style={styles.seeAllText}>
+                {t("InstructorHome.seeall")}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -232,7 +301,9 @@ export default function InstructorHome() {
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>No exercises found</Text>
                 <Text style={styles.emptyStateSubtext}>
-                  {searchText ? "Try adjusting your search" : "Create your first exercise"}
+                  {searchText
+                    ? "Try adjusting your search"
+                    : "Create your first exercise"}
                 </Text>
               </View>
             ) : (
@@ -250,14 +321,14 @@ export default function InstructorHome() {
         </View>
       </ScrollView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.backgroundColor,
-    paddingTop: Platform.OS === 'ios' ? hp(8) : hp(6),
+    paddingTop: Platform.OS === "ios" ? hp(8) : hp(6),
   },
   scrollView: {
     flex: 1,
@@ -490,4 +561,4 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     textAlign: "center",
   },
-})
+});

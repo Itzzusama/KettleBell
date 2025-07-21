@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   SafeAreaView,
@@ -14,62 +14,104 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native"
-import * as Progress from "react-native-progress"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import fonts from "../../../../assets/fonts"
-import { Images } from "../../../../assets/images"
-import RouteName from "../../../../navigation/RouteName"
-import { GetApiRequest } from "../../../../services/api"
-import { COLORS } from "../../../../utils/COLORS"
+} from "react-native";
+import * as Progress from "react-native-progress";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../../assets/fonts";
+import { Images } from "../../../../assets/images";
+import RouteName from "../../../../navigation/RouteName";
+import { GetApiRequest } from "../../../../services/api";
+import { COLORS } from "../../../../utils/COLORS";
 
 export default function ClientScreen() {
-  const navigation = useNavigation()
-  const [searchText, setSearchText] = useState("")
-  const { t } = useTranslation()
-  const [client, setClient] = useState([])
+  const navigation = useNavigation();
+  const [searchText, setSearchText] = useState("");
+  const { t } = useTranslation();
+  const [client, setClient] = useState([]);
+  const isFocus = useIsFocused();
 
   const handleAddClient = () => {
-    console.log("Add new client")
-  }
+    console.log("Add new client");
+    navigation.navigate(RouteName.AddClient);
+  };
 
   const handleClientPress = (client) => {
-    console.log("Client pressed:", client.name)
-    navigation.navigate(RouteName.Client_profile)
-  }
+    // navigation.navigate(RouteName.Client_profile, { client });
+    navigation.navigate(RouteName.Client_Progress, { client });
+  };
 
   const getapirequest = async () => {
     try {
-      const res = await GetApiRequest("api/clients")
-      console.log("clients", res.data)
+      const res = await GetApiRequest("api/clients");
       setClient(
-        res.data.data.map((item) => ({
-          id: item._id,
-          name: item.name,
-          image: item.avatar, // Avatar might be null
-          status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
-          consistency: item.consistencyPercentage, // Use API consistency field
-        }))
-      )
+        res.data.data.map((item) => {
+          // Consistency calculation
+          let filledSections = 0;
+          // Check basicInfo
+          const basicInfoFilled = item.basicInfo && Object.values(item.basicInfo).some(v => v !== null && v !== '' && v !== undefined && !(Array.isArray(v) && v.length === 0));
+          if (basicInfoFilled) filledSections++;
+          // Check fitnessGoals
+          const fitnessGoalsFilled = item.fitnessGoals && (
+            (item.fitnessGoals.primaryGoal && item.fitnessGoals.primaryGoal !== null && item.fitnessGoals.primaryGoal !== '') ||
+            (Array.isArray(item.fitnessGoals.specificGoals) && item.fitnessGoals.specificGoals.length > 0)
+          );
+          if (fitnessGoalsFilled) filledSections++;
+          // Check healthInfo
+          const healthInfoFilled = item.healthInfo && (
+            (Array.isArray(item.healthInfo.medicalConditions) && item.healthInfo.medicalConditions.length > 0) ||
+            (Array.isArray(item.healthInfo.injuriesOrLimitations) && item.healthInfo.injuriesOrLimitations.length > 0)
+          );
+          if (healthInfoFilled) filledSections++;
+          let consistency = 0;
+          if (filledSections === 1) consistency = 33;
+          else if (filledSections === 2) consistency = 66;
+          else if (filledSections === 3) consistency = 100;
+          // ... fallback to 0 if none
+          return {
+            id: item._id,
+            name: item.name,
+            image: item.avatar, // Avatar might be null
+            status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
+            consistency,
+          };
+        })
+      );
     } catch (error) {
-      console.log("error", error)
+      console.log("error", error);
     }
-  }
+  };
 
   useEffect(() => {
-    getapirequest()
-  }, [])
+    getapirequest();
+  }, [isFocus]);
+
+  const filteredClients = client.filter((item) =>
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("Client.title")}</Text>
-        <TouchableOpacity style={styles.headerAddButton} onPress={handleAddClient}>
+        <TouchableOpacity
+          style={styles.headerAddButton}
+          onPress={handleAddClient}
+        >
           <Ionicons name="add" size={24} color="white" />
         </TouchableOpacity>
       </View>
@@ -91,19 +133,29 @@ export default function ClientScreen() {
 
         {/* Client Count */}
         <View style={styles.clientCountContainer}>
-          <Text style={styles.clientCountText}>{client.length} {t("Client.clients")}</Text>
+          <Text style={styles.clientCountText}>
+            {client.length} {t("Client.clients")}
+          </Text>
         </View>
 
         {/* Client List */}
         <View style={styles.clientList}>
-          {client.map((client) => (
-            <TouchableOpacity key={client.id} style={styles.clientCard} onPress={() => handleClientPress(client)}>
+          {filteredClients?.map((client) => (
+            <TouchableOpacity
+              key={client.id}
+              style={styles.clientCard}
+              onPress={() => handleClientPress(client)}
+            >
               <View style={styles.clientInfo}>
                 {client.image ? (
-                  <Image source={{ uri: client.image }} style={styles.clientImage} />
+                  <Image
+                    source={{ uri: client.image }}
+                    style={styles.clientImage}
+                  />
                 ) : (
-                  <View style={[styles.clientImage, styles.placeholderImage]}>]
-                  <Image source={Images.dumyImg} style={styles.clientImage} />
+                  <View style={[styles.clientImage, styles.placeholderImage]}>
+                  
+                    <Image source={Images.dumyImg} style={styles.clientImage} />
                   </View>
                 )}
                 <View style={styles.clientDetails}>
@@ -114,27 +166,42 @@ export default function ClientScreen() {
                     </View>
                   </View>
                   <View style={styles.consistencyContainer}>
-                    <Text style={styles.consistencyLabel}>{t("Client.Consistency")}</Text>
+                    <Text style={styles.consistencyLabel}>
+                      {t("Client.Consistency")}
+                    </Text>
                     <View style={styles.progressContainer}>
                       <Progress.Bar
                         progress={client.consistency / 100}
-                        width={wp(25)}
+                        width={wp(22)}
                         height={hp(0.8)}
                         color={COLORS.primaryColor}
                         unfilledColor={COLORS.white}
                         borderWidth={0}
                         borderRadius={hp(0.4)}
                       />
-                      <Text style={styles.progressText}>{client.consistency}%</Text>
+                      <Text style={styles.progressText}>
+                        {client.consistency}%
+                      </Text>
                     </View>
                   </View>
                 </View>
               </View>
               <View style={styles.clientActions}>
-                <TouchableOpacity style={styles.messageBadge}>
-                  <MaterialCommunityIcons name="message-text-outline" size={20} color="white" />
+                <TouchableOpacity
+                  style={styles.messageBadge}
+                  activeOpacity={0.6}
+                  onPress={() => navigation.navigate(RouteName.InboxScreen,{client})}
+                >
+                  <MaterialCommunityIcons
+                    name="message-text-outline"
+                    size={20}
+                    color="white"
+                  />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate(RouteName.Client_Progress)}
+                  // onPress={() => navigation.navigate(RouteName.PROFILE)}
+                >
                   <Ionicons
                     name="chevron-forward"
                     size={hp(2.5)}
@@ -147,7 +214,7 @@ export default function ClientScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -302,4 +369,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: wp(2),
   },
-})
+});

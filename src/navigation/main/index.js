@@ -30,10 +30,6 @@ import RecipeTime2 from "../../screens/main/recipeTime2";
 import UpdatedPassword from "../../screens/main/updatedPassword";
 import WorkoutPlanDetails from "../../screens/main/workoutPlanDetails";
 
-import InstructorTabs from "../instructorTabs";
-import RouteName from "../RouteName";
-import TabStack from "../tabs";
-
 const Stack = createNativeStackNavigator();
 
 const MainStack = () => {
@@ -124,6 +120,8 @@ const MainStack = () => {
       />
       <Stack.Screen name={RouteName.Client_Meal} component={ClientMeal} />
       <Stack.Screen name={RouteName.Create_Meal} component={createMeal} />
+      <Stack.Screen name={RouteName.AddClient} component={AddClient} />
+      <Stack.Screen name={RouteName.InboxScreen} component={InboxScreen} />
     </Stack.Navigator>
   );
 };

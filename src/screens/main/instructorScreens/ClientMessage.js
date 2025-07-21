@@ -1,18 +1,30 @@
-import { Ionicons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
-import { useTranslation } from "react-i18next"
-import { FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { heightPercentageToDP, widthPercentageToDP } from "react-native-responsive-screen"
-import fonts from "../../../assets/fonts"
-import { COLORS } from "../../../utils/COLORS"
-
-
-
-
+import { Ionicons } from "@expo/vector-icons";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import {
+  FlatList,
+  Image,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP,
+  widthPercentageToDP,
+} from "react-native-responsive-screen";
+import fonts from "../../../assets/fonts";
+import { COLORS } from "../../../utils/COLORS";
+import { GetApiRequest } from "../../../services/api";
+import { useEffect, useState } from "react";
 
 export default function ClientMessage() {
-  const navigation = useNavigation()
-  const {t}=useTranslation()
+  const navigation = useNavigation();
+
+  const isFocus = useIsFocused();
+  const { t } = useTranslation();
   const messages = [
     {
       id: 1,
@@ -34,7 +46,7 @@ export default function ClientMessage() {
       hasUnread: true,
       isOnline: true,
       isTyping: true,
-      isSentByMe: false, 
+      isSentByMe: false,
       avatar:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
@@ -110,24 +122,45 @@ export default function ClientMessage() {
       avatar:
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
-  ]
+  ];
+
+  const [conversations, setConversations] = useState([]);
+
+  const getConversation = async () => {
+    try {
+      const response = await GetApiRequest("api/chat/conversations");
+      setConversations(response.data?.data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getConversation();
+  }, [isFocus]);
 
   const handleMessagePress = (message) => {
-    console.log("Message pressed:", message.name)
+    console.log("Message pressed:", message.name);
     // Navigate to chat screen
-  }
+  };
 
   const renderMessageItem = ({ item }) => (
-    <TouchableOpacity style={styles.messageItem} onPress={() => handleMessagePress(item)}>
+    <TouchableOpacity
+      style={styles.messageItem}
+      onPress={() => handleMessagePress(item)}
+    >
       <View style={styles.avatarContainer}>
         <Image source={{ uri: item.avatar }} style={styles.avatar} />
         {item.isOnline && <View style={styles.onlineIndicator} />}
       </View>
 
       <View style={styles.messageContent}>
-        <Text style={styles.messageName}>{item.name}</Text>
+        {/* <Text style={styles.messageName}>{item?.client?.name}</Text> */}
+        <Text style={styles.messageName}>{item?.name}</Text>
         <Text
-          style={[styles.messageText, item.isTyping && styles.typingText, item.isSentByMe && styles.sentMessageText]}
+          style={[
+            styles.messageText,
+            item.isTyping && styles.typingText,
+            item.isSentByMe && styles.sentMessageText,
+          ]}
         >
           {item.message}
         </Text>
@@ -138,16 +171,27 @@ export default function ClientMessage() {
         {item.hasUnread && <View style={styles.unreadIndicator} />}
       </View>
     </TouchableOpacity>
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={"transparent"} translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={"transparent"}
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={heightPercentageToDP(3)} color={COLORS.white} />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={heightPercentageToDP(3)}
+            color={COLORS.white}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("ClientMessage.title")}</Text>
         <View style={styles.headerSpacer} />
@@ -166,7 +210,7 @@ export default function ClientMessage() {
         />
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -270,7 +314,7 @@ const styles = StyleSheet.create({
   unreadIndicator: {
     width: widthPercentageToDP(2.5),
     height: widthPercentageToDP(2.5),
-    borderRadius:20,
+    borderRadius: 20,
     backgroundColor: COLORS.primaryColor,
   },
-})
+});
