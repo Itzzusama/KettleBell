@@ -5,6 +5,7 @@ import axios from "axios";
 //export const baseUrl = 'http://localhost:3000/';
 export const baseUrl = "https://fitnessbackend-b7hg.onrender.com/";
 
+
 const getHeaders = async (contentType = "application/json") => {
   const token = await AsyncStorage.getItem("token");
   // console.log(token);

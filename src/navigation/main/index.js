@@ -29,6 +29,10 @@ import RecipeTime from "../../screens/main/recipeTime";
 import RecipeTime2 from "../../screens/main/recipeTime2";
 import UpdatedPassword from "../../screens/main/updatedPassword";
 import WorkoutPlanDetails from "../../screens/main/workoutPlanDetails";
+import RouteName from "../RouteName";
+import InstructorTabs from "../instructorTabs";
+import AddClient from "../../screens/main/instructorTabs/client/AddClient";
+import InboxScreen from "../../screens/main/instructorScreens/InboxScreen";
 
 const Stack = createNativeStackNavigator();
 

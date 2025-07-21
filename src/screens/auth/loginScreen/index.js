@@ -100,7 +100,7 @@ export default function Login() {
     };
     try {
       setLoading(true);
-      const loginResponse = await PostApiRequest("auth/login", data);
+      const loginResponse = await PostApiRequest("api/auth/login", data);
       toast.showToast({
         type: "success",
         message: loginResponse.data.message,
