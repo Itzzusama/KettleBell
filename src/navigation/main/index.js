@@ -33,6 +33,7 @@ import RouteName from "../RouteName";
 import InstructorTabs from "../instructorTabs";
 import AddClient from "../../screens/main/instructorTabs/client/AddClient";
 import InboxScreen from "../../screens/main/instructorScreens/InboxScreen";
+import TabStack from "../tabs";
 
 const Stack = createNativeStackNavigator();
 
