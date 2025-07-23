@@ -174,6 +174,7 @@ export default function ProfileDashboard({ route }) {
 
   const [assignWorkoutModal, setAssignWorkoutModal] = useState(false);
   const [workoutPlans, setWorkoutPlans] = useState([]);
+  const [mealPlans, setMealPlans] = useState([]);
   const [taskModal, setTaskModal] = useState(false);
   const [planType, setPlanType] = useState("");
 
@@ -182,15 +183,16 @@ export default function ProfileDashboard({ route }) {
   const getClientPlan = async () => {
     try {
       const response = await GetApiRequest(`api/clients/${client?.id}/plans`);
-      console.log("tes====", response.data?.data?.workoutPlans);
+      console.log("tes====", response.data?.data?.mealPlans);
 
       setWorkoutPlans(response.data?.data?.workoutPlans);
+      setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
 
   useEffect(() => {
     getClientPlan();
-  }, [isFocus]);
+  }, [isFocus, assignWorkoutModal]);
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
@@ -360,22 +362,23 @@ export default function ProfileDashboard({ route }) {
           <FlatList
             horizontal
             data={workoutPlans}
-            renderItem={() => (
-              <TouchableOpacity key={plan.id} style={styles.workoutCard}>
+            keyExtractor={(item) => item?._id?.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.workoutCard}>
                 <Image
-                  source={{ uri: plan?.image }}
+                  source={{ uri: item?.image }}
                   style={styles.workoutCardImage}
                 />
                 <View style={styles.workoutCardOverlay}>
                   <Text style={styles.workoutCardTitle}>
-                    {plan?.workoutPlan?.name}
+                    {item?.workoutPlan?.name}
                   </Text>
                   <View style={styles.workoutCardStats}>
                     <Text style={styles.workoutCardStat}>
-                      {plan.exercises} {t("ClientProgress.exercise")}
+                      {item.exercises} {t("ClientProgress.exercise")}
                     </Text>
                     <Text style={styles.workoutCardStat}>
-                      {plan?.workoutPlan?.numberOfWeeks} Weeks
+                      {item?.workoutPlan?.numberOfWeeks} Weeks
                     </Text>
                   </View>
                 </View>
@@ -399,25 +402,26 @@ export default function ProfileDashboard({ route }) {
             </TouchableOpacity>
           </View>
 
-          <FlatList
+           <FlatList
             horizontal
-            data={workoutPlans}
-            renderItem={() => (
-              <TouchableOpacity key={plan.id} style={styles.workoutCard}>
+            data={mealPlans}
+            keyExtractor={(item) => item?._id?.toString()}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.workoutCard}>
                 <Image
-                  source={{ uri: plan?.image }}
+                  source={{ uri: item?.image }}
                   style={styles.workoutCardImage}
                 />
                 <View style={styles.workoutCardOverlay}>
                   <Text style={styles.workoutCardTitle}>
-                    {plan?.workoutPlan?.name}
+                    {item?.mealPlan?.name}
                   </Text>
                   <View style={styles.workoutCardStats}>
                     <Text style={styles.workoutCardStat}>
-                      {plan.exercises} {t("ClientProgress.exercise")}
+                      {item.exercises} {t("ClientProgress.exercise")}
                     </Text>
                     <Text style={styles.workoutCardStat}>
-                      {plan?.workoutPlan?.numberOfWeeks} Weeks
+                      {item?.mealPlan?.numberOfWeeks} Weeks
                     </Text>
                   </View>
                 </View>

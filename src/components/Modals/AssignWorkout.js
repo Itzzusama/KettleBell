@@ -17,6 +17,7 @@ import fonts from "../../assets/fonts";
 import { GetApiRequest, PostApiRequest } from "../../services/api";
 import ImageFast from "../ImageFast";
 import { useToast } from "../../utils/Toast/toastContext";
+import moment from "moment/moment";
 
 const AssignWorkout = ({
   isVisible,
@@ -31,6 +32,8 @@ const AssignWorkout = ({
   const [notes, setNotes] = useState("");
   const [assignLoading, setAssignLoading] = useState(false);
   const toast = useToast();
+
+  
 
   const handleAssignPlan = async () => {
     if (!plan) {
@@ -52,17 +55,19 @@ const AssignWorkout = ({
     }
 
     try {
+
+      const formattedDate = moment(startDate).toISOString();
       setAssignLoading(true);
 
       const payload = {
         workoutPlanId: plan,
-        startDate: startDate,
+        startDate: formattedDate,
         notes: notes.trim() || "",
       };
 
       const payload1 = {
         mealPlanId: plan,
-        startDate: startDate,
+        startDate: formattedDate,
         notes: notes.trim() || "",
       };
 

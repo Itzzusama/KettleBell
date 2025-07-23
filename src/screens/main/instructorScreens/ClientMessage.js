@@ -19,6 +19,7 @@ import fonts from "../../../assets/fonts";
 import { COLORS } from "../../../utils/COLORS";
 import { GetApiRequest } from "../../../services/api";
 import { useEffect, useState } from "react";
+import moment from "moment/moment";
 
 export default function ClientMessage() {
   const navigation = useNavigation();
@@ -129,7 +130,12 @@ export default function ClientMessage() {
   const getConversation = async () => {
     try {
       const response = await GetApiRequest("api/chat/conversations");
-      setConversations(response.data?.data);
+      console.log(
+        "response.data?.data[0]?.client",
+        response.data?.data[0]?.client
+      );
+
+      setConversations(response.data?.data || []);
     } catch (error) {}
   };
 
@@ -148,13 +154,20 @@ export default function ClientMessage() {
       onPress={() => handleMessagePress(item)}
     >
       <View style={styles.avatarContainer}>
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <Image
+          source={{
+            uri: item?.client?.avatar
+              ? item?.client?.avatar
+              : "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+          }}
+          style={styles.avatar}
+        />
         {item.isOnline && <View style={styles.onlineIndicator} />}
       </View>
 
       <View style={styles.messageContent}>
-        {/* <Text style={styles.messageName}>{item?.client?.name}</Text> */}
-        <Text style={styles.messageName}>{item?.name}</Text>
+        <Text style={styles.messageName}>{item?.client?.name}</Text>
+        {/* <Text style={styles.messageName}>{item?.name}</Text> */}
         <Text
           style={[
             styles.messageText,
@@ -167,7 +180,9 @@ export default function ClientMessage() {
       </View>
 
       <View style={styles.messageRight}>
-        <Text style={styles.messageTime}>{item.time}</Text>
+        <Text style={styles.messageTime}>
+          {moment(item.lastMessageAt).fromNow()}
+        </Text>
         {item.hasUnread && <View style={styles.unreadIndicator} />}
       </View>
     </TouchableOpacity>
@@ -202,7 +217,7 @@ export default function ClientMessage() {
         <Text style={styles.sectionTitle}>{t("ClientMessage.msg")}</Text>
 
         <FlatList
-          data={messages}
+          data={conversations}
           renderItem={renderMessageItem}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}

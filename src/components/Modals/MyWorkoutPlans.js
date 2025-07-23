@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 
 import CustomButton from "../CustomButton";
@@ -20,20 +26,28 @@ const MyWorkoutPlans = ({
   type,
 }) => {
   const [myPlans, setMyPlans] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const getMyWorkoutPlan = async () => {
+    setRefreshing(true);
     try {
-      const response = await GetApiRequest(
-        type ? "api/meal-plans/my-meal-plans" : "api/workout-plans/my-plans"
-      );
+      const api =
+        type == "meal"
+          ? "api/meal-plans/my-meal-plans"
+          : "api/workout-plans/my-plans";
+
+      const response = await GetApiRequest(api);
 
       setMyPlans(type == "meal" ? response.data : response.data?.data);
-    } catch (error) {}
+      setRefreshing(false);
+    } catch (error) {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
     getMyWorkoutPlan();
-  }, []);
+  }, [type]);
 
   return (
     <CustomModal
@@ -50,30 +64,40 @@ const MyWorkoutPlans = ({
           marginBottom={25}
         />
         <View style={styles.border}>
-          {myPlans?.map((item, index) => (
-            <TouchableOpacity
-              key={item._id}
-              onPress={() => {
-                setPlan(item._id);
-              }}
-              style={{
-                height: 150,
-                width: "100%",
-                marginBottom: 6,
-                borderRadius: 12,
-                paddingBottom: 12,
-                borderWidth: 1,
-                borderColor: COLORS.gray,
-                backgroundColor: plan === item._id && COLORS.primaryColor,
-              }}
-            >
-              <ImageFast
-                source={{ uri: item?.images[0] }}
-                style={styles.image}
-              />
-              <CustomText label={item?.name} marginLeft={12} marginTop={4} />
-            </TouchableOpacity>
-          ))}
+          {refreshing ? (
+            <ActivityIndicator size="large" color={COLORS.red} />
+          ) : (
+            <>
+              {myPlans?.map((item, index) => (
+                <TouchableOpacity
+                  key={item._id}
+                  onPress={() => {
+                    setPlan(item._id);
+                  }}
+                  style={{
+                    height: 150,
+                    width: "100%",
+                    marginBottom: 6,
+                    borderRadius: 12,
+                    paddingBottom: 12,
+                    borderWidth: 1,
+                    borderColor: COLORS.gray,
+                    backgroundColor: plan === item._id && COLORS.primaryColor,
+                  }}
+                >
+                  <ImageFast
+                    source={{ uri: item?.images[0] }}
+                    style={styles.image}
+                  />
+                  <CustomText
+                    label={item?.name}
+                    marginLeft={12}
+                    marginTop={4}
+                  />
+                </TouchableOpacity>
+              ))}
+            </>
+          )}
         </View>
         <View style={styles.row}>
           <CustomButton

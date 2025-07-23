@@ -8,6 +8,7 @@ export const uploadAndGetUrl = async (
 ) => {
   try {
     const token = await AsyncStorage.getItem("token");
+
     const formData = new FormData();
     formData.append("image", {
       uri: file.path || file.fileCopyUri || "",

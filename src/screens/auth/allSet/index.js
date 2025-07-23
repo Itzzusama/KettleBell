@@ -36,7 +36,7 @@ export default function AllSet() {
   const handleStartJourney = async () => {
     setLoading(true)
     try {
-      const token = await AsyncStorage.getItem("token");
+      const token = await AsyncStorage.getItem("token");      
       if (!token) {
         throw new Error("No authentication token found");
       }
