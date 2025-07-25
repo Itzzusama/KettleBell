@@ -176,6 +176,7 @@ export default function ProfileDashboard({ route }) {
   const [assignWorkoutModal, setAssignWorkoutModal] = useState(false);
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [mealPlans, setMealPlans] = useState([]);
+  const [mealLogs, setMealLogs] = useState([]);
   const [taskModal, setTaskModal] = useState(false);
   const [planType, setPlanType] = useState("");
 
@@ -189,9 +190,21 @@ export default function ProfileDashboard({ route }) {
       setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
+  const getWorkoutLogs = async () => {
+    try {
+      const response = await GetApiRequest(
+        `api/clients/${client?.id}/meal-logs`
+      );
+      console.log("res---=-=-", response.data);
+
+      setMealLogs(response.data?.data);
+      // setMealPlans(response.data?.data?.mealPlans);
+    } catch (error) {}
+  };
 
   useEffect(() => {
     getClientPlan();
+    getWorkoutLogs();
   }, [isFocus, assignWorkoutModal]);
 
   return (
