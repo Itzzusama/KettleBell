@@ -20,12 +20,12 @@ const Footer = ({ inputText, setInputText, sendMessage = () => "" }) => {
         />
       </View>
       <TouchableOpacity onPress={sendMessage}>
-        {/* <Icons
+        <Icons
           name={"send"}
           family={"Feather"}
           color={COLORS.primaryColor}
           size={22}
-        /> */}
+        />
       </TouchableOpacity>
     </View>
   );

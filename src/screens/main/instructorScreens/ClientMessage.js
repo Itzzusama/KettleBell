@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   FlatList,
   Image,
+  RefreshControl,
   SafeAreaView,
   StatusBar,
   StyleSheet,
@@ -126,17 +127,22 @@ export default function ClientMessage() {
   ];
 
   const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getConversation = async () => {
+    setLoading(true);
     try {
       const response = await GetApiRequest("api/chat/conversations");
       console.log(
         "response.data?.data[0]?.client",
-        response.data?.data[0]?.client
+        response.data?.data
       );
 
       setConversations(response.data?.data || []);
-    } catch (error) {}
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -144,7 +150,8 @@ export default function ClientMessage() {
   }, [isFocus]);
 
   const handleMessagePress = (message) => {
-    console.log("Message pressed:", message.name);
+    navigation.navigate("InboxScreen", { message });
+    console.log("Message pressed:", message);
     // Navigate to chat screen
   };
 
@@ -217,6 +224,9 @@ export default function ClientMessage() {
         <Text style={styles.sectionTitle}>{t("ClientMessage.msg")}</Text>
 
         <FlatList
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={getConversation} />
+          }
           data={conversations}
           renderItem={renderMessageItem}
           keyExtractor={(item) => item.id.toString()}

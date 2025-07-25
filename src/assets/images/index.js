@@ -10,5 +10,6 @@ export const Images = {
  fruits:require("../images/fruits.jpg"),
  lockCircle:require("../images/lockcircle.png"),
  dumyImg:require("../images/dumyImg.jpg"),
- nofound:require("../images/nofound.png")
+ nofound:require("../images/nofound.png"),
+ logout:require("../images/logout.png")
 };

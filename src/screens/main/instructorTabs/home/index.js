@@ -26,20 +26,28 @@ import fonts from "../../../../assets/fonts";
 import { Images } from "../../../../assets/images";
 import ClientReportChart from "../../../../components/chart";
 import RouteName from "../../../../navigation/RouteName";
-import { GetApiRequest } from "../../../../services/api";
+import { GetApiRequest, PostApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Icons } from "../../../../assets/icons";
+import LogoutModal from "../../../../components/LogoutModal";
+import { setToken } from "../../../../store/slices/AuthConfig";
+import { clearUserData, setUserData } from "../../../../store/slices/usersSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function InstructorHome() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchText, setSearchText] = useState("");
   const [exercise, setExercise] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [logoutModal, setLogoutModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const userData = useSelector((state) => state.users);
-  // console.log("userData====", userData);
+console.log("use====", userData?.location);
 
   const { t } = useTranslation();
 
@@ -200,6 +208,24 @@ export default function InstructorHome() {
     </TouchableOpacity>
   );
 
+  const onLogoutPress = async () => {
+    setLoading(true);
+    try {
+      const response = await PostApiRequest("api/auth/logout");
+      setLogoutModal(false);
+      dispatch(setToken(""));
+      dispatch(clearUserData({}));
+      await AsyncStorage.removeItem("token");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: RouteName.AuthStack }],
+      });
+    } catch (error) {
+      setLoading(false);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <StatusBar
@@ -223,12 +249,12 @@ export default function InstructorHome() {
             </Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.iconButton}
               onPress={() => navigation.navigate(RouteName.Client_Message)}
             >
               <Ionicons name="chatbubble-outline" size={wp(6)} color="#fff" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity style={styles.iconButton}>
               <View style={styles.notificationDot} />
               <Ionicons
@@ -237,12 +263,17 @@ export default function InstructorHome() {
                 color="#fff"
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.profileButton}>
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => setLogoutModal(true)}
+            >
               <Image
-                source={{
-                  uri: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
+                source={Images.logout}
+                style={{
+                  height: 26,
+                  width: 26,
+                  tintColor: COLORS.primaryColor,
                 }}
-                style={styles.profileImage}
               />
             </TouchableOpacity>
           </View>
@@ -320,6 +351,13 @@ export default function InstructorHome() {
           </View>
         </View>
       </ScrollView>
+
+      <LogoutModal
+        isVisible={logoutModal}
+        onDisable={() => setLogoutModal(false)}
+        onPress={onLogoutPress}
+        loading={loading}
+      />
     </View>
   );
 }

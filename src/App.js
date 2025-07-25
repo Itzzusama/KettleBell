@@ -1,12 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 import { Provider } from "react-redux";
-import { PersistGate } from 'redux-persist/integration/react';
+import { PersistGate } from "redux-persist/integration/react";
 import "../i18n";
 import Rootnavigator from "./navigation";
 import { persistor, store } from "./store";
 import { ToastProvider } from "./utils/Toast/toastContext";
 import useCustomFonts from "./utils/useCustomFonts";
+import { SocketProvider } from "./utils/SocketProvider";
 
 export default function App() {
   const [fontsLoaded] = useCustomFonts();
@@ -16,12 +17,13 @@ export default function App() {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <ToastProvider>
-          <NavigationContainer>
-            <Rootnavigator />
-          </NavigationContainer>
+          <SocketProvider>
+            <NavigationContainer>
+              <Rootnavigator />
+            </NavigationContainer>
+          </SocketProvider>
         </ToastProvider>
       </PersistGate>
     </Provider>
   );
 }
-

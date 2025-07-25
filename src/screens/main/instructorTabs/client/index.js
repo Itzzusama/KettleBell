@@ -46,8 +46,9 @@ export default function ClientScreen() {
   const getapirequest = async () => {
     try {
       const res = await GetApiRequest("api/clients");
+
       setClient(
-        res.data.data.map((item) => {
+        res.data?.data.map((item) => {
           // Consistency calculation
           let filledSections = 0;
           // Check basicInfo

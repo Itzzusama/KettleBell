@@ -5,8 +5,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ScreenWrapper from "../../../components/ScreenWrapper";
 import { COLORS } from "../../../utils/COLORS";
 import Footer from "./molecules/Footer";
@@ -19,22 +20,61 @@ import {
 import fonts from "../../../assets/fonts";
 import { GetApiRequest } from "../../../services/api";
 import { useIsFocused } from "@react-navigation/native";
+import { useSocket } from "../../../utils/SocketProvider";
+import { useSelector } from "react-redux";
+import CustomText from "../../../components/CustomText";
+import moment from "moment/moment";
 
 const InboxScreen = ({ route }) => {
   const navigation = useNavigation();
   const isFocus = useIsFocused();
+  const socket = useSocket();
+  const { userData } = useSelector((state) => state.users);
   const client = route.params?.client;
+  const message = route.params?.message;
+  const userId = userData?._id;
+  const clientId = client?.id || client?._id;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
-
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  // Join conversation and fetch messages
+  useEffect(() => {
+    if (socket && clientId) {
+      socket.emit("joinConversation", clientId);
+      fetchMessages();
+      // Listen for new messages
+      socket.on("newMessage", handleNewMessage);
+      // Optionally listen for typing
+      socket.on("typing", handleTyping);
+    }
+    return () => {
+      if (socket) {
+        socket.off("newMessage", handleNewMessage);
+        socket.off("typing", handleTyping);
+      }
+    };
+    // eslint-disable-next-line
+  }, [socket, clientId]);
+
+  // Mark all messages as read when focused
+  useEffect(() => {
+    if (socket && messages.length > 0) {
+      const unread = messages.filter(m => !m.read && m.sender !== userId);
+      unread.forEach(msg => {
+        socket.emit("markMessageRead", msg._id);
+      });
+    }
+  }, [messages, socket, userId]);
 
   const fetchMessages = async () => {
     setRefreshing(true);
     try {
-      const response = await GetApiRequest("msg/messages/" + client?.id);
+      const response = await GetApiRequest("msg/messages/" + clientId);
       if (response.data) {
-        setMessages(response.data?.messages);
+        setMessages(response.data?.messages || []);
       }
     } catch (error) {
       console.log("errrrrrr", error);
@@ -43,29 +83,46 @@ const InboxScreen = ({ route }) => {
     }
   };
 
-  const sendMsg = (res) => {
-    if (socket) {
-      socket.emit(
-        "send-message",
-        {
-          name: userData?.name,
-          recipientId: data?.id,
-          messageText: inputText,
-        },
-
-        (res) => {
-          if (res?.success) {
-            setMessages((prevMessages) => [res?.message, ...prevMessages]);
-          } else {
-            ToastMessage("Chat Error, Please Refresh the App", "error");
-          }
-        }
-      );
-      setInputText("");
-    } else {
-      console.log("Socket is null or not properly initialized");
+  const handleNewMessage = (msg) => {
+    setMessages(prev => [msg, ...prev]);
+    // Optionally mark as read if message is for this user
+    if (msg.sender !== userId) {
+      socket.emit("markMessageRead", msg._id);
     }
   };
+
+  const handleTyping = (data) => {
+    if (data.clientId === clientId && data.isTyping) {
+      setIsTyping(true);
+      setTimeout(() => setIsTyping(false), 2000);
+    }
+  };
+
+  const handleSend = () => {
+    if (!inputText.trim() || !socket) return;
+    const messageData = {
+      clientId,
+      content: inputText,
+      messageType: "text",
+      sender: userId,
+    };
+    socket.emit("sendMessage", messageData, (res) => {
+      if (res?.success && res.message) {
+        setMessages(prev => [res.message, ...prev]);
+      }
+    });
+    setInputText("");
+  };
+
+  // Typing indicator
+  useEffect(() => {
+    if (!socket || !clientId) return;
+    if (inputText) {
+      socket.emit("typing", { clientId, isTyping: true });
+    }
+    // Optionally debounce
+  }, [inputText, socket, clientId]);
+
   const renderMessage = ({ item }) => (
     <>
       <CustomText
@@ -73,46 +130,31 @@ const InboxScreen = ({ route }) => {
         color="#818898"
         fontSize={12}
         marginTop={5}
-        alignSelf={item.sender == userId ? "flex-end" : "flex-start"}
+        alignSelf={item.sender === userId ? "flex-end" : "flex-start"}
       />
       <View
         style={[
           styles.messageContainer,
-          item.sender == userId ? styles.userMessage : styles.otherMessage,
+          item.sender === userId ? styles.userMessage : styles.otherMessage,
         ]}
       >
         <CustomText
-          label={item?.message}
-          color={item.sender == userId ? COLORS.white : COLORS.black}
+          label={item?.content || item?.message}
+          color={item.sender === userId ? COLORS.white : COLORS.black}
           lineHeight={25}
         />
       </View>
     </>
   );
 
-  // useEffect(() => {
-  //   if (socket) {
-  //     socket.on("recieved-message", (msg) => {
-  //       setMessages((prevMessages) => [msg, ...prevMessages]);
-  //     });
-  //   }
-  //   return () => {
-  //     if (socket) {
-  //       socket.off("recieved-message");
-  //     }
-  //   };
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   fetchMessages();
-  // }, [isFocus]);
-
   return (
     <ScreenWrapper
       backgroundColor={COLORS.backgroundColor}
       barStyle="light-content"
       footerUnScrollable={() => (
-        <Footer inputText={inputText} setInputText={setInputText} />
+        <View style={{ marginBottom: 16 }}>
+          <Footer inputText={inputText} setInputText={setInputText} sendMessage={handleSend} />
+        </View>
       )}
     >
       <View style={[styles.header, { marginTop: topInset }]}>
@@ -122,7 +164,19 @@ const InboxScreen = ({ route }) => {
         >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{client?.name || "Name"}</Text>
+        <Text style={styles.headerTitle}>{message?.client?.name || "Name"}</Text>
+      </View>
+      <View style={{ flex: 1, marginTop: 10 }}>
+        <FlatList
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item._id || item.id}
+          inverted
+          contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+        />
+        {isTyping && (
+          <CustomText label="Typing..." color="#818898" fontSize={12} marginTop={5} alignSelf="flex-start" />
+        )}
       </View>
     </ScreenWrapper>
   );

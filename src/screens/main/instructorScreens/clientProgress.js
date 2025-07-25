@@ -101,6 +101,7 @@ export default function ProfileDashboard({ route }) {
   const insets = useSafeAreaInsets();
 
   const client = route.params?.client;
+  console.log("tes====", client);
 
   const dailyProgress = {
     consumed: 64.87,
@@ -183,7 +184,6 @@ export default function ProfileDashboard({ route }) {
   const getClientPlan = async () => {
     try {
       const response = await GetApiRequest(`api/clients/${client?.id}/plans`);
-      console.log("tes====", response.data?.data?.mealPlans);
 
       setWorkoutPlans(response.data?.data?.workoutPlans);
       setMealPlans(response.data?.data?.mealPlans);
@@ -227,12 +227,23 @@ export default function ProfileDashboard({ route }) {
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <Image
-              source={{
-                uri: "https://images.unsplash.com/photo-1618641986557-1ecd230959aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+            <View
+              style={{
+                padding: 6,
+                borderRadius: 99,
+                borderWidth: 1,
+                borderColor: COLORS.primaryColor,
               }}
-              style={styles.profileImage}
-            />
+            >
+              <Image
+                source={{
+                  uri: client?.image
+                    ? client?.image
+                    : "https://images.unsplash.com/photo-1618641986557-1ecd230959aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+                }}
+                style={styles.profileImage}
+              />
+            </View>
             <TouchableOpacity style={styles.editButton}>
               <MaterialCommunityIcons
                 name="message-text-outline"
@@ -241,7 +252,9 @@ export default function ProfileDashboard({ route }) {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.profileName}>{"Madison Smith"}</Text>
+          <Text style={styles.profileName}>
+            {client?.name ? client?.name : "Madison Smith"}
+          </Text>
           <Text style={styles.profileEmail}>madisons@example.com</Text>
         </View>
 
@@ -402,7 +415,7 @@ export default function ProfileDashboard({ route }) {
             </TouchableOpacity>
           </View>
 
-           <FlatList
+          <FlatList
             horizontal
             data={mealPlans}
             keyExtractor={(item) => item?._id?.toString()}
