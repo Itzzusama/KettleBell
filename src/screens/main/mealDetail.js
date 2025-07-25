@@ -19,13 +19,28 @@ import {
 import fonts from "../../assets/fonts";
 import CustomButton from "../../components/CustomButton";
 import { COLORS } from "../../utils/COLORS";
+import AddToLogsModal from "../../components/AddToLogsModal";
+import { useEffect, useState } from "react";
+import { GetApiRequest } from "../../services/api";
 
 export default function MealDetail() {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const { meal } = useRoute().params || {};
+  const { meal, mealId } = useRoute().params || {};
+  const [modal, setModal] = useState(false);
+  const [profile, setProfile] = useState({});
+  const Profile = async () => {
+    try {
+      const res = await GetApiRequest("api/auth/me");
+      setProfile(res?.data?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   console.log("meal:===========>", meal);
-
+  useEffect(() => {
+    Profile();
+  }, []);
   const recipeData = {
     title: meal.name,
     description: meal.description,
@@ -181,9 +196,17 @@ export default function MealDetail() {
             </View>
           </View>
 
-          <CustomButton title={t("MealDetail.start_button")} />
+          <CustomButton title={"Add to Logs"} onPress={() => setModal(true)} />
         </View>
       </ScrollView>
+      <AddToLogsModal
+        isVisible={modal}
+        onDisable={() => setModal(false)}
+        clientId={profile?._id}
+        type="meal"
+        mealId={mealId}
+        mealPlanId={meal._id}
+      />
     </SafeAreaView>
   );
 }

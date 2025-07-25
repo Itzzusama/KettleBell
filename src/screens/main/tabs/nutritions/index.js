@@ -161,6 +161,7 @@ export default function Nutritions() {
       onPress={() =>
         navigation.navigate(RouteName.Recipe_Time, { mealPlan: item })
       }
+      activeOpacity={0.8}
     >
       <Image
         source={{
@@ -171,10 +172,11 @@ export default function Nutritions() {
         }}
         style={styles.mealImage}
       />
-      {/* <View style={styles.mealOverlay}>
+      <View style={styles.mealOverlay}>
         <View style={styles.tagContainer}>
-          <Text style={styles.mealTitle}>{item.name}</Text>
-          <Text style={styles.tagText}>{item.category?.name || "Recipe"}</Text>
+          <Text style={styles.mealTitle} numberOfLines={1}>
+            {item.name}
+          </Text>
         </View>
         <View style={styles.mealContent}>
           <View style={styles.mealInfo}>
@@ -189,12 +191,21 @@ export default function Nutritions() {
             </View>
           </View>
         </View>
-      </View> */}
+      </View>
     </TouchableOpacity>
   );
 
   const renderRecommendedRecipe = ({ item }) => (
-    <TouchableOpacity style={styles.recommendedCard}>
+    <TouchableOpacity
+      style={styles.recommendedCard}
+      activeOpacity={0.8}
+      onPress={() => {
+        // Pass the recipe ID to the detail screen
+        navigation.navigate(RouteName.Receipe_Detail, {
+          recipeId: item._id,
+        });
+      }}
+    >
       <Image
         source={{
           uri:
@@ -204,7 +215,7 @@ export default function Nutritions() {
         }}
         style={styles.recommendedImage}
       />
-      {/* <View style={styles.recommendedOverlay}>
+      <View style={styles.recommendedOverlay}>
         <View style={styles.tagContainer}>
           <Text style={styles.recommendedTitle}>{item.name}</Text>
           <Text style={styles.tagText}>{item.category?.name || "Recipe"}</Text>
@@ -222,7 +233,7 @@ export default function Nutritions() {
             </View>
           </View>
         </View>
-      </View> */}
+      </View>
     </TouchableOpacity>
   );
 
@@ -573,7 +584,6 @@ const styles = StyleSheet.create({
     fontSize: wp(3.4),
     fontFamily: fonts.medium,
     marginBottom: hp(0.5),
-    width: wp(30),
   },
   tagText: {
     backgroundColor: "#FEC635",

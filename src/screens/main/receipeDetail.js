@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   ActivityIndicator,
   Image,
@@ -13,7 +14,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import {
   heightPercentageToDP as hp,
@@ -21,10 +22,11 @@ import {
 } from "react-native-responsive-screen";
 import { useSelector } from "react-redux";
 import fonts from "../../assets/fonts";
-import CustomButton from "../../components/CustomButton";
+
 import { COLORS } from "../../utils/COLORS";
 
 export default function RecipeDetail() {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const route = useRoute();
   const { t } = useTranslation();
@@ -252,7 +254,9 @@ export default function RecipeDetail() {
           </View>
 
           {/* Instructions */}
-          <View style={styles.section}>
+          <View
+            style={[styles.section, { marginBottom: insets.bottom + hp(3) }]}
+          >
             <View style={styles.instructionsContainer}>
               <Text style={styles.instructionsTitle}>
                 {t("RecipeDetail.instructions_title")}
@@ -260,11 +264,6 @@ export default function RecipeDetail() {
               {recipeData.instructions.map(renderInstruction)}
             </View>
           </View>
-
-          <CustomButton
-            title={t("RecipeDetail.next_button")}
-            // onPress={() => navigation.navigate(RouteName.Recipe_Time)}
-          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -407,6 +406,7 @@ const styles = StyleSheet.create({
     borderRadius: wp(0.75),
     backgroundColor: COLORS.primaryColor,
     marginRight: wp(3),
+    marginTop: 8,
   },
   ingredientAmount: {
     color: COLORS.primaryColor,
