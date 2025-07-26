@@ -18,7 +18,6 @@ import {
 import fonts from "../../assets/fonts";
 import { Images } from "../../assets/images";
 import CustomButton from "../../components/CustomButton";
-import RouteName from "../../navigation/RouteName";
 import { COLORS } from "../../utils/COLORS";
 import AddToLogsModal from "../../components/AddToLogsModal";
 import { useState } from "react";
@@ -26,7 +25,7 @@ import { useState } from "react";
 const KettlebellSwing = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { detail, workoutId, clientId } = route?.params || {};
+  const { detail, workoutId, clientId, catName } = route?.params || {};
 
   const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -100,7 +99,7 @@ const KettlebellSwing = () => {
                 </Text>
               </View>
               <Text style={styles.detailValue}>
-                {t("ExerciseDetail.category_value")}
+                {catName ? catName : "N/A"}
               </Text>
             </View>
             <View

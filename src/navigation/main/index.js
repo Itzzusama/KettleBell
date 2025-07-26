@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ExerciseComplete from "../../screens/main/exerciseComplete";
 import ExerciseDetail from "../../screens/main/exerciseDetail";
 import KettlebellSwing from "../../screens/main/exerciseDetail2";
@@ -34,12 +34,30 @@ import InstructorTabs from "../instructorTabs";
 import AddClient from "../../screens/main/instructorTabs/client/AddClient";
 import InboxScreen from "../../screens/main/instructorScreens/InboxScreen";
 import TabStack from "../tabs";
+import LogScreen from "../../screens/main/logsScreen";
+import { useLayoutEffect } from "react";
+import { GetApiRequest } from "../../services/api";
+import { setUserData } from "../../store/slices/usersSlice";
 
 const Stack = createNativeStackNavigator();
 
 const MainStack = () => {
+  const dispatch = useDispatch();
   const role = useSelector((state) => state?.users?.role);
-  console.log("User role:", role); // Debugging
+  const getUser = async () => {
+    try {
+      const res = await GetApiRequest("api/users/profile");
+      if (res?.data?.success) {
+        dispatch(setUserData(res?.data?.data));
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    }
+  };
+
+  useLayoutEffect(() => {
+    getUser();
+  }, []);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -127,6 +145,7 @@ const MainStack = () => {
       <Stack.Screen name={RouteName.Create_Meal} component={createMeal} />
       <Stack.Screen name={RouteName.AddClient} component={AddClient} />
       <Stack.Screen name={RouteName.InboxScreen} component={InboxScreen} />
+      <Stack.Screen name={RouteName.LogScreen} component={LogScreen} />
     </Stack.Navigator>
   );
 };

@@ -80,8 +80,8 @@ const ProgressCircle = ({
 const Home = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const { userData } = useSelector((state) => state.progress);
-  const profileImageUri = userData.profilePicture;
+  const { userData } = useSelector((state) => state.users);
+  const profileImageUri = userData.avatar;
   const userName = userData.name;
   const [workdata, setWorkoutPlans] = useState([]);
   const [exercisesState, setExercisesState] = useState([]);
@@ -254,9 +254,9 @@ const Home = () => {
           }}
         >
           {[
-            { title: "Active Plans", value: "03" },
-            { title: "Total Exercise", value: "03" },
-            { title: "Completed Exercise", value: "03" },
+            { title: "Active\nPlans", value: "03" },
+            { title: "Total\nExercise", value: "03" },
+            { title: "Completed\nExercise", value: "03" },
           ].map((item, index) => (
             <View
               key={index}
@@ -264,7 +264,7 @@ const Home = () => {
                 styles.statCard,
                 {
                   backgroundColor: COLORS.primaryColor,
-                  padding: wp(4),
+                  padding: wp(3),
                   borderRadius: wp(4),
                   gap: hp(2),
                   width: width < 400 ? "48%" : "30%",
@@ -275,8 +275,8 @@ const Home = () => {
               <View
                 style={{
                   flexDirection: "row",
-                  alignItems: "center",
-                  gap: wp(4),
+
+                  justifyContent: "space-between",
                 }}
               >
                 <Text
@@ -284,17 +284,18 @@ const Home = () => {
                     fontFamily: fonts.medium,
                     fontSize: 9,
                     color: "#5D5D5D",
-                    width:
-                      item.title === "Completed Exercise" ? wp(15) : undefined,
                   }}
                 >
                   {item.title}
                 </Text>
+
                 <View
                   style={{
                     backgroundColor: "#FFF",
-                    borderRadius: 100,
+                    borderRadius: 999,
                     padding: 2,
+
+                    alignSelf: "flex-start",
                   }}
                 >
                   <Image

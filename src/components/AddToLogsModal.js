@@ -20,6 +20,7 @@ import Fonts from "../assets/fonts";
 import { Ionicons } from "@expo/vector-icons";
 import { PostApiRequest } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
+import { useToast } from "../utils/Toast/toastContext";
 
 const getTimeSlots = (type) => {
   if (type === "meal") {
@@ -47,6 +48,7 @@ const AddToLogsModal = ({
   mealPlanId,
 }) => {
   const navigation = useNavigation();
+  const toast = useToast();
   const [workoutDate, setWorkoutDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [timeSlot, setTimeSlot] = useState("");
@@ -95,6 +97,12 @@ const AddToLogsModal = ({
         type === "meal" ? mealPayload : payLoad
       );
       if (res?.data?.success) {
+        toast.showToast({
+          type: "success",
+          message: "Log added successfully!",
+          duration: 3000,
+        });
+
         onDisable();
       }
     } catch (error) {
@@ -113,7 +121,7 @@ const AddToLogsModal = ({
     <CustomModal
       isVisible={isVisible}
       onDisable={onDisable}
-      backdropOpacity={0.7}
+      backdropOpacity={0.8}
     >
       <View style={styles.modalContent}>
         <Pressable onPress={onDisable} style={styles.closeButton}>

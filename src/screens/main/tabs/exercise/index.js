@@ -134,6 +134,7 @@ export default function Exercise() {
           exercisesState: exercisesState,
         })
       }
+      activeOpacity={0.8}
     >
       <Image
         source={{
@@ -145,7 +146,9 @@ export default function Exercise() {
       />
       <View style={styles.exerciseOverlay}>
         <View style={styles.exerciseContent}>
-          <Text style={styles.exerciseTitle}>{item.name}</Text>
+          <Text style={styles.exerciseTitle} numberOfLines={2}>
+            {item.name}
+          </Text>
           <View style={styles.equipmentDurationRow}>
             <Text style={styles.exerciseEquipment}>{item.difficulty}</Text>
             <View style={styles.durationContainer}>
