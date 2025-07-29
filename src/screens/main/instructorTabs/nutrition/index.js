@@ -1036,6 +1036,8 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     overflow: "hidden",
     marginRight: wp(3),
+    borderColor:COLORS.white,
+    borderWidth:1
   },
   recipeImage: {
     width: "100%",

@@ -1,11 +1,19 @@
 import React from "react";
-import { StyleSheet, TextInput, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  TextInput,
+  View,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 
 import fonts from "../../../../assets/fonts";
 import { COLORS } from "../../../../utils/COLORS";
 import { Icons } from "../../../../assets/icons";
+import ImageFast from "../../../../components/ImageFast";
+import { Images } from "../../../../assets/images";
 
-const Footer = ({ inputText, setInputText, sendMessage = () => "" }) => {
+const Footer = ({ inputText, setInputText, sendMessage }) => {
   return (
     <View style={[styles.mainContainer]}>
       <View style={styles.inputContainer}>
@@ -19,12 +27,10 @@ const Footer = ({ inputText, setInputText, sendMessage = () => "" }) => {
           onChangeText={(text) => setInputText(text)}
         />
       </View>
-      <TouchableOpacity onPress={sendMessage}>
-        <Icons
-          name={"send"}
-          family={"Feather"}
-          color={COLORS.primaryColor}
-          size={22}
+      <TouchableOpacity onPress={sendMessage} style={{ padding: 12 }}>
+        <Image
+          source={Images.send}
+          style={{ height: 20, width: 20, tintColor: COLORS.primaryColor }}
         />
       </TouchableOpacity>
     </View>
@@ -60,6 +66,6 @@ const styles = StyleSheet.create({
     margin: 0,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: COLORS.black,
+    color: COLORS.primaryColor,
   },
 });
