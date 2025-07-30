@@ -41,11 +41,9 @@ export default function Profile() {
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [profile, setProfile] = useState({});
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const toast = useToast();
-
   const toggleSwitch = () => setIsNotificationEnabled((prev) => !prev);
 
   const handleLogout = async () => {
@@ -173,7 +171,7 @@ export default function Profile() {
             {
               icon: <FontAwesome5 name="bullseye" size={16} color="#FFD700" />,
               label: t("Profile.health_items.primary_goal"),
-              value: "General Fitness",
+              value: userData?.fitnessGoals?.primaryGoal,
             },
             {
               icon: (
@@ -184,23 +182,7 @@ export default function Profile() {
                 />
               ),
               label: t("Profile.health_items.fitness_level"),
-              value: "Beginner",
-            },
-            {
-              icon: <FontAwesome5 name="fire" size={16} color="#FFD700" />,
-              label: t("Profile.health_items.daily_calories"),
-              value: "2556 Calories",
-            },
-            {
-              icon: (
-                <MaterialCommunityIcons
-                  name="food-drumstick"
-                  size={18}
-                  color="#FFD700"
-                />
-              ),
-              label: t("Profile.health_items.protein_goal"),
-              value: "126g",
+              value: userData?.fitnessBackground?.activityLevel,
             },
           ].map((item, index) => (
             <View style={styles.infoRow} key={index}>
@@ -222,6 +204,7 @@ export default function Profile() {
                 <FontAwesome5 name="calculator" size={hp(2)} color="#FFD700" />
               ),
               label: t("Profile.specialties_items.bmr_calculator"),
+              navigateTo: "BMR",
             },
             {
               icon: (
@@ -258,10 +241,10 @@ export default function Profile() {
               onPress={() => {
                 if (item.navigateTo == "Message") {
                   navigation.navigate(RouteName.Message_screen);
-                } else if (item.navigateTo === "LogScreen") {
+                } else if (item.navigateTo == "LogScreen") {
                   navigation.navigate(RouteName.LogScreen);
-                } else {
-                  // Handle other navigation cases if needed
+                } else if (item.navigateTo == "BMR") {
+                  navigation.navigate(RouteName.BMRCalculator);
                 }
               }}
             >

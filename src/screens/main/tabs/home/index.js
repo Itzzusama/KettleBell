@@ -22,8 +22,9 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import Svg, { Circle, G } from "react-native-svg";
+import Svg, { Circle } from "react-native-svg";
 import { useSelector } from "react-redux";
+
 import fonts from "../../../../assets/fonts";
 import { Icons } from "../../../../assets/icons";
 import { Images } from "../../../../assets/images";
@@ -33,16 +34,21 @@ import { COLORS } from "../../../../utils/COLORS";
 
 const { width } = Dimensions.get("window");
 
+/** Circular gauge with absolute center text (no % sign forced). */
 const ProgressCircle = ({
-  percentage,
-  color,
+  value = 0,
+  max = 100,
+  centerText,
+  color = "#FEC635",
   size = wp(15),
   strokeWidth = wp(1.5),
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
+  const safeMax = Math.max(1, Number(max) || 1);
+  const ratio = Math.max(0, Math.min(1, (Number(value) || 0) / safeMax));
   const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const strokeDashoffset = circumference - ratio * circumference;
 
   return (
     <View style={{ width: size, height: size }}>
@@ -54,6 +60,7 @@ const ProgressCircle = ({
           stroke={COLORS.white}
           strokeWidth={strokeWidth}
           fill="none"
+          opacity={0.15}
         />
         <Circle
           cx={size / 2}
@@ -70,7 +77,7 @@ const ProgressCircle = ({
       </Svg>
       <View style={[styles.percentageContainer, { width: size, height: size }]}>
         <Text style={[styles.percentageText, { fontSize: size * 0.25 }]}>
-          {percentage}%
+          {centerText ?? String(value)}
         </Text>
       </View>
     </View>
@@ -81,11 +88,16 @@ const Home = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { userData } = useSelector((state) => state.users);
-  const profileImageUri = userData.avatar;
-  const userName = userData.name;
+
+  const profileImageUri = userData?.avatar;
+  const userName = userData?.name || "User";
+
   const [workdata, setWorkoutPlans] = useState([]);
   const [exercisesState, setExercisesState] = useState([]);
+  const [productivity, setProductivity] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const clientId = userData?._id;
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -101,38 +113,82 @@ const Home = () => {
 
   const fetchInitialData = async () => {
     try {
-      const [exercisesRes, workoutRes] = await Promise.all([
+      if (!clientId) return;
+
+      const [exercisesRes, workoutRes, productivityRes] = await Promise.all([
         GetApiRequest("api/exercises"),
         GetApiRequest("api/workout-plans"),
+        GetApiRequest(
+          `api/client-productivity/${clientId}/productivity?period=7`
+        ),
       ]);
 
-      console.log("Workout plans response:", workoutRes?.data);
-      // console.log("Exercises response:", exercisesRes?.data);
-
-      if (exercisesRes?.data?.data) {
-        setExercisesState(exercisesRes.data.data);
-      } else {
-        console.log("No exercises found");
-        setExercisesState([]);
-      }
-
-      if (workoutRes?.data) {
-        setWorkoutPlans(workoutRes.data);
-      } else {
-        console.log("No workout plans found");
-        setWorkoutPlans([]);
-      }
+      setExercisesState(exercisesRes?.data?.data || []);
+      setWorkoutPlans(workoutRes?.data || []);
+      setProductivity(productivityRes?.data || null);
     } catch (error) {
       console.error("Error fetching data:", error);
       Alert.alert("Error", "Failed to load data");
       setExercisesState([]);
       setWorkoutPlans([]);
+      setProductivity(null);
     }
   };
 
   useEffect(() => {
-    fetchInitialData();
-  }, []);
+    if (clientId) fetchInitialData();
+  }, [clientId]);
+
+  // ======= Derive UI values from productivity =======
+  const period = productivity?.period || 7;
+
+  const activeWorkoutPlans =
+    productivity?.data?.assignedPlans?.workoutPlans?.length || 0;
+  const activeMealPlans =
+    productivity?.data?.assignedPlans?.mealPlans?.length || 0;
+
+  const mealLogs = productivity?.data?.mealStats?.totalLogs || 0;
+  const workoutLogs = productivity?.data?.workoutStats?.totalLogs || 0;
+  const totalLogs7d = mealLogs + workoutLogs;
+
+  // weeklyProgress inside productivityMetrics
+  const metrics = productivity?.data?.productivityMetrics || {};
+  const weekly = metrics?.weeklyProgress || {};
+  const streak = metrics?.streak ?? 0;
+  const firstHalfScore = Math.max(
+    0,
+    Math.min(100, Number(weekly.firstHalfScore) || 0)
+  );
+  const secondHalfScore = Math.max(
+    0,
+    Math.min(100, Number(weekly.secondHalfScore) || 0)
+  );
+  const progressPct = Number.isFinite(weekly.progressPercentage)
+    ? weekly.progressPercentage
+    : 0;
+  const progressAbs = Math.max(0, Math.min(100, Math.abs(progressPct)));
+  const progressPositive = progressPct >= 0;
+  const progressDisplay =
+    (progressPositive ? "+" : "") + String(progressPct) + "%";
+
+  // ======= Top cards =======
+  const statCards = [
+    {
+      title: "Active\nPlans",
+      value: String(activeWorkoutPlans + activeMealPlans).padStart(2, "0"),
+      icon: Icons.dumble,
+    },
+    {
+      title: "Meal Logs\n(7d)",
+      value: String(mealLogs).padStart(2, "0"),
+      icon: Icons.flame,
+    },
+    {
+      title: "Workout Logs\n(7d)",
+      value: String(workoutLogs).padStart(2, "0"),
+      icon: Icons.dumble,
+    },
+  ];
 
   const renderExercise = ({ item }) => (
     <TouchableOpacity
@@ -194,6 +250,7 @@ const Home = () => {
           />
         }
       >
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <View style={styles.logoContainer}>
@@ -233,6 +290,7 @@ const Home = () => {
           </View>
         </View>
 
+        {/* Search */}
         <View style={styles.searchContainer}>
           <View style={styles.searchBar}>
             <Ionicons name="search" size={wp(5)} color="#FFFFFF" />
@@ -244,6 +302,7 @@ const Home = () => {
           </View>
         </View>
 
+        {/* Top Stat Cards */}
         <View
           style={{
             flexDirection: "row",
@@ -251,13 +310,10 @@ const Home = () => {
             gap: wp(2),
             marginHorizontal: wp(5),
             justifyContent: "space-between",
+            flexWrap: "wrap",
           }}
         >
-          {[
-            { title: "Active\nPlans", value: "03" },
-            { title: "Total\nExercise", value: "03" },
-            { title: "Completed\nExercise", value: "03" },
-          ].map((item, index) => (
+          {statCards.map((item, index) => (
             <View
               key={index}
               style={[
@@ -275,7 +331,6 @@ const Home = () => {
               <View
                 style={{
                   flexDirection: "row",
-
                   justifyContent: "space-between",
                 }}
               >
@@ -288,18 +343,16 @@ const Home = () => {
                 >
                   {item.title}
                 </Text>
-
                 <View
                   style={{
                     backgroundColor: "#FFF",
                     borderRadius: 999,
                     padding: 2,
-
                     alignSelf: "flex-start",
                   }}
                 >
                   <Image
-                    source={Icons.dumble}
+                    source={item.icon}
                     style={{
                       width: wp(3),
                       height: wp(3),
@@ -331,32 +384,28 @@ const Home = () => {
           ))}
         </View>
 
+        {/* Weekly Progress (circles only, includes weeklyProgress data) */}
         <View style={styles.weeklyProgressContainer}>
           <View style={styles.sectionHeader}>
-            <Text
-              style={{
-                fontSize: 12,
-                fontFamily: fonts.semiBold,
-                color: "#FFF",
-              }}
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: wp(2) }}
             >
-              {t("Home.weekly_progress_title")}
-            </Text>
-            <LinearGradient
-              colors={["#FFBB02", "#FFBB02"]}
-              style={styles.seeAllButton}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Text style={styles.seeAllText}>{t("Home.exercise_button")}</Text>
-            </LinearGradient>
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontFamily: fonts.semiBold,
+                  color: "#FFF",
+                }}
+              >
+                {t("Home.weekly_progress_title")}
+              </Text>
+            </View>
           </View>
 
           <View style={styles.progressSection}>
+            {/* Keep the left "Total Logs" quick stat */}
             <View style={styles.caloriesSection}>
-              <Text style={styles.caloriesLabel}>
-                {t("Home.calories_label")}
-              </Text>
+              <Text style={styles.caloriesLabel}>Total Logs (7d)</Text>
               <View
                 style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
               >
@@ -364,45 +413,53 @@ const Home = () => {
                   source={Icons.flame}
                   style={{ resizeMode: "contain", width: hp(2), height: hp(2) }}
                 />
-                <Text style={styles.caloriesValue}>1,294</Text>
+                <Text style={styles.caloriesValue}>
+                  {mealLogs + workoutLogs}
+                </Text>
               </View>
             </View>
 
+            {/* Circles for weeklyProgress */}
             <View style={styles.progressCircles}>
               <View style={styles.progressItem}>
-                <ProgressCircle percentage={29} color="#FEC635" />
-                <Text style={styles.progressLabel}>
-                  {t("Home.burn_fat_label")}
-                </Text>
+                <ProgressCircle
+                  value={firstHalfScore}
+                  max={100}
+                  color="#3BA55D"
+                  centerText={String(firstHalfScore)}
+                />
+                <Text style={styles.progressLabel}>First Half</Text>
               </View>
 
               <View style={styles.progressItem}>
-                <ProgressCircle percentage={65} color="#3585FE" />
-                <Text style={styles.progressLabel}>
-                  {t("Home.completed_exercise_label")}
-                </Text>
+                <ProgressCircle
+                  value={secondHalfScore}
+                  max={100}
+                  color="#7876F5"
+                  centerText={String(secondHalfScore)}
+                />
+                <Text style={styles.progressLabel}>Second Half</Text>
               </View>
 
               <View style={styles.progressItem}>
-                <ProgressCircle percentage={85} color="#7876F5" />
-                <Text style={styles.progressLabel}>
-                  {t("Home.uncompleted_exercise_label")}
-                </Text>
+                <ProgressCircle
+                  value={progressAbs}
+                  max={100}
+                  color={progressPositive ? "#52FFB2" : "#FF9A9A"}
+                  centerText={progressDisplay}
+                />
+                <Text style={styles.progressLabel}>Δ vs first half</Text>
               </View>
             </View>
           </View>
         </View>
 
+        {/* Active Workout Plans */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
               {t("Home.active_workout_plan_title")}
             </Text>
-            <TouchableOpacity
-            // onPress={() => navigation.navigate(RouteName.WorkoutPlans)}
-            >
-              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity>
           </View>
 
           <ScrollView
@@ -478,23 +535,19 @@ const Home = () => {
           </ScrollView>
         </View>
 
+        {/* Recommended Exercises */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
               {t("Home.recommended_exercise_title")}
             </Text>
-            <TouchableOpacity
-            // onPress={() => navigation.navigate(RouteName.Exercises)}
-            >
-              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={styles.horizontalScrollContainer}>
             <FlatList
               data={exercisesState}
               renderItem={renderExercise}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item.id?.toString() || String(item._id)}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalExerciseList}
@@ -509,16 +562,15 @@ const Home = () => {
   );
 };
 
+/* ======================= STYLES ======================= */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.backgroundColor,
     paddingTop: hp(6),
   },
-  scrollView: {
-    flex: 1,
-    backgroundColor: COLORS.backgroundColor,
-  },
+  scrollView: { flex: 1, backgroundColor: COLORS.backgroundColor },
+
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -527,10 +579,7 @@ const styles = StyleSheet.create({
     paddingTop: hp(1),
     paddingBottom: hp(2),
   },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  headerLeft: { flexDirection: "row", alignItems: "center" },
   logoContainer: {
     width: wp(10),
     height: wp(10),
@@ -539,25 +588,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: wp(2),
   },
-  img: {
-    width: hp(4),
-    height: hp(4),
-    resizeMode: "contain",
-  },
-  welcomeText: {
-    color: "#FFF",
-    fontSize: wp(4),
-    fontFamily: fonts.medium,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  iconButton: {
-    padding: wp(2),
-    marginRight: wp(2),
-    position: "relative",
-  },
+  img: { width: hp(4), height: hp(4), resizeMode: "contain" },
+  welcomeText: { color: "#FFF", fontSize: wp(4), fontFamily: fonts.medium },
+  headerRight: { flexDirection: "row", alignItems: "center" },
+  iconButton: { padding: wp(2), marginRight: wp(2), position: "relative" },
   notificationDot: {
     position: "absolute",
     top: wp(1.5),
@@ -567,18 +601,10 @@ const styles = StyleSheet.create({
     borderRadius: wp(5),
     backgroundColor: "#4CAF50",
   },
-  profileButton: {
-    marginLeft: wp(2),
-  },
-  profileImage: {
-    width: wp(10),
-    height: wp(10),
-    borderRadius: wp(5),
-  },
-  searchContainer: {
-    paddingHorizontal: wp(4),
-    marginBottom: hp(2),
-  },
+  profileButton: { marginLeft: wp(2) },
+  profileImage: { width: wp(10), height: wp(10), borderRadius: wp(5) },
+
+  searchContainer: { paddingHorizontal: wp(4), marginBottom: hp(2) },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -595,13 +621,16 @@ const styles = StyleSheet.create({
     fontSize: wp(3),
     marginLeft: wp(3),
     fontFamily: fonts.regular,
+    top: 3,
   },
+
   statCard: {
     flex: 1,
     padding: wp(4),
     borderRadius: wp(4),
     position: "relative",
   },
+
   weeklyProgressContainer: {
     paddingHorizontal: wp(5),
     marginBottom: hp(3),
@@ -616,82 +645,65 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: hp(2),
   },
-  sectionTitle: {
-    color: "#FFF",
-    fontSize: wp(4.5),
-    fontFamily: fonts.medium,
-  },
   seeAllButton: {
     paddingHorizontal: wp(3),
     paddingVertical: hp(0.8),
     borderRadius: wp(1),
   },
-  seeAllText: {
-    color: "#FFF",
-    fontSize: wp(3),
-    fontFamily: fonts.regular,
-  },
-  seeAllLink: {
-    color: "#FFF",
-    fontSize: wp(3.5),
-    fontFamily: fonts.medium,
-    marginRight: wp(2.3),
-  },
+  seeAllText: { color: "#FFF", fontSize: wp(3), fontFamily: fonts.regular },
+
   progressSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  caloriesSection: {
-    flex: 1,
-  },
+  caloriesSection: { flex: 1 },
   caloriesLabel: {
     color: "#888",
     fontSize: wp(3),
     marginBottom: hp(0.5),
     fontFamily: fonts.regular,
   },
-  caloriesValue: {
-    color: "#FFF",
-    fontSize: 17,
-    fontFamily: fonts.semiBold,
-  },
-  progressCircles: {
-    flexDirection: "row",
-    gap: wp(4),
-  },
-  progressItem: {
-    alignItems: "center",
-  },
+  caloriesValue: { color: "#FFF", fontSize: 17, fontFamily: fonts.semiBold },
+
+  progressCircles: { flexDirection: "row", gap: wp(4) },
+  progressItem: { alignItems: "center" },
   percentageContainer: {
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
   },
-  percentageText: {
-    color: "#FFF",
-    fontWeight: "bold",
-  },
+  percentageText: { color: "#FFF", fontWeight: "bold" },
   progressLabel: {
     color: "#888",
     fontSize: wp(2.1),
     textAlign: "center",
     marginTop: hp(1),
-    maxWidth: wp(15),
+    maxWidth: wp(18),
     fontFamily: fonts.regular,
   },
-  sectionContainer: {
-    paddingHorizontal: wp(5),
-    marginBottom: hp(3),
+
+  /* Chips (for streak) */
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp(1.2),
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.6),
+    borderRadius: wp(3),
   },
-  workoutCardScrollable: {
-    width: wp(85),
-    marginRight: wp(3),
+  chipNeutral: { backgroundColor: "#FFD66B" },
+  chipText: {
+    color: "#0B0B0C",
+    fontSize: wp(3.2),
+    fontFamily: fonts.semiBold || fonts.medium,
   },
-  scrollViewContent: {
-    // paddingHorizontal: wp(5),
-    paddingVertical: hp(1),
-  },
+
+  sectionContainer: { paddingHorizontal: wp(5), marginBottom: hp(3) },
+  sectionTitle: { color: "#FFF", fontSize: wp(4.5), fontFamily: fonts.medium },
+
+  workoutCardScrollable: { width: wp(85), marginRight: wp(3) },
+  scrollViewContent: { paddingVertical: hp(1) },
   emptyScrollViewContent: {
     flexGrow: 1,
     justifyContent: "center",
@@ -711,6 +723,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     opacity: 0.7,
   },
+
   workoutCard: {
     borderRadius: wp(4),
     overflow: "hidden",
@@ -718,10 +731,7 @@ const styles = StyleSheet.create({
     position: "relative",
     height: hp(25),
   },
-  workoutImage: {
-    width: "100%",
-    height: "100%",
-  },
+  workoutImage: { width: "100%", height: "100%" },
   workoutOverlay: {
     position: "absolute",
     bottom: 0,
@@ -732,14 +742,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
     paddingBottom: hp(2),
   },
-  workoutInfo: {
-    // alignItems: 'flex-start',
-  },
-  workoutTitle: {
-    color: "#FFF",
-    fontSize: wp(5),
-    fontFamily: fonts.medium,
-  },
+  workoutInfo: {},
+  workoutTitle: { color: "#FFF", fontSize: wp(5), fontFamily: fonts.medium },
   workoutMeta: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -750,17 +754,10 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     fontFamily: fonts.regular,
   },
-  workoutDuration: {
-    color: "#FFF",
-    fontSize: wp(3.5),
-  },
-  horizontalScrollContainer: {
-    marginBottom: hp(3),
-  },
-  horizontalExerciseList: {
-    // paddingHorizontal: wp(4),
-    paddingBottom: wp(2),
-  },
+  workoutDuration: { color: "#FFF", fontSize: wp(3.5) },
+
+  horizontalScrollContainer: { marginBottom: hp(3) },
+  horizontalExerciseList: { paddingBottom: wp(2) },
   exerciseCard: {
     width: wp(60),
     height: hp(22),
@@ -787,9 +784,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(3),
     paddingBottom: hp(1.5),
   },
-  exerciseInfo: {
-    // alignItems: 'flex-start',
-  },
+  exerciseInfo: {},
   exerciseTitle: {
     color: "#FFF",
     fontSize: wp(3.5),
@@ -811,10 +806,7 @@ const styles = StyleSheet.create({
     fontSize: wp(3),
     fontFamily: fonts.regular,
   },
-  durationContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
+  durationContainer: { flexDirection: "row", alignItems: "center" },
 });
 
 export default Home;

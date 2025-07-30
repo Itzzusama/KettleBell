@@ -23,6 +23,7 @@ import fonts from "../../../../assets/fonts";
 import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
+import NoData from "../../../../components/NoData";
 
 export default function Exercise() {
   const navigation = useNavigation();
@@ -31,7 +32,8 @@ export default function Exercise() {
   const [exercisesState, setExercisesState] = useState([]);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
-
+  const [searchText, setSearchText] = useState("");
+  const [filteredExercises, setFilteredExercises] = useState([]);
   const fetchInitialData = async () => {
     try {
       // Fetch categories and exercises in parallel
@@ -73,10 +75,10 @@ export default function Exercise() {
           : `api/exercises/category/${categoryId}`;
 
       const res = await GetApiRequest(endpoint);
-      console.log("Exercises response:", res?.data?.data);
 
       if (res?.data?.data) {
         setExercisesState(res.data.data);
+        setFilteredExercises(res.data.data);
       } else {
         console.log("No exercises found for category:", categoryId);
         setExercisesState([]);
@@ -106,6 +108,19 @@ export default function Exercise() {
     setSelectedCategory(categoryId);
   };
 
+  const handleSearch = (text) => {
+    setSearchText(text);
+
+    if (text.trim() === "") {
+      setFilteredExercises(exercisesState);
+    } else {
+      const filtered = exercisesState.filter((exercise) =>
+        exercise.name.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredExercises(filtered);
+    }
+  };
+
   const renderCategory = ({ item }) => (
     <TouchableOpacity
       style={[
@@ -113,6 +128,7 @@ export default function Exercise() {
         item.active && styles.activeCategoryButton,
       ]}
       onPress={() => handleCategoryPress(item.id)}
+      activeOpacity={0.8}
     >
       <Text
         style={[styles.categoryText, item.active && styles.activeCategoryText]}
@@ -189,6 +205,9 @@ export default function Exercise() {
             style={styles.searchInput}
             placeholder={t("Exercise.search_placeholder")}
             placeholderTextColor="#FFFFFF"
+            value={searchText}
+            onChangeText={(text) => handleSearch(text)}
+            cursorColor={COLORS.white}
           />
         </View>
       </View>
@@ -207,13 +226,29 @@ export default function Exercise() {
 
       {/* Exercise Grid */}
       <FlatList
-        data={exercisesState}
+        data={filteredExercises}
         renderItem={renderExercise}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.exerciseGrid}
         columnWrapperStyle={styles.exerciseRow}
+        ListEmptyComponent={() => (
+          <NoData
+            title={
+              searchText
+                ? "No exercises matched your search"
+                : "No exercises available yet"
+            }
+            subtitle={
+              searchText
+                ? "Try adjusting your keywords or clearing the search."
+                : "When new exercises are added, they will appear here."
+            }
+            iconName={searchText ? "search-outline" : "barbell-outline"}
+            marginTop={hp(6)}
+          />
+        )}
       />
     </SafeAreaView>
   );
@@ -264,6 +299,7 @@ const styles = StyleSheet.create({
     fontSize: wp(3),
     marginLeft: wp(3),
     fontFamily: fonts.regular,
+    top: 2,
   },
   categorySection: {
     paddingHorizontal: wp(4),
@@ -322,6 +358,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 4,
   },
   exerciseEquipment: {
     color: "#CCC",
@@ -355,7 +392,7 @@ const styles = StyleSheet.create({
   },
   activeCategoryButton: {
     backgroundColor: COLORS.primaryColor,
-    borderColor: COLORS.gray3,
+    borderColor: COLORS.gra3,
   },
   categoryText: {
     color: COLORS.gray3,
@@ -364,6 +401,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
     lineHeight: wp(4),
+    textTransform: "capitalize",
   },
   activeCategoryText: {
     color: "#000",

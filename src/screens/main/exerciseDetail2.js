@@ -47,9 +47,8 @@ const KettlebellSwing = () => {
         >
           <Ionicons name="arrow-back" size={wp(6)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {t("ExerciseDetail2.header_title")}
-        </Text>
+        <Text style={styles.headerTitle}>Detail</Text>
+        <View style={{ width: wp(10) }} />
       </View>
 
       <ScrollView
@@ -189,9 +188,6 @@ const KettlebellSwing = () => {
               ))}
             </View>
           </View>
-        </View>
-        <View style={styles.buttonContainer}>
-          <CustomButton title={t("ExerciseDetail2.start_button")} />
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -6,7 +6,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import CustomModal from "./CustomModal";
 import { COLORS } from "../utils/COLORS";
 import {
@@ -21,6 +21,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { PostApiRequest } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { useToast } from "../utils/Toast/toastContext";
+import LottieView from "lottie-react-native";
+import successAnimation from "../assets/animations/success.json"; // <-- Make sure path is correct
 
 const getTimeSlots = (type) => {
   if (type === "meal") {
@@ -47,6 +49,7 @@ const AddToLogsModal = ({
   mealId,
   mealPlanId,
 }) => {
+  const animation = useRef(null);
   const navigation = useNavigation();
   const toast = useToast();
   const [workoutDate, setWorkoutDate] = useState(new Date());
@@ -56,6 +59,7 @@ const AddToLogsModal = ({
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false); // <-- For animation
 
   const TIME_SLOTS = getTimeSlots(type);
 
@@ -69,21 +73,21 @@ const AddToLogsModal = ({
   const handleSubmit = async () => {
     const formattedDate = workoutDate.toISOString().split("T")[0];
     const payLoad = {
-      clientId: clientId,
-      exerciseId: exerciseId,
-      workoutId: workoutId,
+      clientId,
+      exerciseId,
+      workoutId,
       workoutDate: formattedDate,
       timeSlot: timeSlot.toLowerCase(),
-      notes: notes,
-      duration: duration,
+      notes,
+      duration,
     };
 
     const mealPayload = {
-      clientId: clientId,
+      clientId,
       mealDate: formattedDate,
       mealtime: timeSlot.toLowerCase(),
       MealPlanId: mealId,
-      notes: notes,
+      notes,
       DailyMealId: mealPlanId,
     };
 
@@ -96,17 +100,23 @@ const AddToLogsModal = ({
         endpoint,
         type === "meal" ? mealPayload : payLoad
       );
-      if (res?.data?.success) {
-        toast.showToast({
-          type: "success",
-          message: "Log added successfully!",
-          duration: 3000,
-        });
 
-        onDisable();
+      if (res?.data?.success) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+
+          onDisable();
+        }, 5000);
       }
     } catch (error) {
+      toast.showToast({
+        type: "error",
+        message: error?.response?.data?.message,
+        duration: 3000,
+      });
       console.log(error?.response?.data?.message);
+      onDisable();
     } finally {
       setIsLoading(false);
     }
@@ -124,6 +134,19 @@ const AddToLogsModal = ({
       backdropOpacity={0.8}
     >
       <View style={styles.modalContent}>
+        {showSuccess && (
+          <View style={styles.successOverlay}>
+            <LottieView
+              ref={animation}
+              source={successAnimation}
+              autoPlay
+              loop={false}
+              style={{ width: 350, height: 350 }}
+              speed={0.5}
+            />
+          </View>
+        )}
+
         <Pressable onPress={onDisable} style={styles.closeButton}>
           <Ionicons name="close" size={24} color={COLORS.white} />
         </Pressable>
@@ -203,7 +226,7 @@ const AddToLogsModal = ({
             )}
           </View>
 
-          {/* Duration - Only show for workout type */}
+          {/* Duration */}
           {type === "workout" && (
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Duration (minutes)</Text>
@@ -233,7 +256,7 @@ const AddToLogsModal = ({
             />
           </View>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <View style={styles.buttonContainer}>
             <CustomButton
               title="Save Log"
@@ -344,5 +367,16 @@ const styles = StyleSheet.create({
     right: wp(4),
     zIndex: 1,
     padding: 8,
+  },
+  successOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
   },
 });

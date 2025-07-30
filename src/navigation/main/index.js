@@ -38,6 +38,7 @@ import LogScreen from "../../screens/main/logsScreen";
 import { useLayoutEffect } from "react";
 import { GetApiRequest } from "../../services/api";
 import { setUserData } from "../../store/slices/usersSlice";
+import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -146,6 +147,10 @@ const MainStack = () => {
       <Stack.Screen name={RouteName.AddClient} component={AddClient} />
       <Stack.Screen name={RouteName.InboxScreen} component={InboxScreen} />
       <Stack.Screen name={RouteName.LogScreen} component={LogScreen} />
+      <Stack.Screen
+        name={RouteName.BMRCalculator}
+        component={BMRCalculatorScreen}
+      />
     </Stack.Navigator>
   );
 };

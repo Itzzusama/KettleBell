@@ -22,8 +22,9 @@ import { COLORS } from "../../utils/COLORS";
 import AddToLogsModal from "../../components/AddToLogsModal";
 import { useEffect, useState } from "react";
 import { GetApiRequest } from "../../services/api";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function MealDetail() {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { meal, mealId } = useRoute().params || {};
@@ -196,7 +197,11 @@ export default function MealDetail() {
             </View>
           </View>
 
-          <CustomButton title={"Add to Logs"} onPress={() => setModal(true)} />
+          <CustomButton
+            title={"Add to Logs"}
+            onPress={() => setModal(true)}
+            marginBottom={insets.bottom + 10}
+          />
         </View>
       </ScrollView>
       <AddToLogsModal
