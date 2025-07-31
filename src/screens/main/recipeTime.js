@@ -114,23 +114,48 @@ export default function MealScreen() {
 
     return (
       <Pressable
-      key={meal.id} 
-      style={({ pressed }) => [
-        styles.mealItem,
-        pressed && { opacity: 0.8 }
-      ]}
-      onPress={() => navigation.navigate(RouteName.Meal_Detail, { meal })}
-    >
-      <Image source={{ uri: meal.image }} style={styles.mealItemImage} />
-      <View style={styles.mealItemContent}>
-        <Text style={styles.mealItemTitle}>{meal.name}</Text>
-        <Text style={styles.mealItemDescription}>{meal.description}</Text>
-        <Text style={styles.mealItemTime}>
-          {t("MealScreen.time_label")}
-          {meal.time} min
-        </Text>
-      </View>
-    </Pressable>
+        key={meal.id}
+        style={({ pressed }) => [styles.mealItem, pressed && { opacity: 0.8 }]}
+        onPress={() =>
+          navigation.navigate(RouteName.Meal_Detail, {
+            meal,
+            mealId: mealPlan._id,
+          })
+        }
+      >
+        <Image source={{ uri: meal.image }} style={styles.mealItemImage} />
+        <View style={styles.mealItemContent}>
+          <Text style={styles.mealItemTitle}>{meal.name}</Text>
+          <Text style={styles.mealItemDescription}>{meal.description}</Text>
+
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.mealItemTime}>
+              {t("MealScreen.time_label")}
+              {meal.time} min
+            </Text>
+            <TouchableOpacity
+              style={styles.startBtn}
+              onPress={() =>
+                navigation.navigate(RouteName.Meal_Detail, {
+                  meal,
+                  mealId: mealPlan._id,
+                })
+              }
+              activeOpacity={0.7}
+            >
+              <Text
+                style={{
+                  color: "#FFF",
+                  fontSize: wp(1.5),
+                  fontWeight: "bold",
+                }}
+              >
+                Start
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Pressable>
     );
   };
 
@@ -435,6 +460,7 @@ const styles = StyleSheet.create({
     color: COLORS.primaryColor,
     fontSize: wp(3),
     fontFamily: fonts.regular,
+    flex: 1,
   },
   mealItemIngredients: {
     color: COLORS.gray2,
@@ -471,5 +497,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     textAlign: "center",
     opacity: 0.7,
+  },
+  startBtn: {
+    backgroundColor: COLORS.primaryColor,
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(4),
+    borderRadius: wp(2),
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

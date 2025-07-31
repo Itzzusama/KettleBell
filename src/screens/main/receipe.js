@@ -1,7 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
@@ -13,38 +13,52 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import { useDispatch, useSelector } from 'react-redux';
-import fonts from '../../assets/fonts';
-import RouteName from '../../navigation/RouteName';
-import { GetApiRequest } from '../../services/api';
-import { fetchRecipesFailure, fetchRecipesStart, fetchRecipesSuccess } from '../../store/slices/recipesSlice';
-import { COLORS } from '../../utils/COLORS';
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import { useDispatch, useSelector } from "react-redux";
+import fonts from "../../assets/fonts";
+import RouteName from "../../navigation/RouteName";
+import { GetApiRequest } from "../../services/api";
+import {
+  fetchRecipesFailure,
+  fetchRecipesStart,
+  fetchRecipesSuccess,
+} from "../../store/slices/recipesSlice";
+import { COLORS } from "../../utils/COLORS";
 
 export default function YourRecipesScreen() {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  
+
   // Redux
   const dispatch = useDispatch();
-  const { recipes: reduxRecipes, loading, error } = useSelector((state) => state.recipes);
-  
+  const {
+    recipes: reduxRecipes,
+    loading,
+    error,
+  } = useSelector((state) => state.recipes);
+
   // Local state
   const [filteredRecipes, setFilteredRecipes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Handle search input
   const handleSearch = (query) => {
     setSearchQuery(query);
-    if (query.trim() === '') {
+    if (query.trim() === "") {
       setFilteredRecipes(reduxRecipes);
     } else {
-      const filtered = reduxRecipes.filter(recipe => 
-        recipe.title.toLowerCase().includes(query.toLowerCase()) ||
-        (recipe.tag && recipe.tag.toLowerCase().includes(query.toLowerCase())) ||
-        (recipe.client && recipe.client.toLowerCase().includes(query.toLowerCase()))
+      const filtered = reduxRecipes.filter(
+        (recipe) =>
+          recipe.title.toLowerCase().includes(query.toLowerCase()) ||
+          (recipe.tag &&
+            recipe.tag.toLowerCase().includes(query.toLowerCase())) ||
+          (recipe.client &&
+            recipe.client.toLowerCase().includes(query.toLowerCase()))
       );
       setFilteredRecipes(filtered);
     }
@@ -56,22 +70,25 @@ export default function YourRecipesScreen() {
       dispatch(fetchRecipesStart());
       const response = await GetApiRequest("api/recipes");
       console.log("Recipes API response:", response?.data);
-      
+
       if (response?.data?.recipes) {
         const formattedRecipes = response.data.recipes.map((recipe) => ({
           id: recipe._id,
           title: recipe.name,
-          image: recipe.banner || recipe.image || '/placeholder.svg?height=300&width=400',
-          tag: recipe.category?.name || 'Recipe',
+          image:
+            recipe.banner ||
+            recipe.image ||
+            "/placeholder.svg?height=300&width=400",
+          tag: recipe.category?.name || "Recipe",
           client: recipe.description || `${recipe.servings} servings`,
-          duration: recipe.prepTime ? `${recipe.prepTime}min` : '15min',
+          duration: recipe.prepTime ? `${recipe.prepTime}min` : "15min",
           banner: recipe.banner,
           ingredients: recipe.ingredients,
           instructions: recipe.instructions,
-          nutrition: recipe.nutrition, 
-          originalData: recipe
+          nutrition: recipe.nutrition,
+          originalData: recipe,
         }));
-        
+
         dispatch(fetchRecipesSuccess(formattedRecipes));
         setFilteredRecipes(formattedRecipes);
       } else {
@@ -89,10 +106,10 @@ export default function YourRecipesScreen() {
 
   // Search functionality
   useEffect(() => {
-    if (searchQuery.trim() === '') {
+    if (searchQuery.trim() === "") {
       setFilteredRecipes(reduxRecipes);
     } else {
-      const filtered = reduxRecipes.filter(recipe => 
+      const filtered = reduxRecipes.filter((recipe) =>
         recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredRecipes(filtered);
@@ -105,19 +122,26 @@ export default function YourRecipesScreen() {
   }, []);
 
   const renderRecipe = ({ item }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.recipeCard}
       onPress={() => {
         // Pass the recipe ID to the detail screen
-        navigation.navigate(RouteName.Receipe_Detail, { 
-          recipeId: item.id
+        navigation.navigate(RouteName.Receipe_Detail, {
+          recipeId: item.id,
         });
       }}
+      activeOpacity={0.8}
     >
       <Image source={{ uri: item.image }} style={styles.recipeImage} />
       <View style={styles.recipeOverlay}>
         <View style={styles.recipeContent}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <Text style={styles.recipeTitle} numberOfLines={2}>
               {item.title}
             </Text>
@@ -153,7 +177,9 @@ export default function YourRecipesScreen() {
   if (error) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={{ color: COLORS.error, marginBottom: 10 }}>Error: {error}</Text>
+        <Text style={{ color: COLORS.error, marginBottom: 10 }}>
+          Error: {error}
+        </Text>
         <Button title="Retry" onPress={fetchRecipes} />
       </View>
     );
@@ -161,17 +187,21 @@ export default function YourRecipesScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('YourRecipes.header_title')}</Text>
+        <Text style={styles.headerTitle}>{t("YourRecipes.header_title")}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -181,13 +211,13 @@ export default function YourRecipesScreen() {
           <Ionicons name="search" size={wp(4.5)} color="#888" />
           <TextInput
             style={styles.searchInput}
-            placeholder={t('YourRecipes.search_placeholder')}
+            placeholder={t("YourRecipes.search_placeholder")}
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={handleSearch}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => handleSearch('')}>
+            <TouchableOpacity onPress={() => handleSearch("")}>
               <Ionicons name="close" size={wp(4.5)} color="#888" />
             </TouchableOpacity>
           )}
@@ -203,19 +233,24 @@ export default function YourRecipesScreen() {
           numColumns={2}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.recipeGrid}
-          columnWrapperStyle={styles.recipeRow}
+          columnWrapperStyle={[
+            styles.recipeRow,
+            {
+              justifyContent:
+                filteredRecipes?.length == 1 ? "flex-start" : "center",
+            },
+          ]}
         />
       ) : (
         <View style={styles.emptyContainer}>
           <Ionicons name="restaurant-outline" size={wp(15)} color="#888" />
           <Text style={styles.emptyText}>
-            {searchQuery ? 'No recipes found matching your search' : 'No recipes available'}
+            {searchQuery
+              ? "No recipes found matching your search"
+              : "No recipes available"}
           </Text>
           {!searchQuery && (
-            <TouchableOpacity 
-              style={styles.retryButton}
-              onPress={fetchRecipes}
-            >
+            <TouchableOpacity style={styles.retryButton} onPress={fetchRecipes}>
               <Text style={styles.retryText}>Retry</Text>
             </TouchableOpacity>
           )}
@@ -232,9 +267,9 @@ const styles = StyleSheet.create({
     paddingTop: hp(6),
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: wp(5),
     paddingVertical: hp(2),
   },
@@ -242,11 +277,11 @@ const styles = StyleSheet.create({
     padding: wp(2.5),
   },
   headerTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: hp(2.3),
-    textAlign: 'center',
+    textAlign: "center",
     flex: 1,
-    fontFamily: fonts.medium
+    fontFamily: fonts.medium,
   },
   placeholder: {
     width: wp(10),
@@ -256,9 +291,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(2.5),
     marginTop: hp(1),
   },
-  searchBar: { 
-    flexDirection: 'row',
-    alignItems: 'center',
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.backgroundColor,
     borderRadius: wp(2.5),
     paddingHorizontal: wp(3.5),
@@ -268,32 +303,32 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4),
     marginLeft: wp(3),
-    fontFamily: fonts.regular
+    fontFamily: fonts.regular,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4),
     marginTop: hp(2),
     fontFamily: fonts.regular,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: wp(10),
   },
   emptyText: {
-    color: '#888',
+    color: "#888",
     fontSize: wp(4),
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: hp(2),
     fontFamily: fonts.regular,
   },
@@ -305,7 +340,7 @@ const styles = StyleSheet.create({
     marginTop: hp(3),
   },
   retryText: {
-    color: '#000',
+    color: "#000",
     fontSize: wp(4),
     fontFamily: fonts.medium,
   },
@@ -314,21 +349,21 @@ const styles = StyleSheet.create({
     paddingBottom: hp(12),
   },
   recipeRow: {
-    justifyContent: 'center',
+    justifyContent: "center",
     marginBottom: hp(2),
   },
   recipeCard: {
     width: wp(45),
     height: hp(26),
     borderRadius: wp(3),
-    overflow: 'hidden',
-    position: 'relative',
+    overflow: "hidden",
+    position: "relative",
     marginHorizontal: wp(1),
   },
   recipeImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
   tagContainer: {
     backgroundColor: COLORS.primaryColor,
@@ -338,51 +373,51 @@ const styles = StyleSheet.create({
     marginLeft: wp(2),
   },
   tagText: {
-    color: '#000',
+    color: "#000",
     fontSize: wp(2.6),
-    fontFamily: fonts.regular
+    fontFamily: fonts.regular,
   },
   recipeOverlay: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     height: hp(11),
     padding: wp(2.5),
   },
   recipeContent: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   recipeTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(3.8),
     fontFamily: fonts.medium,
     lineHeight: wp(4.8),
     maxWidth: wp(27),
   },
   recipeDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginTop: hp(0.5),
   },
   clientInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     flex: 1,
   },
   clientText: {
-    color: '#CCC',
+    color: "#CCC",
     fontSize: wp(3),
     marginLeft: wp(1),
     fontFamily: fonts.regular,
     flex: 1,
   },
   durationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   durationText: {
     color: COLORS.primaryColor,

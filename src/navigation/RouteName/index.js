@@ -1,3 +1,5 @@
+import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
+
 const RouteName = {
   AuthStack: "AuthStack",
   MainStack: "Main",
@@ -59,6 +61,8 @@ const RouteName = {
   Create_Meal: "createMeal",
   AddClient: "AddClient",
   InboxScreen: "InboxScreen",
+  LogScreen: "LogScreen",
+  BMRCalculator: "BMRCalculatorScreen",
 };
 
 export default RouteName;

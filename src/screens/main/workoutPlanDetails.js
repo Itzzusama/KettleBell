@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Alert,
@@ -12,6 +12,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Animated,
+  LayoutAnimation,
+  LayoutChangeEvent,
+  UIManager,
+  Platform,
 } from "react-native";
 import {
   heightPercentageToDP as hp,
@@ -23,6 +28,12 @@ import RouteName from "../../navigation/RouteName";
 import { GetApiRequest } from "../../services/api";
 import { COLORS } from "../../utils/COLORS";
 
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 const WorkoutPlanDetails = ({ route }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
@@ -33,6 +44,17 @@ const WorkoutPlanDetails = ({ route }) => {
   const [error, setError] = useState(null);
   const { workoutId } = route.params;
   const [profile, setProfile] = useState({});
+  // Animation refs
+  const rotateAnims = useRef([]).current;
+  const fadeAnims = useRef([]).current;
+
+  useEffect(() => {
+    // Initialize animation values for each workout day
+    workoutDay.forEach((_, index) => {
+      rotateAnims[index] = new Animated.Value(0);
+      fadeAnims[index] = new Animated.Value(0);
+    });
+  }, [workoutDay]);
   const Profile = async () => {
     try {
       const res = await GetApiRequest("api/auth/me");
@@ -42,12 +64,44 @@ const WorkoutPlanDetails = ({ route }) => {
     }
   };
   const toggleDay = (dayIndex) => {
+    const config = {
+      duration: 500,
+      update: {
+        duration: 500,
+        property: LayoutAnimation.Properties.opacity,
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+      delete: {
+        duration: 500,
+        property: LayoutAnimation.Properties.opacity,
+        type: LayoutAnimation.Types.easeInEaseOut,
+      },
+    };
+
+    LayoutAnimation.configureNext(config);
+
+    const isExpanding = !expandedDays[dayIndex];
+
+    // Animate rotation
+    Animated.timing(rotateAnims[dayIndex], {
+      toValue: isExpanding ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
+    // Animate content
+    Animated.timing(fadeAnims[dayIndex], {
+      toValue: isExpanding ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+
     setExpandedDays((prev) => ({
       ...prev,
-      [dayIndex]: !prev[dayIndex],
+      [dayIndex]: isExpanding,
     }));
   };
-  console.log(profile);
+
   const fetchWorkoutPlan = async () => {
     if (!workoutId) {
       setError("No workout ID provided");
@@ -92,7 +146,132 @@ const WorkoutPlanDetails = ({ route }) => {
       detail: detail,
       workoutId: workoutId,
       clientId: profile?._id,
+      catName: workout?.category?.name,
     });
+  };
+  const renderDayCard = (day, index) => {
+    const spin =
+      rotateAnims[index]?.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["0deg", "180deg"],
+      }) || "0deg";
+
+    return (
+      <View
+        key={index}
+        style={[
+          styles.dayContainer,
+          expandedDays[index] && styles.expandedContainer,
+        ]}
+      >
+        <TouchableOpacity
+          style={styles.dayHeader}
+          onPress={() => toggleDay(index)}
+          activeOpacity={0.8}
+        >
+          <View style={styles.dayContent}>
+            <View style={styles.dayLeftContent}>
+              <View style={styles.dayLeftInner}>
+                <View style={styles.dumbleContainer}>
+                  <Image source={Images.dumble} style={styles.dumbleImage} />
+                </View>
+                <View>
+                  <Text style={styles.dayTitle}>{day.name || "N/A"}</Text>
+                  <Text style={styles.dayDescription}>
+                    {day.description || "N/A"}
+                  </Text>
+                  <View style={styles.dayMeta}>
+                    <View style={styles.metaItem}>
+                      <Image
+                        source={Images.dumble}
+                        style={styles.dumbleImage2}
+                      />
+                      <Text style={styles.metaText}>
+                        Exercises:{" "}
+                        {day.exercisesCount || day.exercises?.length || 0}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+            <View style={styles.dayRightContent}>
+              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <Ionicons
+                  name="chevron-down"
+                  size={wp(4)}
+                  color={COLORS.white}
+                />
+              </Animated.View>
+              <Image
+                source={day.image ? { uri: day.image } : Images.women}
+                style={styles.exercisePreview}
+                resizeMode="contain"
+              />
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        {expandedDays[index] && (
+          <Animated.View
+            style={[
+              styles.exerciseList,
+              {
+                opacity: fadeAnims[index],
+                transform: [
+                  {
+                    translateY: fadeAnims[index].interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <Text style={styles.exerciseListTitle}>
+              {day.exercises?.length || 0} Exercises
+            </Text>
+            {day.exercises?.map((exercise, exerciseIndex) => (
+              <TouchableOpacity
+                key={exerciseIndex}
+                style={styles.exerciseItem}
+                onPress={() => handleExercisePress(exercise, day?._id)}
+                activeOpacity={0.7}
+              >
+                <Image
+                  source={{
+                    uri:
+                      exercise.image ||
+                      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop",
+                  }}
+                  style={styles.exerciseImage}
+                />
+                <View style={styles.exerciseDetails}>
+                  <Text style={styles.exerciseName}>{exercise.name}</Text>
+                  <Text style={styles.exerciseFocus}>{exercise.focus}</Text>
+                  <View style={styles.exerciseMeta}>
+                    <Text style={styles.exerciseEquipment} numberOfLines={2}>
+                      {exercise.equipment}
+                    </Text>
+                    <View style={styles.exerciseDuration}>
+                      <Ionicons
+                        name="time"
+                        size={wp(3)}
+                        color={COLORS.primaryColor}
+                      />
+                      <Text style={styles.exerciseDurationText}>
+                        {exercise.duration}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        )}
+      </View>
+    );
   };
 
   return (
@@ -193,129 +372,7 @@ const WorkoutPlanDetails = ({ route }) => {
           <Text style={styles.sectionTitle}>
             {t("WorkoutPlanDetails.schedule_title")}
           </Text>
-          {workoutDay.map((day, index) => {
-            // Debug logging
-
-            return (
-              <View key={index} style={styles.dayContainer}>
-                <TouchableOpacity
-                  style={styles.dayHeader}
-                  onPress={() => toggleDay(index)}
-                >
-                  <View style={styles.dayContent}>
-                    <View style={styles.dayLeftContent}>
-                      <View style={styles.dayLeftInner}>
-                        <View style={styles.dumbleContainer}>
-                          <Image
-                            source={Images.dumble}
-                            style={styles.dumbleImage}
-                          />
-                        </View>
-                        <View>
-                          <Text style={styles.dayTitle}>
-                            {day.name || "N/A"}
-                          </Text>
-                          <Text style={styles.dayDescription}>
-                            {day.description || "N/A"}
-                          </Text>
-                          <View style={styles.dayMeta}>
-                            <View style={styles.metaItem}>
-                              <Image
-                                source={Images.dumble}
-                                style={styles.dumbleImage2}
-                              />
-                              <Text style={styles.metaText}>
-                                Exercises:{" "}
-                                {day.exercisesCount ||
-                                  day.exercises?.length ||
-                                  0}
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-                    <View style={styles.dayRightContent}>
-                      <TouchableOpacity
-                        style={styles.expandButton}
-                        onPress={() => toggleDay(index)}
-                      >
-                        <Ionicons
-                          name={
-                            expandedDays[index] ? "chevron-up" : "chevron-down"
-                          }
-                          size={wp(4)}
-                          color="#FFF"
-                        />
-                      </TouchableOpacity>
-                      <Image
-                        source={day.image ? { uri: day.image } : Images.women}
-                        style={styles.exercisePreview}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  </View>
-                </TouchableOpacity>
-
-                {/* Expanded Exercise List - Fixed condition */}
-                {expandedDays[index] && (
-                  <View style={styles.exerciseList}>
-                    <Text style={styles.exerciseListTitle}>
-                      {day.exercises?.length || 0} Exercises
-                    </Text>
-                    {day.exercises && day.exercises.length > 0 ? (
-                      day.exercises.map((exercise, exerciseIndex) => (
-                        <TouchableOpacity
-                          key={exerciseIndex}
-                          style={styles.exerciseItem}
-                          onPress={() =>
-                            handleExercisePress(exercise, day?._id)
-                          }
-                          activeOpacity={0.7}
-                        >
-                          <Image
-                            source={{
-                              uri:
-                                exercise.image ||
-                                "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop",
-                            }}
-                            style={styles.exerciseImage}
-                          />
-                          <View style={styles.exerciseDetails}>
-                            <Text style={styles.exerciseName}>
-                              {exercise.name}
-                            </Text>
-                            <Text style={styles.exerciseFocus}>
-                              {exercise.focus}
-                            </Text>
-                            <View style={styles.exerciseMeta}>
-                              <Text style={styles.exerciseEquipment}>
-                                {exercise.equipment}
-                              </Text>
-                              <View style={styles.exerciseDuration}>
-                                <Ionicons
-                                  name="time"
-                                  size={wp(3)}
-                                  color={COLORS.primaryColor}
-                                />
-                                <Text style={styles.exerciseDurationText}>
-                                  {exercise.duration}
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-                        </TouchableOpacity>
-                      ))
-                    ) : (
-                      <Text style={styles.noExercisesText}>
-                        No exercises available for this day
-                      </Text>
-                    )}
-                  </View>
-                )}
-              </View>
-            );
-          })}
+          {workoutDay.map((day, index) => renderDayCard(day, index))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -544,9 +601,7 @@ const styles = StyleSheet.create({
   exerciseEquipment: {
     color: "#FFF",
     fontSize: wp(2.5),
-    paddingHorizontal: wp(1.5),
-    paddingVertical: hp(0.3),
-    borderRadius: wp(1.5),
+    width: wp(40),
     fontFamily: fonts.regular,
   },
   exerciseDuration: {
@@ -568,5 +623,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: fonts.regular,
     paddingVertical: hp(2),
+  },
+  expandedContainer: {
+    backgroundColor: COLORS.darkGray2,
+  },
+  dayContainer: {
+    backgroundColor: COLORS.darkGray,
+    borderRadius: 7,
+    marginBottom: hp(1.5),
+    borderWidth: 0.5,
+    overflow: "hidden",
+    borderColor: COLORS.gray3,
+  },
+  exerciseList: {
+    paddingHorizontal: wp(3.5),
+    paddingBottom: wp(3.5),
+    borderTopWidth: 0.5,
+    borderTopColor: COLORS.gray3,
   },
 });

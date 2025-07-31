@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,8 +6,17 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import fonts from "../../../assets/fonts";
@@ -15,7 +24,11 @@ import CustomButton from "../../../components/CustomButton";
 import ProgressBar from "../../../components/progressBar";
 import RouteName from "../../../navigation/RouteName/index";
 import { baseUrl } from "../../../services/api";
-import { previousSection, setCurrentSection, setSetupComplete } from "../../../store/slices/progressSlice";
+import {
+  previousSection,
+  setCurrentSection,
+  setSetupComplete,
+} from "../../../store/slices/progressSlice";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
 
@@ -25,7 +38,7 @@ export default function AllSet() {
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.progress);
   const toast = useToast();
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
   // console.log("userData====", userData);
 
@@ -34,9 +47,9 @@ export default function AllSet() {
   }, [dispatch]);
 
   const handleStartJourney = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const token = await AsyncStorage.getItem("token");      
+      const token = await AsyncStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
       }
@@ -58,11 +71,13 @@ export default function AllSet() {
         },
         healthInfo: {
           medicalConditions: userData.healthInfo?.medicalConditions || [],
-          injuriesOrLimitations: userData.healthInfo?.injuriesOrLimitations || [],
+          injuriesOrLimitations:
+            userData.healthInfo?.injuriesOrLimitations || [],
         },
         fitnessBackground: {
           activityLevel: userData.fitnessBackground?.activityLevel || "",
-          exerciseFrequency: parseInt(userData.fitnessBackground?.exerciseFrequency) || 0,
+          exerciseFrequency:
+            parseInt(userData.fitnessBackground?.exerciseFrequency) || 0,
           exerciseHistory: userData.fitnessBackground?.exerciseHistory || "",
         },
         fitnessGoals: {
@@ -77,29 +92,38 @@ export default function AllSet() {
 
       console.log("API Payload====", JSON.stringify(payload, null, 2));
 
-      const response = await axios.put(`${baseUrl}api/auth/update-details`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.put(
+        `${baseUrl}api/auth/update-details`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       console.log("response.data==================>>>>>>", response.data);
       toast.showToast({
-        type: 'success',
+        type: "success",
         message: response.data.message,
         duration: 4000,
       });
       dispatch(setSetupComplete(true));
       navigation.navigate(RouteName.MainStack);
     } catch (error) {
-      console.error('Failed to update user details:', error.response?.data?.message || error.message);
+      console.error(
+        "Failed to update user details:",
+        error.response?.data?.message || error.message
+      );
       toast.showToast({
-        type: 'error',
-        message: error.response?.data?.message || 'An error occurred. Please try again.',
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          "An error occurred. Please try again.",
         duration: 4000,
       });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -110,7 +134,11 @@ export default function AllSet() {
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -126,7 +154,11 @@ export default function AllSet() {
 
       <View style={styles.content}>
         <View style={styles.successCircle}>
-          <Ionicons name="checkmark" size={wp(12)} color={COLORS.primaryColor} />
+          <Ionicons
+            name="checkmark"
+            size={wp(12)}
+            color={COLORS.primaryColor}
+          />
         </View>
 
         <Text style={styles.successTitle}>{t("AllSet.successTitle")}</Text>
@@ -136,7 +168,12 @@ export default function AllSet() {
         <Text style={styles.subDescription}>{t("AllSet.subDescription")}</Text>
 
         <View style={styles.buttonContainer}>
-          <CustomButton title={t("AllSet.button")} onPress={handleStartJourney} loading={loading} disabled={loading} />
+          <CustomButton
+            title={t("AllSet.button")}
+            onPress={handleStartJourney}
+            loading={loading}
+            disabled={loading}
+          />
         </View>
       </View>
     </View>

@@ -6,7 +6,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import CustomModal from "./CustomModal";
 import { COLORS } from "../utils/COLORS";
 import {
@@ -20,12 +20,24 @@ import Fonts from "../assets/fonts";
 import { Ionicons } from "@expo/vector-icons";
 import { PostApiRequest } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
+import { useToast } from "../utils/Toast/toastContext";
+import LottieView from "lottie-react-native";
+import successAnimation from "../assets/animations/success.json"; // <-- Make sure path is correct
 
-const TIME_SLOTS = [
-  { label: "Morning", value: "morning" },
-  { label: "Afternoon", value: "afternoon" },
-  { label: "Night", value: "night" },
-];
+const getTimeSlots = (type) => {
+  if (type === "meal") {
+    return [
+      { label: "Breakfast", value: "breakfast" },
+      { label: "Lunch", value: "lunch" },
+      { label: "Dinner", value: "dinner" },
+    ];
+  }
+  return [
+    { label: "Morning", value: "morning" },
+    { label: "Afternoon", value: "afternoon" },
+    { label: "Night", value: "night" },
+  ];
+};
 
 const AddToLogsModal = ({
   isVisible,
@@ -33,8 +45,13 @@ const AddToLogsModal = ({
   clientId,
   exerciseId,
   workoutId,
+  type = "workout",
+  mealId,
+  mealPlanId,
 }) => {
+  const animation = useRef(null);
   const navigation = useNavigation();
+  const toast = useToast();
   const [workoutDate, setWorkoutDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [timeSlot, setTimeSlot] = useState("");
@@ -42,6 +59,9 @@ const AddToLogsModal = ({
   const [duration, setDuration] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false); // <-- For animation
+
+  const TIME_SLOTS = getTimeSlots(type);
 
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -51,28 +71,52 @@ const AddToLogsModal = ({
   };
 
   const handleSubmit = async () => {
-    const formattedDate = workoutDate.toISOString().split("T")[0]; // This will give YYYY-MM-DD format
+    const formattedDate = workoutDate.toISOString().split("T")[0];
     const payLoad = {
-      clientId: clientId,
-      exerciseId: exerciseId,
-      workoutId: workoutId,
+      clientId,
+      exerciseId,
+      workoutId,
       workoutDate: formattedDate,
       timeSlot: timeSlot.toLowerCase(),
-      duration: duration,
-      notes: notes,
+      notes,
+      duration,
+    };
+
+    const mealPayload = {
+      clientId,
+      mealDate: formattedDate,
+      mealtime: timeSlot.toLowerCase(),
+      MealPlanId: mealId,
+      notes,
+      DailyMealId: mealPlanId,
     };
 
     try {
       setIsLoading(true);
+      const endpoint =
+        type === "meal" ? "api/meal-logs" : "api/workout-logs/create-session";
+
       const res = await PostApiRequest(
-        "api/workout-logs/create-session",
-        payLoad
+        endpoint,
+        type === "meal" ? mealPayload : payLoad
       );
+
       if (res?.data?.success) {
-        onDisable();
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+
+          onDisable();
+        }, 5000);
       }
     } catch (error) {
+      toast.showToast({
+        type: "error",
+        message: error?.response?.data?.message,
+        duration: 3000,
+      });
       console.log(error?.response?.data?.message);
+      onDisable();
     } finally {
       setIsLoading(false);
     }
@@ -87,18 +131,35 @@ const AddToLogsModal = ({
     <CustomModal
       isVisible={isVisible}
       onDisable={onDisable}
-      backdropOpacity={0.7}
+      backdropOpacity={0.8}
     >
       <View style={styles.modalContent}>
+        {showSuccess && (
+          <View style={styles.successOverlay}>
+            <LottieView
+              ref={animation}
+              source={successAnimation}
+              autoPlay
+              loop={false}
+              style={{ width: 350, height: 350 }}
+              speed={0.5}
+            />
+          </View>
+        )}
+
         <Pressable onPress={onDisable} style={styles.closeButton}>
           <Ionicons name="close" size={24} color={COLORS.white} />
         </Pressable>
-        <Text style={styles.title}>Add Workout Log</Text>
+        <Text style={styles.title}>
+          Add {type === "meal" ? "Meal" : "Workout"} Log
+        </Text>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Workout Date */}
+          {/* Date Picker */}
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Workout Date</Text>
+            <Text style={styles.label}>
+              {type === "meal" ? "Meal" : "Workout"} Date
+            </Text>
             <TouchableOpacity
               style={styles.dateButton}
               onPress={() => setShowDatePicker(true)}
@@ -166,15 +227,17 @@ const AddToLogsModal = ({
           </View>
 
           {/* Duration */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Duration (minutes)</Text>
-            <CustomInput
-              value={duration}
-              onChangeText={setDuration}
-              placeholder="e.g., 45"
-              keyboardType="numeric"
-            />
-          </View>
+          {type === "workout" && (
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Duration (minutes)</Text>
+              <CustomInput
+                value={duration}
+                onChangeText={setDuration}
+                placeholder="e.g., 45"
+                keyboardType="numeric"
+              />
+            </View>
+          )}
 
           {/* Notes */}
           <View style={styles.inputContainer}>
@@ -182,7 +245,9 @@ const AddToLogsModal = ({
             <CustomInput
               value={notes}
               onChangeText={setNotes}
-              placeholder="Add any notes about your workout"
+              placeholder={`Add any notes about your ${
+                type === "meal" ? "meal" : "workout"
+              }`}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -191,7 +256,7 @@ const AddToLogsModal = ({
             />
           </View>
 
-          {/* Submit Button */}
+          {/* Submit */}
           <View style={styles.buttonContainer}>
             <CustomButton
               title="Save Log"
@@ -278,7 +343,7 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     color: COLORS.white,
-    fontSize: hp(1.1),
+    fontSize: hp(1.4),
     fontFamily: Fonts.POPPINS_REGULAR,
   },
   selectedText: {
@@ -302,5 +367,16 @@ const styles = StyleSheet.create({
     right: wp(4),
     zIndex: 1,
     padding: 8,
+  },
+  successOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
   },
 });

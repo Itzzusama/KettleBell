@@ -12,7 +12,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import fonts from "../../../assets/fonts";
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   skipText: {
     color: "#fff",
     fontSize: scaleFont(16),
-    fontFamily: fonts.medium
+    fontFamily: fonts.medium,
   },
   content: {
     position: "absolute",
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(14),
     lineHeight: scaleFont(20),
     textAlign: "center",
-    fontFamily: fonts.regular
+    fontFamily: fonts.regular,
   },
   bottomSection: {
     position: "absolute",

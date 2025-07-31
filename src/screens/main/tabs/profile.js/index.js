@@ -25,7 +25,7 @@ import {
   View,
 } from "react-native";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import fonts from "../../../../assets/fonts/index";
 import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest, PostApiRequest } from "../../../../services/api";
@@ -37,14 +37,13 @@ const { width } = Dimensions.get("window");
 
 export default function Profile() {
   const navigation = useNavigation();
+  const { userData } = useSelector((state) => state.users);
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [profile, setProfile] = useState({});
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const toast = useToast();
-
   const toggleSwitch = () => setIsNotificationEnabled((prev) => !prev);
 
   const handleLogout = async () => {
@@ -73,20 +72,6 @@ export default function Profile() {
       navigation.navigate(RouteName.AuthStack);
     }
   };
-
-  const Profile = async () => {
-    try {
-      const res = await GetApiRequest("api/auth/me");
-      setProfile(res.data);
-      // console.log("res===>", res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    Profile();
-  }, []);
 
   const LogoutModal = () => (
     <Modal
@@ -166,7 +151,7 @@ export default function Profile() {
             <Image
               source={{
                 uri:
-                  profile?.data?.avatar ||
+                  userData.avatar ||
                   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/profile%20%281%29-eXi6mLmmvgcw9cLfiOwFvfXZletFX8.png",
               }}
               style={styles.profileImage}
@@ -175,8 +160,8 @@ export default function Profile() {
               <FontAwesome name="pencil" size={14} color="white" />
             </View>
           </View>
-          <Text style={styles.profileName}>{profile?.data?.name}</Text>
-          <Text style={styles.profileEmail}>{profile?.data?.email}</Text>
+          <Text style={styles.profileName}>{userData?.name}</Text>
+          <Text style={styles.profileEmail}>{userData?.email}</Text>
         </View>
 
         {/* Health Profile */}
@@ -186,7 +171,7 @@ export default function Profile() {
             {
               icon: <FontAwesome5 name="bullseye" size={16} color="#FFD700" />,
               label: t("Profile.health_items.primary_goal"),
-              value: "General Fitness",
+              value: userData?.fitnessGoals?.primaryGoal,
             },
             {
               icon: (
@@ -197,23 +182,7 @@ export default function Profile() {
                 />
               ),
               label: t("Profile.health_items.fitness_level"),
-              value: "Beginner",
-            },
-            {
-              icon: <FontAwesome5 name="fire" size={16} color="#FFD700" />,
-              label: t("Profile.health_items.daily_calories"),
-              value: "2556 Calories",
-            },
-            {
-              icon: (
-                <MaterialCommunityIcons
-                  name="food-drumstick"
-                  size={18}
-                  color="#FFD700"
-                />
-              ),
-              label: t("Profile.health_items.protein_goal"),
-              value: "126g",
+              value: userData?.fitnessBackground?.activityLevel,
             },
           ].map((item, index) => (
             <View style={styles.infoRow} key={index}>
@@ -235,6 +204,7 @@ export default function Profile() {
                 <FontAwesome5 name="calculator" size={hp(2)} color="#FFD700" />
               ),
               label: t("Profile.specialties_items.bmr_calculator"),
+              navigateTo: "BMR",
             },
             {
               icon: (
@@ -253,13 +223,30 @@ export default function Profile() {
               ),
               label: t("Profile.specialties_items.workout_progress"),
             },
+            {
+              icon: (
+                <MaterialCommunityIcons
+                  name="history"
+                  size={hp(2.2)}
+                  color="#FFD700"
+                />
+              ),
+              label: "Logs",
+              navigateTo: "LogScreen",
+            },
           ].map((item, index) => (
             <TouchableOpacity
               style={styles.menuItem}
               key={index}
-              onPress={() =>
-                item.navigateTo && navigation.navigate(RouteName.Message_screen)
-              }
+              onPress={() => {
+                if (item.navigateTo == "Message") {
+                  navigation.navigate(RouteName.Message_screen);
+                } else if (item.navigateTo == "LogScreen") {
+                  navigation.navigate(RouteName.LogScreen);
+                } else if (item.navigateTo == "BMR") {
+                  navigation.navigate(RouteName.BMRCalculator);
+                }
+              }}
             >
               <View style={styles.menuLeft}>
                 {item.icon}
@@ -298,7 +285,7 @@ export default function Profile() {
                 <Ionicons name="settings-outline" size={18} color="#FFD700" />
               ),
               label: t("Profile.settings_items.app_settings"),
-              onPress: () => { },
+              onPress: () => {},
             },
             {
               icon: (
@@ -309,7 +296,7 @@ export default function Profile() {
                 />
               ),
               label: t("Profile.settings_items.privacy_policy"),
-              onPress: () => { },
+              onPress: () => {},
             },
             {
               icon: (
@@ -394,7 +381,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: 999,
   },
   editIconContainer: {
     position: "absolute",
