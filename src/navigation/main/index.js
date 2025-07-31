@@ -39,6 +39,7 @@ import { useLayoutEffect } from "react";
 import { GetApiRequest } from "../../services/api";
 import { setUserData } from "../../store/slices/usersSlice";
 import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
+import Notifications from "../../screens/main/Notifications";
 
 const Stack = createNativeStackNavigator();
 
@@ -147,6 +148,7 @@ const MainStack = () => {
       <Stack.Screen name={RouteName.AddClient} component={AddClient} />
       <Stack.Screen name={RouteName.InboxScreen} component={InboxScreen} />
       <Stack.Screen name={RouteName.LogScreen} component={LogScreen} />
+      <Stack.Screen name={RouteName.Notifications} component={Notifications} />
       <Stack.Screen
         name={RouteName.BMRCalculator}
         component={BMRCalculatorScreen}

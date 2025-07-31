@@ -63,6 +63,7 @@ const RouteName = {
   InboxScreen: "InboxScreen",
   LogScreen: "LogScreen",
   BMRCalculator: "BMRCalculatorScreen",
+  Notifications: "Notifications",
 };
 
 export default RouteName;

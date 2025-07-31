@@ -234,6 +234,7 @@ const InboxScreen = ({ route }) => {
       //     </View>
       //   </View>
       // );
+      
     } catch (error) {
       console.error("Error rendering message:", error, item);
       return null;

@@ -663,6 +663,9 @@
   "InstructorHome": {
     "search_placeholder": "Search ",
     "activePlans": "Active Plans",
+    "totalClients": "Total Clients",
+    "completedWorkouts": "Completed Workouts",
+    "totalMeals": "Total Meals",
     "myExercises": "My Exercises",
     "seeall": "See All",
     "clientReport": "Client Report"
