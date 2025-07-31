@@ -15,15 +15,15 @@ export const useSocket = () => useContext(SocketContext);
 export const SocketProvider = ({ children }) => {
   const { token } = useSelector((state) => state.authConfigs);
 
-  //  console.log("token===",token);
-
   const dispatch = useDispatch();
 
   const [socket, setSocket] = useState(null);
+  // console.log("socket=====", socket);
+
   const socketRef = useRef(null);
   const initializeSocket = () => {
     if (!token) return;
-    const newSocket = io("https://fitnessbackend-b7hg.onrender.com", {
+    const newSocket = io("https://www.fitness.tacosdecrema.com", {
       auth: { token: token },
       reconnectionAttempts: 15,
       transports: ["websocket"],
@@ -36,11 +36,13 @@ export const SocketProvider = ({ children }) => {
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
       // Re-authenticate if needed
-      newSocket.emit("authenticate", token);
-    });
-    newSocket.on("authenticated", (id) => {
       setSocket(newSocket);
+
     });
+    // newSocket.on("authenticated", (id) => {
+    //   console.log("newSocket=====-=-==-", id);
+    //   setSocket(newSocket);
+    // });
     newSocket.on("connect_error", (error) => {
       console.error("Socket connection error:", error);
     });
@@ -52,10 +54,7 @@ export const SocketProvider = ({ children }) => {
       // Re-authenticate after reconnection
       newSocket.emit("authenticate", token);
     });
-    newSocket.on("unread-conversation-counts", (count) => {
-      console.log("count=-=-=-=--=-=-=", count);
-      // dispatch(setChatCount(count?.unreadCount));
-    });
+    
     newSocket.on("disconnect", (reason) => {
       console.warn("Socket disconnected:", reason);
       setSocket(null);
@@ -69,7 +68,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       initializeSocket();
-      // console.log("===============Socket Initialize");
+      console.log("===============Socket Initialize");
     } else {
       console.log("No Token found for authentication");
     }

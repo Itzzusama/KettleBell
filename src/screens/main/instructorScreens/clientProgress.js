@@ -48,18 +48,6 @@ const ProgressCircle = ({
   const client = route.params?.client;
   const circumference = Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  const [clientInfo, setClientInfo] = useState([]);
-
-  const getClient = async () => {
-    try {
-      const response = await GetApiRequest(`api/clients/${client?.id}`);
-      setClientInfo(response.data?.data);
-    } catch (error) {}
-  };
-  useEffect(() => {
-    getClient();
-  }, []);
   return (
     <View style={styles.progressCircleContainer}>
       <Svg width={size} height={size / 2 + strokeWidth}>
@@ -103,17 +91,18 @@ export default function ProfileDashboard({ route }) {
 
   const client = route.params?.client;
 
+  // Dynamic data from API response
   const dailyProgress = {
-    consumed: 64.87,
-    remaining: 300,
-    target: 1200,
+    consumed: clientDetail?.productivityMetrics?.overallScore || 0,
+    remaining: 100 - (clientDetail?.productivityMetrics?.overallScore || 0),
+    target: 100,
   };
 
   const weeklyProgress = {
-    calories: 1284,
-    burnFat: 29,
-    completedExercise: 65,
-    uncompletedExercise: 85,
+    calories: clientDetail?.workoutStats?.totalCaloriesBurned || 0,
+    burnFat: clientDetail?.productivityMetrics?.weeklyProgress?.progressPercentage || 0,
+    completedExercise: clientDetail?.workoutStats?.adherenceRate || 0,
+    uncompletedExercise: 100 - (clientDetail?.workoutStats?.adherenceRate || 0),
   };
 
   // const workoutPlans = [
@@ -180,8 +169,24 @@ export default function ProfileDashboard({ route }) {
   const [workoutLog, setWorkoutLog] = useState([]);
   const [taskModal, setTaskModal] = useState(false);
   const [planType, setPlanType] = useState("");
+  const [clientDetail, setClientDetail] = useState("");
 
   const [plan, setPlan] = useState("");
+
+  // Helper function to calculate total meal logs
+  const getTotalMealLogs = () => {
+    return clientDetail?.mealStats?.totalLogs || 0;
+  };
+
+  // Helper function to calculate total workout logs
+  const getTotalWorkoutLogs = () => {
+    return clientDetail?.workoutStats?.totalLogs || 0;
+  };
+
+  // Helper function to calculate streak
+  const getStreak = () => {
+    return clientDetail?.productivityMetrics?.streak || 0;
+  };
 
   const getClientPlan = async () => {
     try {
@@ -213,11 +218,22 @@ export default function ProfileDashboard({ route }) {
       // setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
+  const getAllClientDetail = async () => {
+    try {
+      const response = await GetApiRequest(
+        `api/client-productivity/${client?.id}/productivity`
+      );
+      console.log("res---=-=-details", response.data);
+      setClientDetail(response.data?.data);
+      // setMealPlans(response.data?.data?.mealPlans);
+    } catch (error) {}
+  };
 
   useEffect(() => {
     getClientPlan();
     getWorkoutLogs();
     getMealLogs();
+    getAllClientDetail();
   }, [isFocus, assignWorkoutModal]);
 
   return (
@@ -334,6 +350,9 @@ export default function ProfileDashboard({ route }) {
                   {weeklyProgress.calories.toLocaleString()}
                 </Text>
               </View>
+              <Text style={[styles.caloriesLabel, { marginTop: hp(1) }]}>
+                Streak: {getStreak()} days
+              </Text>
             </View>
             <View style={styles.progressCircles}>
               <View style={styles.progressCircleItem}>
@@ -349,7 +368,7 @@ export default function ProfileDashboard({ route }) {
                   formatText={() => `${weeklyProgress.burnFat}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.burn_fat_label")}
+                  Weekly Progress
                 </Text>
               </View>
               <View style={styles.progressCircleItem}>
@@ -365,25 +384,50 @@ export default function ProfileDashboard({ route }) {
                   formatText={() => `${weeklyProgress.completedExercise}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.completed_exercise_label")}
+                  Workout Adherence
                 </Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
                   size={wp(18)}
-                  progress={weeklyProgress.uncompletedExercise / 100}
+                  progress={clientDetail?.mealStats?.adherenceRate || 0}
                   thickness={wp(1.8)}
                   color="#7876F5"
                   unfilledColor={COLORS.gray3}
                   borderWidth={0}
                   showsText={true}
                   textStyle={styles.circleText}
-                  formatText={() => `${weeklyProgress.uncompletedExercise}%`}
+                  formatText={() => `${clientDetail?.mealStats?.adherenceRate || 0}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.uncompleted_exercise_label")}
+                  Meal Adherence
                 </Text>
               </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Productivity Metrics */}
+        <View style={styles.sectionContainer2}>
+          <Text style={styles.sectionTitle}>Productivity Overview</Text>
+          <View style={styles.productivityContainer}>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {getTotalWorkoutLogs()}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Workouts</Text>
+            </View>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {getTotalMealLogs()}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Meals</Text>
+            </View>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {clientDetail?.workoutStats?.totalDuration || 0}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Hours</Text>
             </View>
           </View>
         </View>
@@ -1059,5 +1103,26 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     color: COLORS.white,
     alignSelf: "flex-end",
+  },
+  productivityContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  productivityItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  productivityNumber: {
+    fontSize: 20,
+    fontFamily: fonts.bold,
+    color: COLORS.white,
+    marginBottom: hp(0.5),
+  },
+  productivityLabel: {
+    fontSize: 12,
+    fontFamily: fonts.regular,
+    color: "#888888",
+    textAlign: "center",
   },
 });

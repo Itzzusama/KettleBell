@@ -3,8 +3,7 @@ import axios from "axios";
 
 // Replace localhost with your machine's IP
 //export const baseUrl = 'http://localhost:3000/';
-export const baseUrl = "https://fitnessbackend-b7hg.onrender.com/";
-
+export const baseUrl = "https://www.fitness.tacosdecrema.com/";
 
 const getHeaders = async (contentType = "application/json") => {
   const token = await AsyncStorage.getItem("token");

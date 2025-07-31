@@ -32,7 +32,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Icons } from "../../../../assets/icons";
 import LogoutModal from "../../../../components/LogoutModal";
 import { setToken } from "../../../../store/slices/AuthConfig";
-import { clearUserData, setUserData } from "../../../../store/slices/usersSlice";
+import {
+  clearUserData,
+  setUserData,
+} from "../../../../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function InstructorHome() {
@@ -47,7 +50,6 @@ export default function InstructorHome() {
   const [loading, setLoading] = useState(false);
 
   const userData = useSelector((state) => state.users);
-console.log("use====", userData?.location);
 
   const { t } = useTranslation();
 
