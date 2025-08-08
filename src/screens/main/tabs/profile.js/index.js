@@ -38,6 +38,7 @@ const { width } = Dimensions.get("window");
 export default function Profile() {
   const navigation = useNavigation();
   const { userData } = useSelector((state) => state.users);
+
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -238,6 +239,7 @@ export default function Profile() {
             <TouchableOpacity
               style={styles.menuItem}
               key={index}
+              activeOpacity={0.8}
               onPress={() => {
                 if (item.navigateTo == "Message") {
                   navigation.navigate(RouteName.Message_screen);
@@ -277,7 +279,7 @@ export default function Profile() {
         </View>
 
         {/* Settings */}
-        <View style={styles.card}>
+        <View style={[styles.card, { marginBottom: 40 }]}>
           <Text style={styles.cardTitle}>{t("Profile.settings")}</Text>
           {[
             {
@@ -325,6 +327,7 @@ export default function Profile() {
               style={styles.menuItem}
               key={index}
               onPress={item.onPress}
+              activeOpacity={0.8}
             >
               <View style={styles.menuLeft}>
                 {item.icon}

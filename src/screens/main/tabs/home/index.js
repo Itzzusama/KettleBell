@@ -31,6 +31,7 @@ import { Images } from "../../../../assets/images";
 import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
+import { coachInfo } from "../../../../utils/coachInfo";
 
 const { width } = Dimensions.get("window");
 
@@ -270,7 +271,12 @@ const Home = () => {
             </View>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={() =>
+                navigation.navigate("InboxScreen", { client: coachInfo() })
+              }
+            >
               <Ionicons name="chatbubble-outline" size={wp(6)} color="#FFF" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton}>
@@ -460,6 +466,9 @@ const Home = () => {
             <Text style={styles.sectionTitle}>
               {t("Home.active_workout_plan_title")}
             </Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
+            </TouchableOpacity>
           </View>
 
           <ScrollView
@@ -474,6 +483,7 @@ const Home = () => {
             {workdata?.data && workdata.data.length > 0 ? (
               workdata.data.map((workout, index) => (
                 <TouchableOpacity
+                  activeOpacity={0.8}
                   key={workout.id}
                   onPress={() =>
                     navigation.navigate(RouteName.WorkoutPlans_Details, {
@@ -541,6 +551,9 @@ const Home = () => {
             <Text style={styles.sectionTitle}>
               {t("Home.recommended_exercise_title")}
             </Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.horizontalScrollContainer}>

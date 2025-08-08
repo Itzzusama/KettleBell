@@ -52,19 +52,32 @@ export default function ClientScreen() {
           // Consistency calculation
           let filledSections = 0;
           // Check basicInfo
-          const basicInfoFilled = item.basicInfo && Object.values(item.basicInfo).some(v => v !== null && v !== '' && v !== undefined && !(Array.isArray(v) && v.length === 0));
+          const basicInfoFilled =
+            item.basicInfo &&
+            Object.values(item.basicInfo).some(
+              (v) =>
+                v !== null &&
+                v !== "" &&
+                v !== undefined &&
+                !(Array.isArray(v) && v.length === 0)
+            );
           if (basicInfoFilled) filledSections++;
           // Check fitnessGoals
-          const fitnessGoalsFilled = item.fitnessGoals && (
-            (item.fitnessGoals.primaryGoal && item.fitnessGoals.primaryGoal !== null && item.fitnessGoals.primaryGoal !== '') ||
-            (Array.isArray(item.fitnessGoals.specificGoals) && item.fitnessGoals.specificGoals.length > 0)
-          );
+          const fitnessGoalsFilled =
+            item.fitnessGoals &&
+            ((item.fitnessGoals.primaryGoal &&
+              item.fitnessGoals.primaryGoal !== null &&
+              item.fitnessGoals.primaryGoal !== "") ||
+              (Array.isArray(item.fitnessGoals.specificGoals) &&
+                item.fitnessGoals.specificGoals.length > 0));
           if (fitnessGoalsFilled) filledSections++;
           // Check healthInfo
-          const healthInfoFilled = item.healthInfo && (
-            (Array.isArray(item.healthInfo.medicalConditions) && item.healthInfo.medicalConditions.length > 0) ||
-            (Array.isArray(item.healthInfo.injuriesOrLimitations) && item.healthInfo.injuriesOrLimitations.length > 0)
-          );
+          const healthInfoFilled =
+            item.healthInfo &&
+            ((Array.isArray(item.healthInfo.medicalConditions) &&
+              item.healthInfo.medicalConditions.length > 0) ||
+              (Array.isArray(item.healthInfo.injuriesOrLimitations) &&
+                item.healthInfo.injuriesOrLimitations.length > 0));
           if (healthInfoFilled) filledSections++;
           let consistency = 0;
           if (filledSections === 1) consistency = 33;
@@ -155,7 +168,6 @@ export default function ClientScreen() {
                   />
                 ) : (
                   <View style={[styles.clientImage, styles.placeholderImage]}>
-                  
                     <Image source={Images.dumyImg} style={styles.clientImage} />
                   </View>
                 )}
@@ -173,7 +185,7 @@ export default function ClientScreen() {
                     <View style={styles.progressContainer}>
                       <Progress.Bar
                         progress={client.consistency / 100}
-                        width={wp(22)}
+                        width={wp(20)}
                         height={hp(0.8)}
                         color={COLORS.primaryColor}
                         unfilledColor={COLORS.white}
@@ -191,7 +203,9 @@ export default function ClientScreen() {
                 <TouchableOpacity
                   style={styles.messageBadge}
                   activeOpacity={0.6}
-                  onPress={() => navigation.navigate(RouteName.InboxScreen,{client})}
+                  onPress={() =>
+                    navigation.navigate(RouteName.InboxScreen, { client })
+                  }
                 >
                   <MaterialCommunityIcons
                     name="message-text-outline"
@@ -199,7 +213,8 @@ export default function ClientScreen() {
                     color="white"
                   />
                 </TouchableOpacity>
-                <TouchableOpacity 
+
+                <TouchableOpacity
                   onPress={() => navigation.navigate(RouteName.Client_Progress)}
                   // onPress={() => navigation.navigate(RouteName.PROFILE)}
                 >
@@ -264,9 +279,10 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: "#FFF",
-    fontSize: 12,
+    fontSize: 14,
     marginLeft: wp(2.5),
     fontFamily: fonts.regular,
+    top: 2,
   },
   clientCountContainer: {
     paddingHorizontal: wp(4),
@@ -286,7 +302,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: COLORS.darkGray,
     borderRadius: wp(3),
-    padding: hp(2),
+    padding: hp(1.5),
     marginBottom: hp(2),
     borderWidth: 1,
     borderColor: COLORS.gray3,
@@ -368,6 +384,5 @@ const styles = StyleSheet.create({
     borderRadius: wp(4),
     justifyContent: "center",
     alignItems: "center",
-    marginRight: wp(2),
   },
 });

@@ -9,7 +9,7 @@ export const COLORS = {
   darkGray: "rgba(42, 42, 42, 0.93)",
   lightGray: "#2A2A2D",
   lightBlack: "#222225",
-  red: "red",
+  red: "#dc3545",
   disableButtonColor: "#6e581e",
   black1: "#28282B",
   black2: "#272729",

@@ -32,7 +32,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Icons } from "../../../../assets/icons";
 import LogoutModal from "../../../../components/LogoutModal";
 import { setToken } from "../../../../store/slices/AuthConfig";
-import { clearUserData, setUserData } from "../../../../store/slices/usersSlice";
+import {
+  clearUserData,
+  setUserData,
+} from "../../../../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function InstructorHome() {
@@ -47,7 +50,7 @@ export default function InstructorHome() {
   const [loading, setLoading] = useState(false);
 
   const userData = useSelector((state) => state.users);
-console.log("use====", userData?.location);
+  console.log("use====", userData?.location);
 
   const { t } = useTranslation();
 
@@ -411,8 +414,8 @@ const styles = StyleSheet.create({
   },
   notificationDot: {
     position: "absolute",
-    top: wp(1.5),
-    right: wp(1.5),
+    top: wp(2),
+    right: wp(2),
     width: wp(2),
     height: wp(2),
     backgroundColor: "#4CAF50",
@@ -468,7 +471,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#FFF",
-    fontSize: wp(3),
+    fontSize: wp(3.5),
     fontFamily: fonts.regular,
   },
   cardNumber: {

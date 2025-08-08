@@ -30,8 +30,8 @@ const InboxScreen = ({ route }) => {
   const isFocus = useIsFocused();
   const socket = useSocket();
   const { userData } = useSelector((state) => state.users);
-  const client = route.params?.client;
-  const message = route.params?.message;
+  const client = route?.params?.client;
+  const message = route?.params?.message;
   const userId = userData?._id;
   const clientId = client?.id || client?._id;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
@@ -62,8 +62,8 @@ const InboxScreen = ({ route }) => {
   // Mark all messages as read when focused
   useEffect(() => {
     if (socket && messages.length > 0) {
-      const unread = messages.filter(m => !m.read && m.sender !== userId);
-      unread.forEach(msg => {
+      const unread = messages.filter((m) => !m.read && m.sender !== userId);
+      unread.forEach((msg) => {
         socket.emit("markMessageRead", msg._id);
       });
     }
@@ -84,7 +84,7 @@ const InboxScreen = ({ route }) => {
   };
 
   const handleNewMessage = (msg) => {
-    setMessages(prev => [msg, ...prev]);
+    setMessages((prev) => [msg, ...prev]);
     // Optionally mark as read if message is for this user
     if (msg.sender !== userId) {
       socket.emit("markMessageRead", msg._id);
@@ -108,7 +108,7 @@ const InboxScreen = ({ route }) => {
     };
     socket.emit("sendMessage", messageData, (res) => {
       if (res?.success && res.message) {
-        setMessages(prev => [res.message, ...prev]);
+        setMessages((prev) => [res.message, ...prev]);
       }
     });
     setInputText("");
@@ -153,7 +153,11 @@ const InboxScreen = ({ route }) => {
       barStyle="light-content"
       footerUnScrollable={() => (
         <View style={{ marginBottom: 16 }}>
-          <Footer inputText={inputText} setInputText={setInputText} sendMessage={handleSend} />
+          <Footer
+            inputText={inputText}
+            setInputText={setInputText}
+            sendMessage={handleSend}
+          />
         </View>
       )}
     >
@@ -164,18 +168,26 @@ const InboxScreen = ({ route }) => {
         >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{message?.client?.name || "Name"}</Text>
+        <Text style={styles.headerTitle}>
+          {message?.client?.name || "Name"}
+        </Text>
       </View>
       <View style={{ flex: 1, marginTop: 10 }}>
         <FlatList
           data={messages}
           renderItem={renderMessage}
-          keyExtractor={item => item._id || item.id}
+          keyExtractor={(item) => item._id || item.id}
           inverted
-          contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end' }}
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
         />
         {isTyping && (
-          <CustomText label="Typing..." color="#818898" fontSize={12} marginTop={5} alignSelf="flex-start" />
+          <CustomText
+            label="Typing..."
+            color="#818898"
+            fontSize={12}
+            marginTop={5}
+            alignSelf="flex-start"
+          />
         )}
       </View>
     </ScreenWrapper>

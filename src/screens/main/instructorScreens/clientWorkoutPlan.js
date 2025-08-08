@@ -1,6 +1,7 @@
 "use client";
 
 import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome6 } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
@@ -16,7 +17,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Modal from "react-native-modal";
@@ -96,7 +97,9 @@ export default function ClientWorkoutPlan() {
 
   const toggleSwitch = async (day) => {
     const dayKey = day.toLowerCase();
-    const workout = dailyWorkouts.find((w) => w.dayOfWeek.toLowerCase() === dayKey);
+    const workout = dailyWorkouts.find(
+      (w) => w.dayOfWeek.toLowerCase() === dayKey
+    );
 
     if (workout && workout.isActive) {
       // If workout is active, toggle to inactive via PUT request
@@ -164,7 +167,7 @@ export default function ClientWorkoutPlan() {
   const pickImage = async () => {
     // Launch image picker - SINGLE IMAGE ONLY
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: "images",
       allowsEditing: true,
       aspect: [16, 9],
       quality: 0.8,
@@ -178,7 +181,6 @@ export default function ClientWorkoutPlan() {
   };
 
   const handleSaveWorkout = async () => {
-
     if (!workoutName.trim()) {
       toast.showToast({
         type: "error",
@@ -241,7 +243,9 @@ export default function ClientWorkoutPlan() {
       console.error("Error processing workout:", error);
       toast.showToast({
         type: "error",
-        message: selectedWorkoutId ? "Failed to update workout" : "Failed to create workout",
+        message: selectedWorkoutId
+          ? "Failed to update workout"
+          : "Failed to create workout",
         duration: 4000,
       });
     } finally {
@@ -315,17 +319,29 @@ export default function ClientWorkoutPlan() {
             activeDotStyle={styles.activeDot}
             paginationStyle={styles.pagination}
           >
-            {(item?.images || []).map((uri, index) => (
-              <View key={index} style={styles.slide}>
-                <Image
-                  source={{ uri }}
-                  style={styles.heroImage}
-                  onError={(e) =>
-                    console.log("Hero Image Error:", e.nativeEvent.error)
-                  }
-                />
-              </View>
-            ))}
+            {item?.images?.length > 0
+              ? (item?.images || []).map((uri, index) => (
+                  <View key={index} style={styles.slide}>
+                    <Image
+                      source={uri ? { uri } : Images.dumyImg}
+                      style={styles.heroImage}
+                      onError={(e) =>
+                        console.log("Hero Image Error:", e.nativeEvent.error)
+                      }
+                    />
+                  </View>
+                ))
+              : [1].map((uri, index) => (
+                  <View key={index} style={styles.slide}>
+                    <Image
+                      source={Images.dumyImg}
+                      style={styles.heroImage}
+                      onError={(e) =>
+                        console.log("Hero Image Error:", e.nativeEvent.error)
+                      }
+                    />
+                  </View>
+                ))}
           </Swiper>
         </View>
 
@@ -344,8 +360,9 @@ export default function ClientWorkoutPlan() {
           />
           <View style={styles.exerciseCount}>
             <Text style={styles.exerciseIcon}>🏋️</Text>
-            <Text style={styles.exerciseText}>{`${item?.numberOfWeeks || 0
-              } weeks`}</Text>
+            <Text style={styles.exerciseText}>{`${
+              item?.numberOfWeeks || 0
+            } weeks`}</Text>
           </View>
           <View
             style={{
@@ -397,9 +414,14 @@ export default function ClientWorkoutPlan() {
                       {switches[key] && workout?.name ? workout.name : day}
                     </Text>
                     {switches[key] && workout?.description && (
-                      <Text style={styles.activeScheduleDesc}>
-                        {workout.description}
-                      </Text>
+                      <View style={{ width: "90%" }}>
+                        <Text
+                          style={styles.activeScheduleDesc}
+                          numberOfLines={2}
+                        >
+                          {workout.description}
+                        </Text>
+                      </View>
                     )}
                     {switches[key] && (
                       <View
@@ -407,19 +429,20 @@ export default function ClientWorkoutPlan() {
                           flexDirection: "row",
                           alignItems: "center",
                           gap: 10,
+                          marginTop: 6,
                         }}
                       >
                         <TouchableOpacity
                           style={{
                             backgroundColor: COLORS.white,
-                            ieltRadius: 7,
+                            borderRadius: 2,
                             paddingHorizontal: 7,
                             paddingVertical: 5,
                           }}
                           onPress={() => handleEditPress(key, day, workout)}
                         >
-                          <Ionicons
-                            name="pencil"
+                          <FontAwesome6
+                            name="edit"
                             size={14}
                             color={COLORS.primaryColor}
                           />
@@ -505,7 +528,13 @@ export default function ClientWorkoutPlan() {
         useNativeDriver={true}
         backdropOpacity={0.9}
       >
-        <KeyboardAwareScrollView contentContainerStyle={{ flex: 1, justifyContent: 'center', width: '100%' }}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={{
+            flex: 1,
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
@@ -548,15 +577,27 @@ export default function ClientWorkoutPlan() {
               <Text style={styles.inputLabel}>Image</Text>
               <TouchableOpacity style={styles.uploadArea} onPress={pickImage}>
                 {selectedImage ? (
-                  <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+                  <Image
+                    source={{ uri: selectedImage }}
+                    style={styles.selectedImage}
+                  />
                 ) : (
                   <View style={styles.placeholderContainer}>
                     <View style={styles.uploadIcon}>
-                      <Ionicons name="cloud-upload-outline" size={25} color="#666" />
+                      <Ionicons
+                        name="cloud-upload-outline"
+                        size={25}
+                        color="#666"
+                      />
                     </View>
                     <Text style={styles.uploadText}>
-                      <Text style={styles.uploadLink}>Click to upload Image</Text>
-                      <Text style={styles.uploadHint}> (SVG, PNG, JPG, GIF)</Text>
+                      <Text style={styles.uploadLink}>
+                        Click to upload Image
+                      </Text>
+                      <Text style={styles.uploadHint}>
+                        {" "}
+                        (SVG, PNG, JPG, GIF)
+                      </Text>
                     </Text>
                   </View>
                 )}
@@ -771,7 +812,7 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontFamily: fonts.medium,
     flex: 1,
-    textTransform: 'capitalize'
+    textTransform: "capitalize",
   },
   closeButton: {},
   inputContainer: {

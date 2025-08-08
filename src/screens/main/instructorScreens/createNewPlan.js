@@ -14,10 +14,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import fonts from "../../../assets/fonts";
@@ -89,7 +92,6 @@ export default function CreateNewRecipe() {
         if (existingMeals.includes(selectedMealType) && !isEditMode) {
           setSelectedMealType(null);
         }
-
       } else {
         setDisabledMealTypes([]);
       }
@@ -102,13 +104,29 @@ export default function CreateNewRecipe() {
     if (isEditMode && mealData) {
       setMealName(mealData.name || "");
       setDescription(mealData.description || "");
-      setSelectedImages(Array.isArray(mealData.images) ? mealData.images : mealData.images ? [mealData.images] : []);
+      setSelectedImages(
+        Array.isArray(mealData.images)
+          ? mealData.images
+          : mealData.images
+          ? [mealData.images]
+          : []
+      );
       setTime(mealData.time || "");
-      setRecipes(Array.isArray(mealData.ingredients) ? mealData.ingredients.filter((item) => item.trim()) : []);
-      setSteps(Array.isArray(mealData.instructions) ? mealData.instructions.filter((item) => item.trim()) : []);
+      setRecipes(
+        Array.isArray(mealData.ingredients)
+          ? mealData.ingredients.filter((item) => item.trim())
+          : []
+      );
+      setSteps(
+        Array.isArray(mealData.instructions)
+          ? mealData.instructions.filter((item) => item.trim())
+          : []
+      );
       setSelectedMealType(mealData.mealType || "breakfast");
       // Use dayOfWeek (number 0-6) for the dropdown
-      setSelectedDay(mealData.dayOfWeek !== undefined ? Number(mealData.dayOfWeek) : null);
+      setSelectedDay(
+        mealData.dayOfWeek !== undefined ? Number(mealData.dayOfWeek) : null
+      );
     }
   }, [isEditMode, mealData]);
 
@@ -338,7 +356,9 @@ export default function CreateNewRecipe() {
       if (response && response.data) {
         toast.showToast({
           type: "success",
-          message: isEditMode ? "Meal updated successfully" : "Meal created successfully",
+          message: isEditMode
+            ? "Meal updated successfully"
+            : "Meal created successfully",
           duration: 4000,
         });
         navigation.goBack();
@@ -357,11 +377,17 @@ export default function CreateNewRecipe() {
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundColor} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.backgroundColor}
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={hp(3)} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
@@ -375,7 +401,10 @@ export default function CreateNewRecipe() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Day Dropdown - Only show if not in edit mode */}
           {!isEditMode && (
             <View style={[styles.section, { zIndex: 3000 }]}>
@@ -388,7 +417,10 @@ export default function CreateNewRecipe() {
                   setOpen={setOpenDayDropdown}
                   setValue={setSelectedDay}
                   style={styles.dropdown}
-                  dropDownContainerStyle={[styles.dropdownContainer, { maxHeight: hp(30) }]}
+                  dropDownContainerStyle={[
+                    styles.dropdownContainer,
+                    { maxHeight: hp(30) },
+                  ]}
                   textStyle={styles.dropdownText}
                   placeholder="Select a day"
                   zIndex={3000}
@@ -411,19 +443,25 @@ export default function CreateNewRecipe() {
                     style={[
                       styles.mealTypeButton,
                       selectedMealType === meal.id && styles.selectedMealType,
-                      disabledMealTypes.includes(meal.id) && styles.disabledMealButton,
+                      disabledMealTypes.includes(meal.id) &&
+                        styles.disabledMealButton,
                     ]}
                     onPress={() => setSelectedMealType(meal.id)}
                   >
                     <Ionicons
                       name={meal.icon}
                       size={hp(3)}
-                      color={selectedMealType === meal.id ? COLORS.black : COLORS.gray2}
+                      color={
+                        selectedMealType === meal.id
+                          ? COLORS.black
+                          : COLORS.gray2
+                      }
                     />
                     <Text
                       style={[
                         styles.mealTypeText,
-                        selectedMealType === meal.id && styles.mealTypeTextActive,
+                        selectedMealType === meal.id &&
+                          styles.mealTypeTextActive,
                       ]}
                     >
                       {meal.name}
@@ -443,7 +481,11 @@ export default function CreateNewRecipe() {
             >
               <View style={styles.placeholderContainer}>
                 <View style={styles.uploadIcon}>
-                  <Ionicons name="cloud-upload-outline" size={hp(3)} color={COLORS.primaryColor} />
+                  <Ionicons
+                    name="cloud-upload-outline"
+                    size={hp(3)}
+                    color={COLORS.primaryColor}
+                  />
                 </View>
                 <Text style={styles.uploadText}>
                   <Text style={styles.uploadLink}>Click to upload Images</Text>
@@ -464,12 +506,19 @@ export default function CreateNewRecipe() {
                   <View style={styles.imageScrollContainer}>
                     {selectedImages.map((imageUri, index) => (
                       <View key={index} style={styles.imagePreview}>
-                        <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                        <Image
+                          source={{ uri: imageUri }}
+                          style={styles.previewImage}
+                        />
                         <TouchableOpacity
                           style={styles.removeImageButton}
                           onPress={() => removeImage(index)}
                         >
-                          <Ionicons name="close" size={16} color={COLORS.white} />
+                          <Ionicons
+                            name="close"
+                            size={16}
+                            color={COLORS.white}
+                          />
                         </TouchableOpacity>
                       </View>
                     ))}
@@ -539,7 +588,12 @@ export default function CreateNewRecipe() {
                     onPress={() => handleRemoveRecipe(index)}
                   >
                     <Text style={styles.recipeTagText}>{recipeItem}</Text>
-                    <Ionicons name="close" size={12} color="#5C5C60" style={{ marginLeft: 4 }} />
+                    <Ionicons
+                      name="close"
+                      size={12}
+                      color="#5C5C60"
+                      style={{ marginLeft: 4 }}
+                    />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -598,7 +652,9 @@ export default function CreateNewRecipe() {
               accessible={true}
               accessibilityLabel="Add new step"
             >
-              <Text style={styles.addStepButtonText}>{t("AddMeal.addstep")}</Text>
+              <Text style={styles.addStepButtonText}>
+                {t("AddMeal.addstep")}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -767,7 +823,6 @@ const styles = StyleSheet.create({
   imagePreview: {
     position: "relative",
     marginRight: wp(2),
-
   },
   previewImage: {
     width: wp(20),

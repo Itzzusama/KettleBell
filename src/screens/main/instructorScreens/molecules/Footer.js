@@ -3,7 +3,7 @@ import { StyleSheet, TextInput, View, TouchableOpacity } from "react-native";
 
 import fonts from "../../../../assets/fonts";
 import { COLORS } from "../../../../utils/COLORS";
-import { Icons } from "../../../../assets/icons";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const Footer = ({ inputText, setInputText, sendMessage = () => "" }) => {
   return (
@@ -20,12 +20,7 @@ const Footer = ({ inputText, setInputText, sendMessage = () => "" }) => {
         />
       </View>
       <TouchableOpacity onPress={sendMessage}>
-        <Icons
-          name={"send"}
-          family={"Feather"}
-          color={COLORS.primaryColor}
-          size={22}
-        />
+        <FontAwesome name="send" size={24} color={COLORS.primaryColor} />
       </TouchableOpacity>
     </View>
   );
@@ -45,13 +40,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     width: "95%",
     alignSelf: "center",
-    backgroundColor: COLORS.bgGray,
+
     height: 56,
     marginBottom: 12,
   },
   inputContainer: {
     flex: 1,
-    backgroundColor: COLORS.bgGray,
+
     borderRadius: 50,
     justifyContent: "center",
   },
@@ -60,6 +55,6 @@ const styles = StyleSheet.create({
     margin: 0,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: COLORS.black,
+    color: COLORS.white,
   },
 });

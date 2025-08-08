@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Feather, Ionicons } from "@expo/vector-icons"
-import { useFocusEffect, useNavigation } from "@react-navigation/native"
-import { useCallback, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Alert,
   FlatList,
@@ -16,44 +16,52 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from "react-native"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import fonts from "../../../../assets/fonts"
-import { Images } from "../../../../assets/images"
-import RouteName from "../../../../navigation/RouteName"
-import { DeleteApiRequest, GetApiRequest, PostApiRequest, PutApiRequest } from "../../../../services/api"
-import { COLORS } from "../../../../utils/COLORS"
-import { useToast } from "../../../../utils/Toast/toastContext"
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../../assets/fonts";
+import { Images } from "../../../../assets/images";
+import RouteName from "../../../../navigation/RouteName";
+import {
+  DeleteApiRequest,
+  GetApiRequest,
+  PostApiRequest,
+  PutApiRequest,
+} from "../../../../services/api";
+import { COLORS } from "../../../../utils/COLORS";
+import { useToast } from "../../../../utils/Toast/toastContext";
 
 export default function Plans() {
-  const navigation = useNavigation()
-  const [selectedCategory, setSelectedCategory] = useState("All")
-  const [searchText, setSearchText] = useState("")
-  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
-  const [showEditCategoryModal, setShowEditCategoryModal] = useState(false)
-  const [newCategoryName, setNewCategoryName] = useState("")
-  const [editingCategory, setEditingCategory] = useState(null)
-  const [myPlans, setMyPlans] = useState([])
-  const toast = useToast()
-  const { t } = useTranslation()
-  const [categoriesState, setCategoriesState] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [refreshing, setRefreshing] = useState(false)
+  const navigation = useNavigation();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchText, setSearchText] = useState("");
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showEditCategoryModal, setShowEditCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [myPlans, setMyPlans] = useState([]);
+  const toast = useToast();
+  const { t } = useTranslation();
+  const [categoriesState, setCategoriesState] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleAddCategory = () => {
     if (newCategoryName.trim()) {
-      createCategory()
-      setNewCategoryName("")
-      setShowAddCategoryModal(false)
+      createCategory();
+      setNewCategoryName("");
+      setShowAddCategoryModal(false);
     }
-  }
+  };
 
   const handleEditCategory = () => {
     if (newCategoryName.trim() && editingCategory) {
-      updateCategory()
+      updateCategory();
     }
-  }
+  };
 
   const handleDeleteCategory = (category) => {
     if (category.name === "All") {
@@ -61,222 +69,254 @@ export default function Plans() {
         type: "error",
         message: "You cannot delete the 'All' category",
         duration: 4000,
-      })
-      return
+      });
+      return;
     }
 
     const hasPlans = myPlans.some(
       (plan) => plan.category && plan.category.name === category.name
-    )
+    );
 
     if (hasPlans) {
       toast.showToast({
         type: "error",
         message: "Cannot delete category with associated workout plans",
         duration: 4000,
-      })
-      return
+      });
+      return;
     }
 
-    Alert.alert("Delete Category", "Are you sure you want to delete this category?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deleteCategory(category.id),
-      },
-    ])
-  }
+    Alert.alert(
+      "Delete Category",
+      "Are you sure you want to delete this category?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deleteCategory(category.id),
+        },
+      ]
+    );
+  };
 
   const handleEditPlan = (item) => {
-    navigation.navigate(RouteName.Create_Workout_plan, { isEdit: true, item })
-  }
+    navigation.navigate(RouteName.Create_Workout_plan, { isEdit: true, item });
+  };
 
   const getCategories = async () => {
     try {
-      const res = await GetApiRequest("api/workout-plan-categories/my-categories")
+      const res = await GetApiRequest(
+        "api/workout-plan-categories/my-categories"
+      );
       if (res && res.data && res.data.data) {
         const fetchedCategories = res.data.data.map((cat) => ({
           ...cat,
           active: false,
-        }))
-        setCategoriesState([{ id: "all", name: "All", active: true }, ...fetchedCategories])
+        }));
+        setCategoriesState([
+          { id: "all", name: "All", active: true },
+          ...fetchedCategories,
+        ]);
       }
     } catch (error) {
-      console.log(error)
-      Alert.alert("Error", "Failed to load categories")
+      console.log(error);
+      Alert.alert("Error", "Failed to load categories");
     }
-  }
+  };
 
   const createCategory = async () => {
     try {
       const res = await PostApiRequest("api/workout-plan-categories", {
         name: newCategoryName.trim(),
-      })
+      });
       if (res && res.data) {
-        getCategories()
-        setShowAddCategoryModal(false)
-        setNewCategoryName("")
+        getCategories();
+        setShowAddCategoryModal(false);
+        setNewCategoryName("");
         toast.showToast({
           type: "success",
           message: "Category created successfully",
           duration: 4000,
-        })
+        });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.showToast({
         type: "error",
         message: "Failed to create category",
         duration: 4000,
-      })
+      });
     }
-  }
+  };
 
   const updateCategory = async () => {
     try {
-      const res = await PutApiRequest(`api/workout-plan-categories/${editingCategory.id}`, {
-        name: newCategoryName.trim(),
-      })
+      const res = await PutApiRequest(
+        `api/workout-plan-categories/${editingCategory.id}`,
+        {
+          name: newCategoryName.trim(),
+        }
+      );
       if (res && res.data) {
-        getCategories()
-        setShowEditCategoryModal(false)
-        setNewCategoryName("")
-        setEditingCategory(null)
+        getCategories();
+        setShowEditCategoryModal(false);
+        setNewCategoryName("");
+        setEditingCategory(null);
         toast.showToast({
           type: "success",
           message: "Category updated successfully",
           duration: 4000,
-        })
+        });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.showToast({
         type: "error",
         message: "Failed to update category",
         duration: 4000,
-      })
+      });
     }
-  }
+  };
 
   const deleteCategory = async (categoryId) => {
     try {
-      const res = await DeleteApiRequest(`api/workout-plan-categories/${categoryId}`)
+      const res = await DeleteApiRequest(
+        `api/workout-plan-categories/${categoryId}`
+      );
       if (res) {
-        getCategories()
-        if (selectedCategory === categoriesState.find((cat) => cat.id === categoryId)?.name) {
-          setSelectedCategory("All")
+        getCategories();
+        if (
+          selectedCategory ===
+          categoriesState.find((cat) => cat.id === categoryId)?.name
+        ) {
+          setSelectedCategory("All");
         }
         toast.showToast({
           type: "success",
           message: "Category deleted successfully",
           duration: 4000,
-        })
+        });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.showToast({
         type: "error",
         message: "Failed to delete category",
         duration: 4000,
-      })
+      });
     }
-  }
+  };
 
   const handleDeletePlan = (item) => {
-    Alert.alert("Delete Workout Plan", `Are you sure you want to delete "${item.name}"?`, [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deletePlan(item._id),
-      },
-    ])
-  }
+    Alert.alert(
+      "Delete Workout Plan",
+      `Are you sure you want to delete "${item.name}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => deletePlan(item._id),
+        },
+      ]
+    );
+  };
 
   const handleCategorySelect = (category) => {
     setCategoriesState(
       categoriesState.map((cat) => ({
         ...cat,
         active: cat.name === category.name,
-      })),
-    )
-    setSelectedCategory(category.name)
-  }
+      }))
+    );
+    setSelectedCategory(category.name);
+  };
 
   const openEditCategoryModal = (category) => {
-    setEditingCategory(category)
-    setNewCategoryName(category.name)
-    setShowEditCategoryModal(true)
-  }
+    setEditingCategory(category);
+    setNewCategoryName(category.name);
+    setShowEditCategoryModal(true);
+  };
 
   const getMyPlans = async () => {
     try {
-      setIsLoading(true)
-      const res = await GetApiRequest("api/workout-plans/my-plans")
+      setIsLoading(true);
+      const res = await GetApiRequest("api/workout-plans/my-plans");
       if (res.data && res.data.data) {
-        setMyPlans(res.data.data)
+        console.log(res.data.data);
+        setMyPlans(res.data.data);
       }
     } catch (error) {
-      console.log(error)
-      Alert.alert("Error", "Failed to load plans")
+      console.log(error);
+      Alert.alert("Error", "Failed to load plans");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const deletePlan = async (planId) => {
     try {
-      const res = await DeleteApiRequest(`api/workout-plans/${planId}`)
+      const res = await DeleteApiRequest(`api/workout-plans/${planId}`);
       if (res) {
-        getMyPlans()
+        getMyPlans();
         toast.showToast({
           type: "success",
           message: "Workout plan deleted successfully",
           duration: 4000,
-        })
+        });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.showToast({
         type: "error",
         message: "Failed to delete workout plan",
         duration: 4000,
-      })
+      });
     }
-  }
+  };
 
   const onRefresh = async () => {
-    setRefreshing(true)
+    setRefreshing(true);
     try {
-      await Promise.all([getCategories(), getMyPlans()])
+      await Promise.all([getCategories(), getMyPlans()]);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       toast.showToast({
         type: "error",
         message: "Failed to refresh data",
         duration: 4000,
-      })
+      });
     } finally {
-      setRefreshing(false)
+      setRefreshing(false);
     }
-  }
+  };
 
   const Categories = () => (
     <FlatList
       data={categoriesState}
       renderItem={({ item }) => (
         <TouchableOpacity
-          style={[styles.categoryButton, item.active && styles.activeCategoryButton]}
+          style={[
+            styles.categoryButton,
+            item.active && styles.activeCategoryButton,
+          ]}
           onPress={() => handleCategorySelect(item)}
         >
-          <Text style={[styles.categoryText, item.active && styles.activeCategoryText]}>{item.name}</Text>
+          <Text
+            style={[
+              styles.categoryText,
+              item.active && styles.activeCategoryText,
+            ]}
+          >
+            {item.name}
+          </Text>
         </TouchableOpacity>
       )}
       keyExtractor={(item) => item.id.toString()}
@@ -284,60 +324,94 @@ export default function Plans() {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.categoryList}
     />
-  )
+  );
 
   const WorkoutCard = ({ item }) => (
-    <TouchableOpacity style={styles.workoutCard} onPress={() => navigation.navigate(RouteName.CLient_workout_plan, { item })}>
+    <TouchableOpacity
+      style={styles.workoutCard}
+      onPress={() =>
+        navigation.navigate(RouteName.CLient_workout_plan, { item })
+      }
+      activeOpacity={0.8}
+    >
       <View style={styles.imageContainer}>
         <Image
-          source={item.images && item.images.length > 0 ? { uri: item.images[0] } : Images.dumyImg}
+          source={
+            item.images && item.images.length > 0
+              ? { uri: item.images[0] }
+              : Images.dumyImg
+          }
           style={styles.workoutImage}
         />
         <View style={styles.iconContainer}>
-          <TouchableOpacity style={styles.actionButton} onPress={() => handleEditPlan(item)}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleEditPlan(item)}
+          >
             <Feather name="edit" size={wp(3)} color={COLORS.primaryColor} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionButton, styles.deleteButton]} onPress={() => handleDeletePlan(item)}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.deleteButton]}
+            onPress={() => handleDeletePlan(item)}
+          >
             <Feather name="trash-2" size={wp(3)} color={COLORS.primaryColor} />
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.workoutOverlay}>
         <View style={styles.workoutContent}>
-          <Text style={styles.workoutTitle} numberOfLines={2}>{item.name}</Text>
+          <Text style={styles.workoutTitle} numberOfLines={2}>
+            {item.name}
+          </Text>
           <View style={styles.durationContainer}>
-            <Ionicons name="time-outline" size={wp(4)} color={COLORS.primaryColor} />
+            <Ionicons
+              name="time-outline"
+              size={wp(4)}
+              color={COLORS.primaryColor}
+            />
             <Text style={styles.durationText}>{item.numberOfWeeks} weeks</Text>
           </View>
         </View>
       </View>
     </TouchableOpacity>
-  )
+  );
 
   const filteredWorkoutPlans = myPlans.filter(
     (plan) =>
-      (selectedCategory === "All" || (plan.category && plan.category.name === selectedCategory)) &&
-      plan.name.toLowerCase().includes(searchText.toLowerCase()),
-  )
+      (selectedCategory === "All" ||
+        (plan.category && plan.category.name === selectedCategory)) &&
+      plan.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   useFocusEffect(
     useCallback(() => {
-      getCategories()
-      getMyPlans()
+      getCategories();
+      getMyPlans();
     }, [])
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Feather name="arrow-left" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("Plan.title")}</Text>
         <TouchableOpacity
           style={styles.headerAddButton}
-          onPress={() => navigation.navigate(RouteName.Create_Workout_plan, { isEdit: false })}
+          onPress={() =>
+            navigation.navigate(RouteName.Create_Workout_plan, {
+              isEdit: false,
+            })
+          }
         >
           <Ionicons name="add" size={20} color="white" />
         </TouchableOpacity>
@@ -363,11 +437,16 @@ export default function Plans() {
             <TouchableOpacity
               style={[styles.categoryActionButton, styles.editActionButton]}
               onPress={() => {
-                const activeCategory = categoriesState.find((cat) => cat.active)
+                const activeCategory = categoriesState.find(
+                  (cat) => cat.active
+                );
                 if (activeCategory && activeCategory.name !== "All") {
-                  openEditCategoryModal(activeCategory)
+                  openEditCategoryModal(activeCategory);
                 } else {
-                  Alert.alert(t("Plan.error"), t("Plan.select_category_to_edit"))
+                  Alert.alert(
+                    t("Plan.error"),
+                    t("Plan.select_category_to_edit")
+                  );
                 }
               }}
             >
@@ -376,11 +455,16 @@ export default function Plans() {
             <TouchableOpacity
               style={[styles.categoryActionButton, styles.deleteActionButton]}
               onPress={() => {
-                const activeCategory = categoriesState.find((cat) => cat.active)
+                const activeCategory = categoriesState.find(
+                  (cat) => cat.active
+                );
                 if (activeCategory && activeCategory.name !== "All") {
-                  handleDeleteCategory(activeCategory)
+                  handleDeleteCategory(activeCategory);
                 } else {
-                  Alert.alert(t("Plan.error"), t("Plan.select_category_to_delete"))
+                  Alert.alert(
+                    t("Plan.error"),
+                    t("Plan.select_category_to_delete")
+                  );
                 }
               }}
             >
@@ -416,7 +500,9 @@ export default function Plans() {
         <View style={styles.emptyState}>
           <Text style={styles.emptyStateText}>No workout plans found</Text>
           <Text style={styles.emptyStateSubtext}>
-            {searchText ? "Try adjusting your search" : "Create your first workout plan"}
+            {searchText
+              ? "Try adjusting your search"
+              : "Create your first workout plan"}
           </Text>
         </View>
       ) : null}
@@ -428,7 +514,9 @@ export default function Plans() {
         numColumns={2}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.workoutGrid}
-        columnWrapperStyle={filteredWorkoutPlans.length > 1 ? styles.workoutRow : null}
+        columnWrapperStyle={
+          filteredWorkoutPlans.length > 1 ? styles.workoutRow : null
+        }
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -443,7 +531,10 @@ export default function Plans() {
         visible={showAddCategoryModal || showEditCategoryModal}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => { setShowAddCategoryModal(false); setShowEditCategoryModal(false) }}
+        onRequestClose={() => {
+          setShowAddCategoryModal(false);
+          setShowEditCategoryModal(false);
+        }}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -463,9 +554,9 @@ export default function Plans() {
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => {
-                  setShowAddCategoryModal(false)
-                  setShowEditCategoryModal(false)
-                  setNewCategoryName("")
+                  setShowAddCategoryModal(false);
+                  setShowEditCategoryModal(false);
+                  setNewCategoryName("");
                 }}
                 activeOpacity={0.8}
               >
@@ -473,7 +564,9 @@ export default function Plans() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.addButton]}
-                onPress={showAddCategoryModal ? handleAddCategory : handleEditCategory}
+                onPress={
+                  showAddCategoryModal ? handleAddCategory : handleEditCategory
+                }
                 activeOpacity={0.8}
               >
                 <Text style={styles.addButtonText}>Add</Text>
@@ -483,7 +576,7 @@ export default function Plans() {
         </View>
       </Modal>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -813,4 +906,4 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-})
+});
