@@ -23,106 +23,110 @@ import { useIsFocused } from "@react-navigation/native";
 import { useSocket } from "../../../utils/SocketProvider";
 import { useSelector } from "react-redux";
 import CustomText from "../../../components/CustomText";
-import moment from "moment/moment";
+import moment from "moment";
 
 const InboxScreen = ({ route }) => {
   const navigation = useNavigation();
   const isFocus = useIsFocused();
-  const socket = useSocket();
+
+  // Get socket helpers
+  const { send, socket, isConnected } = useSocket();
+
   const { userData } = useSelector((state) => state.users);
   const client = route?.params?.client;
   const message = route?.params?.message;
   const userId = userData?._id;
   const clientId = client?.id || client?._id;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
+  console.log(client);
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  // Join conversation and fetch messages
-  useEffect(() => {
-    if (socket && clientId) {
-      socket.emit("joinConversation", clientId);
-      fetchMessages();
-      // Listen for new messages
-      socket.on("newMessage", handleNewMessage);
-      // Optionally listen for typing
-      socket.on("typing", handleTyping);
-    }
-    return () => {
-      if (socket) {
-        socket.off("newMessage", handleNewMessage);
-        socket.off("typing", handleTyping);
-      }
-    };
-    // eslint-disable-next-line
-  }, [socket, clientId]);
-
-  // Mark all messages as read when focused
-  useEffect(() => {
-    if (socket && messages.length > 0) {
-      const unread = messages.filter((m) => !m.read && m.sender !== userId);
-      unread.forEach((msg) => {
-        socket.emit("markMessageRead", msg._id);
-      });
-    }
-  }, [messages, socket, userId]);
-
+  // Fetch conversation history
   const fetchMessages = async () => {
     setRefreshing(true);
     try {
-      const response = await GetApiRequest("msg/messages/" + clientId);
-      if (response.data) {
-        setMessages(response.data?.messages || []);
+      const response = await GetApiRequest("api/msg/messages/" + clientId);
+      if (response?.data?.messages) {
+        setMessages(response.data.messages);
+      } else {
+        setMessages([]);
       }
     } catch (error) {
-      console.log("errrrrrr", error);
+      console.log("Error fetching messages:", error);
     } finally {
       setRefreshing(false);
     }
   };
 
-  const handleNewMessage = (msg) => {
-    setMessages((prev) => [msg, ...prev]);
-    // Optionally mark as read if message is for this user
-    if (msg.sender !== userId) {
-      socket.emit("markMessageRead", msg._id);
-    }
-  };
+  // Setup socket listeners
+  useEffect(() => {
+    if (!isConnected || !clientId) return;
 
-  const handleTyping = (data) => {
-    if (data.clientId === clientId && data.isTyping) {
-      setIsTyping(true);
-      setTimeout(() => setIsTyping(false), 2000);
-    }
-  };
+    // Join conversation
+    send("joinConversation", clientId);
 
-  const handleSend = () => {
-    if (!inputText.trim() || !socket) return;
-    const messageData = {
-      clientId,
-      content: inputText,
-      messageType: "text",
-      sender: userId,
+    // Load history
+    fetchMessages();
+
+    // Listen for new messages
+    socket?.on("newMessage", ({ message }) => {
+      setMessages((prev) => [message, ...prev]);
+    });
+
+    // Listen for typing
+    socket?.on("userTyping", ({ userId: typingUserId, isTyping }) => {
+      if (typingUserId === clientId) {
+        setIsTyping(isTyping);
+      }
+    });
+
+    // Mark unread messages as read
+    if (messages.length > 0) {
+      messages
+        .filter((m) => !m.read && m.sender !== userId)
+        .forEach((msg) => {
+          send("markMessageRead", msg._id);
+        });
+    }
+
+    return () => {
+      socket?.off("newMessage");
+      socket?.off("userTyping");
     };
-    socket.emit("sendMessage", messageData, (res) => {
+  }, [isConnected, clientId]);
+
+  // Emit typing status
+  useEffect(() => {
+    if (!isConnected || !clientId) return;
+    send("typing", {
+      recipientId: clientId,
+      isTyping: !!inputText.trim(),
+    });
+  }, [inputText, isConnected, clientId]);
+
+  // Send a message
+  const handleSend = () => {
+    if (!inputText.trim() || !isConnected) return;
+
+    const messageData = {
+      recipientId: clientId,
+      message: inputText,
+      messageType: "text",
+    };
+
+    send("sendMessage", messageData, (res) => {
       if (res?.success && res.message) {
         setMessages((prev) => [res.message, ...prev]);
       }
     });
+
     setInputText("");
   };
 
-  // Typing indicator
-  useEffect(() => {
-    if (!socket || !clientId) return;
-    if (inputText) {
-      socket.emit("typing", { clientId, isTyping: true });
-    }
-    // Optionally debounce
-  }, [inputText, socket, clientId]);
-
+  // Render a single message bubble
   const renderMessage = ({ item }) => (
     <>
       <CustomText
@@ -161,6 +165,7 @@ const InboxScreen = ({ route }) => {
         </View>
       )}
     >
+      {/* Header */}
       <View style={[styles.header, { marginTop: topInset }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -169,9 +174,11 @@ const InboxScreen = ({ route }) => {
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {message?.client?.name || "Name"}
+          {message?.client?.name || client?.name || "Name"}
         </Text>
       </View>
+
+      {/* Messages */}
       <View style={{ flex: 1, marginTop: 10 }}>
         <FlatList
           data={messages}
@@ -208,11 +215,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: "#FFF",
     fontSize: hp(2.3),
-    // textAlign: "center",
     flex: 1,
     fontFamily: fonts.medium,
   },
-
   messageContainer: {
     maxWidth: "70%",
     padding: 14,
