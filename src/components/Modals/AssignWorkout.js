@@ -128,7 +128,7 @@ const AssignWorkout = ({
           label="Assign Workout Plans"
           fontFamily={fonts.bold}
           fontSize={18}
-          color={COLORS.red}
+          color={COLORS.primaryColor}
           marginBottom={25}
         />
         <View style={styles.border}>
@@ -191,8 +191,8 @@ const AssignWorkout = ({
           <CustomButton
             title="Cancel"
             backgroundColor="transparent"
-            color={COLORS.red}
-            borderColor={COLORS.red}
+            color={COLORS.primaryColor}
+            borderColor={COLORS.primaryColor}
             borderWidth={1}
             width="48%"
             onPress={onDisable}
@@ -200,7 +200,7 @@ const AssignWorkout = ({
           <CustomButton
             title="Assign Plan"
             width="48%"
-            backgroundColor={COLORS.red}
+            backgroundColor={COLORS.primaryColor}
             onPress={handleAssignPlan}
             loading={assignLoading}
             disabled={assignLoading}
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 14,
     fontFamily: fonts.regular,
-    color: COLORS.black,
+    // color: COLORS.black,
   },
   dropdownButton: {
     padding: 12,
@@ -272,8 +272,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
   },
   selectedPlanOption: {
-    backgroundColor: COLORS.red,
-    borderColor: COLORS.red,
+    backgroundColor: COLORS.primaryColor,
+    borderColor: COLORS.primaryColor,
   },
   image: {
     height: "80%",

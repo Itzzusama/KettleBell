@@ -60,12 +60,12 @@ const MyWorkoutPlans = ({
           label="My Workout Plans"
           fontFamily={fonts.bold}
           fontSize={18}
-          color={COLORS.red}
+          color={COLORS.primaryColor}
           marginBottom={25}
         />
         <View style={styles.border}>
           {refreshing ? (
-            <ActivityIndicator size="large" color={COLORS.red} />
+            <ActivityIndicator size="large" color={COLORS.primaryColor} />
           ) : (
             <>
               {myPlans?.map((item, index) => (
@@ -103,8 +103,8 @@ const MyWorkoutPlans = ({
           <CustomButton
             title="Cancel"
             backgroundColor="transparent"
-            color={COLORS.red}
-            borderColor={COLORS.red}
+            color={COLORS.primaryColor}
+            borderColor={COLORS.primaryColor}
             borderWidth={1}
             width="48%"
             onPress={onDisable}
@@ -112,7 +112,7 @@ const MyWorkoutPlans = ({
           <CustomButton
             title="Select Plan"
             width="48%"
-            backgroundColor={COLORS.red}
+            backgroundColor={COLORS.primaryColor}
             onPress={() => {
               if (plan != "") {
                 onPress();

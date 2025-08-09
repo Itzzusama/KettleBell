@@ -11,5 +11,7 @@ export const Images = {
  lockCircle:require("../images/lockcircle.png"),
  dumyImg:require("../images/dumyImg.jpg"),
  nofound:require("../images/nofound.png"),
- logout:require("../images/logout.png")
+ noShow:require("../images/noShow.png"),
+ logout:require("../images/logout.png"),
+ send:require("../images/send.png")
 };

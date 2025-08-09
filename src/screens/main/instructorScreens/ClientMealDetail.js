@@ -1,5 +1,9 @@
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -19,7 +23,7 @@ import {
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import fonts from "../../../assets/fonts";
 import { Images } from "../../../assets/images";
 import RouteName from "../../../navigation/RouteName";
@@ -59,11 +63,14 @@ export default function MealScreen() {
   ];
 
   const [dayCategoriesState, setDayCategoriesState] = useState(dayCategories);
-  const [mealTypeCategoriesState, setMealTypeCategoriesState] = useState(mealTypeCategories);
+  const [mealTypeCategoriesState, setMealTypeCategoriesState] =
+    useState(mealTypeCategories);
 
   const getMealPlan = async () => {
     try {
-      const response = await GetApiRequest(`api/meal-plans/${item._id}/daily-meals`);
+      const response = await GetApiRequest(
+        `api/meal-plans/${item._id}/daily-meals`
+      );
       if (response && response.data && response.data.weekSchedule) {
         dispatch(setMealPlanData(response.data));
         const processedMeals = response.data.weekSchedule.flatMap((day) =>
@@ -74,7 +81,8 @@ export default function MealScreen() {
               title: meal.name,
               description: meal.description,
               time: meal.time,
-              image: meal.images && meal.images.length > 0 ? meal.images[0] : null,
+              image:
+                meal.images && meal.images.length > 0 ? meal.images[0] : null,
               images: meal.images || [],
               day: day.day,
               dayOfWeek: meal.dayOfWeek,
@@ -125,35 +133,33 @@ export default function MealScreen() {
   };
 
   const handleDeleteMeal = (meal) => {
-    Alert.alert(
-      "Delete Meal",
-      "Are you sure you want to delete this meal?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await DeleteApiRequest(`api/meal-plans/${item._id}/daily-meals/${meal.dayOfWeek}/${meal.mealType}`);
-              toast.showToast({
-                type: "success",
-                message: "Meal deleted successfully",
-                duration: 4000,
-              });
-              getMealPlan();
-            } catch (error) {
-              console.log("Error deleting meal:", error);
-              toast.showToast({
-                type: "error",
-                message: "Failed to delete meal",
-                duration: 4000,
-              });
-            }
-          },
+    Alert.alert("Delete Meal", "Are you sure you want to delete this meal?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await DeleteApiRequest(
+              `api/meal-plans/${item._id}/daily-meals/${meal.dayOfWeek}/${meal.mealType}`
+            );
+            toast.showToast({
+              type: "success",
+              message: "Meal deleted successfully",
+              duration: 4000,
+            });
+            getMealPlan();
+          } catch (error) {
+            console.log("Error deleting meal:", error);
+            toast.showToast({
+              type: "error",
+              message: "Failed to delete meal",
+              duration: 4000,
+            });
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDayCategoryPress = (categoryName) => {
@@ -185,13 +191,18 @@ export default function MealScreen() {
 
   const filteredMealPlans = mealPlans.filter((meal) => {
     const matchesDay = selectedDay === "All" || meal.day === selectedDay;
-    const matchesMealType = selectedMealType === "all" || meal.mealType.toLowerCase() === selectedMealType.toLowerCase();
+    const matchesMealType =
+      selectedMealType === "all" ||
+      meal.mealType.toLowerCase() === selectedMealType.toLowerCase();
     return matchesDay && matchesMealType;
   });
 
   const renderDayCategory = ({ item }) => (
     <TouchableOpacity
-      style={[styles.categoryButton, item.active && styles.activeCategoryButton]}
+      style={[
+        styles.categoryButton,
+        item.active && styles.activeCategoryButton,
+      ]}
       onPress={() => handleDayCategoryPress(item.name)}
     >
       <Text
@@ -204,20 +215,26 @@ export default function MealScreen() {
 
   const renderMealTypeCategory = ({ item }) => (
     <TouchableOpacity
-      style={[styles.categoryButton, item.active && styles.activeCategoryButton]}
+      style={[
+        styles.categoryButton,
+        item.active && styles.activeCategoryButton,
+      ]}
       onPress={() => handleMealTypeCategoryPress(item.name)}
     >
       <Text
         style={[styles.categoryText, item.active && styles.activeCategoryText]}
       >
-        {item.name.charAt(0).toUpperCase() + item.name.slice(1)} {/* Capitalize for display */}
+        {item?.name?.charAt(0).toUpperCase() + item.name.slice(1)}
       </Text>
     </TouchableOpacity>
   );
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundColor} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.backgroundColor}
+      />
 
       {/* Header */}
       <View style={styles.header}>
@@ -231,7 +248,10 @@ export default function MealScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.heroSection}>
           <Image
             source={{ uri: item.banner }}
@@ -247,10 +267,11 @@ export default function MealScreen() {
         {/* Meals Plan Section */}
         <View style={styles.mealsSection}>
           <View style={styles.mealsSectionHeader}>
-            <Text style={styles.mealsSectionTitle}>
-              Meal Plan
-            </Text>
-            <TouchableOpacity style={styles.addMealButton} onPress={handleAddMealPlan}>
+            <Text style={styles.mealsSectionTitle}>Meal Plan</Text>
+            <TouchableOpacity
+              style={styles.addMealButton}
+              onPress={handleAddMealPlan}
+            >
               <Text style={styles.addMealButtonText}>
                 {t("ClientMealDetail.addbtn")}
               </Text>
@@ -289,7 +310,9 @@ export default function MealScreen() {
               filteredMealPlans.map((meal) => (
                 <View key={meal.id} style={styles.mealCard}>
                   <Image
-                    source={{ uri: meal.image || "https://via.placeholder.com/150" }}
+                    source={{
+                      uri: meal.image || "https://via.placeholder.com/150",
+                    }}
                     style={styles.mealCardImage}
                     resizeMode="cover"
                   />
@@ -301,34 +324,56 @@ export default function MealScreen() {
                           style={styles.actionButton}
                           onPress={() => handleEditMeal(meal)}
                         >
-                          <Feather name="edit" size={wp(3)} color={COLORS.primaryColor} />
+                          <Feather
+                            name="edit"
+                            size={wp(3)}
+                            color={COLORS.primaryColor}
+                          />
                         </TouchableOpacity>
                         <TouchableOpacity
                           style={styles.actionButton}
                           onPress={() => handleDeleteMeal(meal)}
                         >
-                          <Feather name="trash-2" size={wp(3)} color={COLORS.primaryColor} />
+                          <Feather
+                            name="trash-2"
+                            size={wp(3)}
+                            color={COLORS.primaryColor}
+                          />
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <Text style={styles.mealCardDescription}>{meal.description}</Text>
+                    <Text style={styles.mealCardDescription}>
+                      {meal.description}
+                    </Text>
                     <View style={styles.mealCardFooter}>
                       <Text style={styles.mealCardTime}>
                         {t("ClientMealDetail.time")}: {meal.time}
                       </Text>
-                      <TouchableOpacity style={styles.startButton}>
+                      {/* <TouchableOpacity style={styles.startButton}>
                         <Text style={styles.startButtonText}>
                           {t("ClientMealDetail.start")}
                         </Text>
-                      </TouchableOpacity>
+                      </TouchableOpacity> */}
                     </View>
                   </View>
                 </View>
               ))
             ) : (
               <View style={styles.noMealsText}>
-                <Image source={Images.nofound} style={{ width: wp(20), height: hp(20) }} resizeMode="contain" />
-                <Text style={{ color: COLORS.white, fontSize: hp(2), fontFamily: fonts.medium }}>No Meal Found</Text>
+                <Image
+                  source={Images.nofound}
+                  style={{ width: wp(20), height: hp(20) }}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={{
+                    color: COLORS.white,
+                    fontSize: hp(2),
+                    fontFamily: fonts.medium,
+                  }}
+                >
+                  No Meal Found
+                </Text>
               </View>
             )}
           </View>

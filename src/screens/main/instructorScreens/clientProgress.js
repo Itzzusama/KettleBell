@@ -1,5 +1,3 @@
-"use client";
-
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import {
@@ -33,6 +31,9 @@ import { GetApiRequest } from "../../../services/api";
 import { useEffect, useState } from "react";
 import MyWorkoutPlans from "../../../components/Modals/MyWorkoutPlans";
 import AssignWorkout from "../../../components/Modals/AssignWorkout";
+import CustomText from "../../../components/CustomText";
+import NoDataFound from "../../../components/NoDataFound";
+import RouteName from "../../../navigation/RouteName";
 
 // Custom Progress Semicircle component
 const ProgressCircle = ({
@@ -47,18 +48,6 @@ const ProgressCircle = ({
   const client = route.params?.client;
   const circumference = Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  const [clientInfo, setClientInfo] = useState([]);
-
-  const getClient = async () => {
-    try {
-      const response = await GetApiRequest(`api/clients/${client?.id}`);
-      setClientInfo(response.data?.data);
-    } catch (error) {}
-  };
-  useEffect(() => {
-    getClient();
-  }, []);
   return (
     <View style={styles.progressCircleContainer}>
       <Svg width={size} height={size / 2 + strokeWidth}>
@@ -101,19 +90,19 @@ export default function ProfileDashboard({ route }) {
   const insets = useSafeAreaInsets();
 
   const client = route.params?.client;
-  console.log("tes====", client);
 
+  // Dynamic data from API response
   const dailyProgress = {
-    consumed: 64.87,
-    remaining: 300,
-    target: 1200,
+    consumed: clientDetail?.productivityMetrics?.overallScore || 0,
+    remaining: 100 - (clientDetail?.productivityMetrics?.overallScore || 0),
+    target: 100,
   };
 
   const weeklyProgress = {
-    calories: 1284,
-    burnFat: 29,
-    completedExercise: 65,
-    uncompletedExercise: 85,
+    calories: clientDetail?.workoutStats?.totalCaloriesBurned || 0,
+    burnFat: clientDetail?.productivityMetrics?.weeklyProgress?.progressPercentage || 0,
+    completedExercise: clientDetail?.workoutStats?.adherenceRate || 0,
+    uncompletedExercise: 100 - (clientDetail?.workoutStats?.adherenceRate || 0),
   };
 
   // const workoutPlans = [
@@ -177,10 +166,27 @@ export default function ProfileDashboard({ route }) {
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [mealPlans, setMealPlans] = useState([]);
   const [mealLogs, setMealLogs] = useState([]);
+  const [workoutLog, setWorkoutLog] = useState([]);
   const [taskModal, setTaskModal] = useState(false);
   const [planType, setPlanType] = useState("");
+  const [clientDetail, setClientDetail] = useState("");
 
   const [plan, setPlan] = useState("");
+
+  // Helper function to calculate total meal logs
+  const getTotalMealLogs = () => {
+    return clientDetail?.mealStats?.totalLogs || 0;
+  };
+
+  // Helper function to calculate total workout logs
+  const getTotalWorkoutLogs = () => {
+    return clientDetail?.workoutStats?.totalLogs || 0;
+  };
+
+  // Helper function to calculate streak
+  const getStreak = () => {
+    return clientDetail?.productivityMetrics?.streak || 0;
+  };
 
   const getClientPlan = async () => {
     try {
@@ -193,11 +199,32 @@ export default function ProfileDashboard({ route }) {
   const getWorkoutLogs = async () => {
     try {
       const response = await GetApiRequest(
+        `api/clients/${client?.id}/workout-logs`
+      );
+      // console.log("res---=-=-", response.data);
+
+      setWorkoutLog(response.data?.data);
+      // setMealPlans(response.data?.data?.mealPlans);
+    } catch (error) {}
+  };
+  const getMealLogs = async () => {
+    try {
+      const response = await GetApiRequest(
         `api/clients/${client?.id}/meal-logs`
       );
-      console.log("res---=-=-", response.data);
+      // console.log("res---=-=-", response.data);
 
       setMealLogs(response.data?.data);
+      // setMealPlans(response.data?.data?.mealPlans);
+    } catch (error) {}
+  };
+  const getAllClientDetail = async () => {
+    try {
+      const response = await GetApiRequest(
+        `api/client-productivity/${client?.id}/productivity`
+      );
+      console.log("res---=-=-details", response.data);
+      setClientDetail(response.data?.data);
       // setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
@@ -205,6 +232,8 @@ export default function ProfileDashboard({ route }) {
   useEffect(() => {
     getClientPlan();
     getWorkoutLogs();
+    getMealLogs();
+    getAllClientDetail();
   }, [isFocus, assignWorkoutModal]);
 
   return (
@@ -257,7 +286,12 @@ export default function ProfileDashboard({ route }) {
                 style={styles.profileImage}
               />
             </View>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate(RouteName.InboxScreen, { client })
+              }
+              style={styles.editButton}
+            >
               <MaterialCommunityIcons
                 name="message-text-outline"
                 size={hp(2)}
@@ -316,6 +350,9 @@ export default function ProfileDashboard({ route }) {
                   {weeklyProgress.calories.toLocaleString()}
                 </Text>
               </View>
+              <Text style={[styles.caloriesLabel, { marginTop: hp(1) }]}>
+                Streak: {getStreak()} days
+              </Text>
             </View>
             <View style={styles.progressCircles}>
               <View style={styles.progressCircleItem}>
@@ -331,7 +368,7 @@ export default function ProfileDashboard({ route }) {
                   formatText={() => `${weeklyProgress.burnFat}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.burn_fat_label")}
+                  Weekly Progress
                 </Text>
               </View>
               <View style={styles.progressCircleItem}>
@@ -347,25 +384,50 @@ export default function ProfileDashboard({ route }) {
                   formatText={() => `${weeklyProgress.completedExercise}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.completed_exercise_label")}
+                  Workout Adherence
                 </Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
                   size={wp(18)}
-                  progress={weeklyProgress.uncompletedExercise / 100}
+                  progress={clientDetail?.mealStats?.adherenceRate || 0}
                   thickness={wp(1.8)}
                   color="#7876F5"
                   unfilledColor={COLORS.gray3}
                   borderWidth={0}
                   showsText={true}
                   textStyle={styles.circleText}
-                  formatText={() => `${weeklyProgress.uncompletedExercise}%`}
+                  formatText={() => `${clientDetail?.mealStats?.adherenceRate || 0}%`}
                 />
                 <Text style={styles.circleLabel}>
-                  {t("ClientProgress.uncompleted_exercise_label")}
+                  Meal Adherence
                 </Text>
               </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Productivity Metrics */}
+        <View style={styles.sectionContainer2}>
+          <Text style={styles.sectionTitle}>Productivity Overview</Text>
+          <View style={styles.productivityContainer}>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {getTotalWorkoutLogs()}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Workouts</Text>
+            </View>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {getTotalMealLogs()}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Meals</Text>
+            </View>
+            <View style={styles.productivityItem}>
+              <Text style={styles.productivityNumber}>
+                {clientDetail?.workoutStats?.totalDuration || 0}
+              </Text>
+              <Text style={styles.productivityLabel}>Total Hours</Text>
             </View>
           </View>
         </View>
@@ -388,6 +450,9 @@ export default function ProfileDashboard({ route }) {
           <FlatList
             horizontal
             data={workoutPlans}
+            ListEmptyComponent={() => (
+              <NoDataFound title={"No Active Workout Plan"} />
+            )}
             keyExtractor={(item) => item?._id?.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.workoutCard}>
@@ -432,6 +497,7 @@ export default function ProfileDashboard({ route }) {
             horizontal
             data={mealPlans}
             keyExtractor={(item) => item?._id?.toString()}
+            ListEmptyComponent={() => <NoDataFound title={"No Active Plan"} />}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.workoutCard}>
                 <Image
@@ -463,9 +529,9 @@ export default function ProfileDashboard({ route }) {
               {t("ClientProgress.recent_workout")}
             </Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllLink}>
+              {/* <Text style={styles.seeAllLink}>
                 {t("ClientProgress.seeall")}
-              </Text>
+              </Text> */}
             </TouchableOpacity>
           </View>
           <ScrollView
@@ -473,40 +539,92 @@ export default function ProfileDashboard({ route }) {
             showsHorizontalScrollIndicator={false}
             style={styles.recentWorkoutScroll}
           >
-            {recentWorkouts.map((workout) => (
-              <TouchableOpacity key={workout.id} style={styles.recentCard}>
-                <Image
-                  source={{ uri: workout.image }}
-                  style={styles.recentCardImage}
-                />
-                <View style={styles.recentCardOverlay}>
-                  <View style={styles.recentCardContent}>
-                    <Text style={styles.recentCardTitle}>{workout.title}</Text>
-                    <Text style={styles.recentCardDuration}>
-                      {workout.duration}
-                    </Text>
-                  </View>
-                  <View style={styles.recentCardFooter}>
-                    <Text style={styles.recentCardDescription}>
-                      {workout.description}
-                    </Text>
-                    <View style={styles.completionBadge}>
-                      <Progress.Circle
-                        size={wp(10)}
-                        progress={workout.completion / 100}
-                        thickness={wp(1.2)}
-                        color={COLORS.primaryColor}
-                        unfilledColor={COLORS.gray3}
-                        borderWidth={0}
-                        showsText={true}
-                        textStyle={styles.completionText}
-                        formatText={() => `${workout.completion}%`}
-                      />
+            {workoutLog && workoutLog.length > 0 ? (
+              workoutLog?.map((workout) => (
+                <TouchableOpacity key={workout._id} style={styles.recentCard}>
+                  <Image
+                    source={{
+                      uri:
+                        workout.workoutPlan?.images?.[0] ||
+                        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                    }}
+                    style={styles.recentCardImage}
+                  />
+                  <View style={styles.recentCardOverlay}>
+                    <View style={styles.recentCardContent}>
+                      <Text style={styles.recentCardTitle}>
+                        {workout.workoutTitle ||
+                          workout.workoutPlan?.name ||
+                          "Workout"}
+                      </Text>
+                      <Text style={styles.recentCardDuration}>
+                        {workout.timeSlot || ""}
+                      </Text>
+                    </View>
+                    <View style={styles.recentCardFooter}>
+                      <Text style={styles.recentCardDescription}>
+                        {workout.notes ||
+                          workout.workoutPlan?.description ||
+                          ""}
+                      </Text>
+                      <View style={styles.completionBadge}>
+                        <Progress.Circle
+                          size={wp(10)}
+                          progress={
+                            (workout.status === "completed" ? 100 : 75) / 100
+                          }
+                          thickness={wp(1.2)}
+                          color={COLORS.primaryColor}
+                          unfilledColor={COLORS.gray3}
+                          borderWidth={0}
+                          showsText={true}
+                          textStyle={styles.completionText}
+                          formatText={() =>
+                            `${workout.status === "completed" ? 100 : 75}%`
+                          }
+                        />
+                      </View>
                     </View>
                   </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))
+            ) : (
+              // recentWorkouts?.map((workout) => (
+              //   <TouchableOpacity key={workout.id} style={styles.recentCard}>
+              //     <Image
+              //       source={{ uri: workout.image }}
+              //       style={styles.recentCardImage}
+              //     />
+              //     <View style={styles.recentCardOverlay}>
+              //       <View style={styles.recentCardContent}>
+              //         <Text style={styles.recentCardTitle}>{workout.title}</Text>
+              //         <Text style={styles.recentCardDuration}>
+              //           {workout.duration}
+              //         </Text>
+              //       </View>
+              //       <View style={styles.recentCardFooter}>
+              //         <Text style={styles.recentCardDescription}>
+              //           {workout.description}
+              //         </Text>
+              //         <View style={styles.completionBadge}>
+              //           <Progress.Circle
+              //             size={wp(10)}
+              //             progress={workout.completion / 100}
+              //             thickness={wp(1.2)}
+              //             color={COLORS.primaryColor}
+              //             unfilledColor={COLORS.gray3}
+              //             borderWidth={0}
+              //             showsText={true}
+              //             textStyle={styles.completionText}
+              //             formatText={() => `${workout.completion}%`}
+              //           />
+              //         </View>
+              //       </View>
+              //     </View>
+              //   </TouchableOpacity>
+              // ))
+              <NoDataFound title={"No workout Log"} />
+            )}
           </ScrollView>
         </View>
 
@@ -517,9 +635,9 @@ export default function ProfileDashboard({ route }) {
               {t("ClientProgress.recentNutrition")}
             </Text>
             <TouchableOpacity>
-              <Text style={styles.seeAllLink}>
+              {/* <Text style={styles.seeAllLink}>
                 {t("ClientProgress.seeall")}
-              </Text>
+              </Text> */}
             </TouchableOpacity>
           </View>
           <ScrollView
@@ -527,42 +645,85 @@ export default function ProfileDashboard({ route }) {
             showsHorizontalScrollIndicator={false}
             style={styles.nutritionScroll}
           >
-            {recentNutrition.map((nutrition) => (
-              <TouchableOpacity key={nutrition.id} style={styles.nutritionCard}>
-                <Image
-                  source={{ uri: nutrition.image }}
-                  style={styles.nutritionCardImage}
-                />
-                <View style={styles.nutritionCardOverlay}>
-                  <View style={styles.nutritionCardContent}>
-                    <Text style={styles.nutritionCardTime}>
-                      Time: {nutrition.time}
-                    </Text>
-                    <Text style={styles.nutritionCardTitle}>
-                      {nutrition.title}
-                    </Text>
-                    <Text style={styles.nutritionCardDescription}>
-                      {nutrition.description}
-                    </Text>
+            {mealLogs && mealLogs.length > 0 ? (
+              mealLogs?.map((meal) => (
+                <TouchableOpacity key={meal._id} style={styles.nutritionCard}>
+                  <Image
+                    source={{
+                      uri: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
+                    }}
+                    style={styles.nutritionCardImage}
+                  />
+                  <View style={styles.nutritionCardOverlay}>
+                    <View style={styles.nutritionCardContent}>
+                      <Text style={styles.nutritionCardTime}>
+                        Time: {meal.mealtime || "N/A"}
+                      </Text>
+                      <Text style={styles.nutritionCardTitle}>
+                        {meal.mealDate
+                          ? new Date(meal.mealDate).toLocaleDateString()
+                          : "N/A"}
+                      </Text>
+                      <Text style={styles.nutritionCardDescription}>
+                        {meal.notes || "No notes available"}
+                      </Text>
+                    </View>
+                    <View style={styles.nutritionCompletionContainer}>
+                      <Progress.Bar
+                        progress={0.9}
+                        width={wp(60)}
+                        height={hp(0.8)}
+                        color={COLORS.primaryColor}
+                        unfilledColor={COLORS.gray3}
+                        borderWidth={0}
+                        borderRadius={hp(0.4)}
+                      />
+                      <Text style={styles.nutritionCompletionText}>
+                        90
+                        {t("ClientProgress.complete")}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.nutritionCompletionContainer}>
-                    <Progress.Bar
-                      progress={nutrition.completion / 100}
-                      width={wp(60)}
-                      height={hp(0.8)}
-                      color={COLORS.primaryColor}
-                      unfilledColor={COLORS.gray3}
-                      borderWidth={0}
-                      borderRadius={hp(0.4)}
-                    />
-                    <Text style={styles.nutritionCompletionText}>
-                      {nutrition.completion}
-                      {t("ClientProgress.complete")}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              ))
+            ) : (
+              // recentNutrition.map((nutrition) => (
+              //   <TouchableOpacity key={nutrition.id} style={styles.nutritionCard}>
+              //     <Image
+              //       source={{ uri: nutrition.image }}
+              //       style={styles.nutritionCardImage}
+              //     />
+              //     <View style={styles.nutritionCardOverlay}>
+              //       <View style={styles.nutritionCardContent}>
+              //         <Text style={styles.nutritionCardTime}>
+              //           Time: {nutrition.time}
+              //         </Text>
+              //         <Text style={styles.nutritionCardTitle}>
+              //           {nutrition.title}
+              //         </Text>
+              //         <Text style={styles.nutritionCardDescription}>
+              //           {nutrition.description}
+              //         </Text>
+              //       </View>
+              //       <View style={styles.nutritionCompletionContainer}>
+              //         <Progress.Bar
+              //           progress={nutrition.completion / 100}
+              //           width={wp(60)}
+              //           height={hp(0.8)}
+              //           unfilledColor={COLORS.gray3}
+              //           borderWidth={0}
+              //           borderRadius={hp(0.4)}
+              //         />
+              //         <Text style={styles.nutritionCompletionText}>
+              //           {nutrition.completion}
+              //           {t("ClientProgress.complete")}
+              //         </Text>
+              //       </View>
+              //     </View>
+              //   </TouchableOpacity>
+              // )))
+              <NoDataFound title={"No Meal Log Found"} />
+            )}
           </ScrollView>
         </View>
       </ScrollView>
@@ -942,5 +1103,26 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     color: COLORS.white,
     alignSelf: "flex-end",
+  },
+  productivityContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  productivityItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  productivityNumber: {
+    fontSize: 20,
+    fontFamily: fonts.bold,
+    color: COLORS.white,
+    marginBottom: hp(0.5),
+  },
+  productivityLabel: {
+    fontSize: 12,
+    fontFamily: fonts.regular,
+    color: "#888888",
+    textAlign: "center",
   },
 });

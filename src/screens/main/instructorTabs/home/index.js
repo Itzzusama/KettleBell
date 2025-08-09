@@ -48,11 +48,22 @@ export default function InstructorHome() {
   const [isLoading, setIsLoading] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [dashboardData, setDashboardData] = useState(null);
 
   const userData = useSelector((state) => state.users);
-  console.log("use====", userData?.location);
 
   const { t } = useTranslation();
+
+  const getDashboardData = async () => {
+    try {
+      const res = await GetApiRequest("api/coach/dashboard");
+      if (res.data && res.data.data) {
+        setDashboardData(res.data.data);
+      }
+    } catch (error) {
+      console.log("Dashboard API Error:", error);
+    }
+  };
 
   const getMyPlans = async () => {
     try {
@@ -111,19 +122,25 @@ export default function InstructorHome() {
         );
 
   useEffect(() => {
+    getDashboardData();
     getCategories();
     getMyPlans();
   }, []);
 
-  const ActivePlanCard = ({ number = "03" }) => (
+  const ActivePlanCard = ({
+    title,
+    number,
+    icon,
+    colors = ["#FFBB02", "#FFBB02"],
+  }) => (
     <LinearGradient
-      colors={["#FFBB02", "#FFBB02"]}
+      colors={colors}
       style={styles.activePlanCard}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
       <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>{t("InstructorHome.activePlans")}</Text>
+        <Text style={styles.cardTitle}>{title}</Text>
         <View
           style={{
             backgroundColor: COLORS.white,
@@ -132,7 +149,7 @@ export default function InstructorHome() {
           }}
         >
           <Image
-            source={Images.dumble}
+            source={icon}
             style={{ width: wp(5), height: wp(5), resizeMode: "contain" }}
           />
         </View>
@@ -229,6 +246,31 @@ export default function InstructorHome() {
       setLoading(false);
     }
   };
+
+  // Dashboard cards data
+  const dashboardCards = [
+    {
+      title: t("InstructorHome.activePlans"),
+      number: dashboardData?.planUsage?.totalActivePlans || "0",
+      icon: Images.dumble,
+    },
+    {
+      title: t("InstructorHome.totalClients"),
+      number: dashboardData?.clientStats?.totalClients || "0",
+      icon: Icons.profile,
+    },
+    {
+      title: t("InstructorHome.completedWorkouts"),
+      number: dashboardData?.workoutStats?.completedWorkouts || "0",
+      icon: Icons.exercise,
+    },
+    {
+      title: t("InstructorHome.totalMeals"),
+      number: dashboardData?.mealStats?.totalMeals || "0",
+      icon: Icons.nutrition,
+    },
+  ];
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -258,7 +300,10 @@ export default function InstructorHome() {
             >
               <Ionicons name="chatbubble-outline" size={wp(6)} color="#fff" />
             </TouchableOpacity> */}
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate(RouteName.Notifications)}
+              style={styles.iconButton}
+            >
               <View style={styles.notificationDot} />
               <Ionicons
                 name="notifications-outline"
@@ -283,7 +328,7 @@ export default function InstructorHome() {
         </View>
 
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        {/* <View style={styles.searchContainer}>
           <Feather name="search" size={wp(5)} color="#ffffff" />
           <TextInput
             style={styles.searchInput}
@@ -292,22 +337,22 @@ export default function InstructorHome() {
             value={searchText}
             onChangeText={setSearchText}
           />
-        </View>
+        </View> */}
 
-        {/* Active Plans Rows */}
+        {/* Dashboard Stats Cards */}
         <View style={styles.activePlansContainer}>
           <View style={styles.activePlansRow}>
-            <ActivePlanCard />
-            <ActivePlanCard />
+            <ActivePlanCard {...dashboardCards[0]} />
+            <ActivePlanCard {...dashboardCards[1]} />
           </View>
           <View style={styles.activePlansRow}>
-            <ActivePlanCard />
-            <ActivePlanCard />
+            <ActivePlanCard {...dashboardCards[2]} />
+            <ActivePlanCard {...dashboardCards[3]} />
           </View>
         </View>
 
         <View style={{ paddingBottom: hp(4) }}>
-          <ClientReportChart />
+          <ClientReportChart dashboardData={dashboardData} />
         </View>
 
         {/* My Exercise */}
@@ -473,6 +518,7 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: wp(3.5),
     fontFamily: fonts.regular,
+    width: "80%",
   },
   cardNumber: {
     color: "#FFF",

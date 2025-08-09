@@ -15,19 +15,18 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const { token } = useSelector((state) => state.authConfigs);
+
   const dispatch = useDispatch();
 
-  const socketRef = useRef(null);
   const [socket, setSocket] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
+  // console.log("socket=====", socket);
 
-  const connectSocket = useCallback(() => {
-    if (!token || socketRef.current?.connected) return;
-
-    console.log("🔌 Connecting to socket server...");
-
+  const socketRef = useRef(null);
+  const initializeSocket = () => {
+    if (!token) return;
     const newSocket = io("https://www.fitness.tacosdecrema.com", {
-      auth: { token },
+      auth: { token: token },
+      reconnectionAttempts: 15,
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 15,
@@ -39,16 +38,15 @@ export const SocketProvider = ({ children }) => {
 
     // ===== Event Bindings =====
     newSocket.on("connect", () => {
-      console.log("✅ Socket connected:", newSocket.id);
-      setIsConnected(true);
-      newSocket.emit("authenticate", token);
-    });
-
-    newSocket.on("authenticated", () => {
-      console.log("🔐 Socket authenticated");
+      console.log("Connected to socket server");
+      // Re-authenticate if needed
       setSocket(newSocket);
-    });
 
+    });
+    // newSocket.on("authenticated", (id) => {
+    //   console.log("newSocket=====-=-==-", id);
+    //   setSocket(newSocket);
+    // });
     newSocket.on("connect_error", (error) => {
       console.error("❌ Socket connection error:", error?.message || error);
       setIsConnected(false);
@@ -62,12 +60,7 @@ export const SocketProvider = ({ children }) => {
       console.log(`♻️ Reconnected after ${attemptNumber} attempts`);
       newSocket.emit("authenticate", token);
     });
-
-    newSocket.on("unread-conversation-counts", (count) => {
-      console.log("📩 Unread conversation counts:", count);
-      // dispatch(setChatCount(count?.unreadCount));
-    });
-
+    
     newSocket.on("disconnect", (reason) => {
       console.warn("⚠️ Socket disconnected:", reason);
       setIsConnected(false);
@@ -100,7 +93,8 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      connectSocket();
+      initializeSocket();
+      console.log("===============Socket Initialize");
     } else {
       console.log("⚠️ No token found, not connecting to socket");
       disconnectSocket();

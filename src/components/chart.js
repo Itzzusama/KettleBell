@@ -5,17 +5,6 @@ import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-nat
 import fonts from '../assets/fonts';
 import { COLORS } from '../utils/COLORS';
 
-const data = {
-  labels: ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'],
-  datasets: [
-    {
-      data: [6000, 7000, 8500, 6134, 5500, 4500, 4000],
-      color: () => '#ffc107',
-      strokeWidth: 3,
-    },
-  ],
-};
-
 const chartConfig = {
   backgroundColor:COLORS.darkGray,
   backgroundGradientFrom:COLORS.darkGray,
@@ -36,13 +25,50 @@ const chartConfig = {
   },
 };
 
-const ClientReportChart = () => {
+const ClientReportChart = ({ dashboardData }) => {
   const {t}=useTranslation()
+
+  // Default data if no dashboard data is available
+  const defaultData = {
+    labels: ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        data: [6000, 7000, 8500, 6134, 5500, 4500, 4000],
+        color: () => '#ffc107',
+        strokeWidth: 3,
+      },
+    ],
+  };
+
+  // Generate chart data from dashboard monthly progress
+  const generateChartData = () => {
+    if (!dashboardData?.monthlyProgress?.workouts) {
+      return defaultData;
+    }
+
+    const workouts = dashboardData.monthlyProgress.workouts;
+    const labels = workouts.map(item => item.month);
+    const data = workouts.map(item => item.count);
+
+    return {
+      labels,
+      datasets: [
+        {
+          data,
+          color: () => '#ffc107',
+          strokeWidth: 3,
+        },
+      ],
+    };
+  };
+
+  const chartData = generateChartData();
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{t("InstructorHome.clientReport")}</Text>
       <LineChart
-        data={data}
+        data={chartData}
         width={wp(90)} // Responsive width
         height={hp(32)} // Responsive height
         chartConfig={chartConfig}
@@ -53,21 +79,21 @@ const ClientReportChart = () => {
         withInnerLines={true}
         withOuterLines={false}
         renderDotContent={({ x, y, index }) => {
-          if (index === 3) { // Thursday (index 3 in labels array)
+          if (index === Math.floor(chartData.datasets[0].data.length / 2)) { // Middle point
             return (
               <View key={index} style={[styles.customDotContainer, { left: x - 20, top: y - 30 }]}>
                 <View style={styles.customDot} />
-                <Text style={styles.dotLabel}>{data.datasets[0].data[index].toLocaleString()}</Text>
+                <Text style={styles.dotLabel}>{chartData.datasets[0].data[index].toLocaleString()}</Text>
               </View>
             );
           }
           return null;
         }}
         yAxisLabel=""
-        yAxisSuffix="k"
-        formatYLabel={(value) => `${parseInt(value) / 1000}`}
+        yAxisSuffix=""
+        formatYLabel={(value) => `${parseInt(value)}`}
         yLabelsOffset={15}
-        segments={4} // Matches the 2000, 4000, 6000, 8000, 10000 ticks
+        segments={4}
       />
     </View>
   );

@@ -279,7 +279,7 @@ const Home = () => {
             >
               <Ionicons name="chatbubble-outline" size={wp(6)} color="#FFF" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity onPress={()=>navigation.navigate(RouteName.Notifications)} style={styles.iconButton}>
               <Ionicons
                 name="notifications-outline"
                 size={wp(6)}

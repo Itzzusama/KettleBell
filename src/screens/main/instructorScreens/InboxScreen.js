@@ -33,10 +33,9 @@ const InboxScreen = ({ route }) => {
   const { send, socket, isConnected } = useSocket();
 
   const { userData } = useSelector((state) => state.users);
-  const client = route?.params?.client;
-  const message = route?.params?.message;
+  const client = route.params?.client;
   const userId = userData?._id;
-  const clientId = client?.id || client?._id;
+  const clientId = client?.id;
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
   console.log(client);
   const [inputText, setInputText] = useState("");
@@ -44,112 +43,206 @@ const InboxScreen = ({ route }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  // Fetch conversation history
+  // Join conversation and fetch messages
+  useEffect(() => {
+    if (clientId) {
+      fetchMessages();
+    }
+
+    if (socket && clientId) {
+      socket.emit("joinConversation", clientId);
+      // Listen for new messages
+      socket.on("newMessage", handleNewMessage);
+      socket.on("error", handleError);
+      // Optionally listen for typing
+      socket.on("typing", handleTyping);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("newMessage", handleNewMessage);
+        socket.off("typing", handleTyping);
+        socket.off("error", handleError);
+      }
+    };
+  }, [socket, clientId]);
+
+  // Mark all messages as read when focused
+  useEffect(() => {
+    if (isFocus && socket && messages.length > 0) {
+      const unread = messages.filter((m) => {
+        const messageSenderId =
+          typeof m.sender === "object" ? m.sender._id : m.sender;
+        return !m.readBy?.includes(userId) && messageSenderId !== userId;
+      });
+
+      unread.forEach((msg) => {
+        socket.emit("markMessageRead", msg._id);
+      });
+    }
+  }, [isFocus, messages, socket, userId]);
+
   const fetchMessages = async () => {
     setRefreshing(true);
     try {
-      const response = await GetApiRequest("api/msg/messages/" + clientId);
-      if (response?.data?.messages) {
-        setMessages(response.data.messages);
+      const response = await GetApiRequest(
+        `api/chat/conversations/${clientId}/messages`
+      );
+      console.log("Messages response:", response.data);
+
+      if (response.data?.success && Array.isArray(response.data?.data)) {
+        setMessages(response.data.data || []);
       } else {
+        console.warn("Invalid messages response format:", response.data);
         setMessages([]);
       }
     } catch (error) {
       console.log("Error fetching messages:", error);
+      setMessages([]);
     } finally {
       setRefreshing(false);
     }
   };
 
-  // Setup socket listeners
-  useEffect(() => {
-    if (!isConnected || !clientId) return;
+  const handleNewMessage = (msg) => {
+    console.log("New message received:", msg);
+    setMessages((prev) => [msg, ...prev]);
 
-    // Join conversation
-    send("joinConversation", clientId);
-
-    // Load history
-    fetchMessages();
-
-    // Listen for new messages
-    socket?.on("newMessage", ({ message }) => {
-      setMessages((prev) => [message, ...prev]);
-    });
-
-    // Listen for typing
-    socket?.on("userTyping", ({ userId: typingUserId, isTyping }) => {
-      if (typingUserId === clientId) {
-        setIsTyping(isTyping);
-      }
-    });
-
-    // Mark unread messages as read
-    if (messages.length > 0) {
-      messages
-        .filter((m) => !m.read && m.sender !== userId)
-        .forEach((msg) => {
-          send("markMessageRead", msg._id);
-        });
+    // Mark as read if message is from other user
+    const messageSenderId =
+      typeof msg.sender === "object" ? msg.sender._id : msg.sender;
+    if (messageSenderId !== userId) {
+      socket.emit("markMessageRead", msg._id);
     }
+  };
 
-    return () => {
-      socket?.off("newMessage");
-      socket?.off("userTyping");
-    };
-  }, [isConnected, clientId]);
+  const handleError = (error) => {
+    console.log("Socket error:", error);
+  };
 
-  // Emit typing status
-  useEffect(() => {
-    if (!isConnected || !clientId) return;
-    send("typing", {
-      recipientId: clientId,
-      isTyping: !!inputText.trim(),
-    });
-  }, [inputText, isConnected, clientId]);
+  const handleTyping = (data) => {
+    if (data.clientId === clientId && data.isTyping) {
+      setIsTyping(true);
+      setTimeout(() => setIsTyping(false), 2000);
+    }
+  };
 
-  // Send a message
   const handleSend = () => {
-    if (!inputText.trim() || !isConnected) return;
+    if (!inputText.trim() || !socket) return;
 
     const messageData = {
       recipientId: clientId,
       message: inputText,
       messageType: "text",
     };
+    console.log("Sending message:", messageData);
 
-    send("sendMessage", messageData, (res) => {
+    // Create a temporary message for immediate UI feedback
+    const tempMessage = {
+      _id: `temp_${Date.now()}`,
+      content: inputText,
+      sender: { _id: userId },
+      createdAt: new Date().toISOString(),
+      messageType: "text",
+      isPending: true,
+    };
+
+    // Add temporary message to UI
+    setMessages((prev) => [tempMessage, ...prev]);
+    setInputText("");
+
+    socket.emit("sendMessage", messageData, (res) => {
+      console.log("Send message response:", res);
       if (res?.success && res.message) {
-        setMessages((prev) => [res.message, ...prev]);
+        // Replace temporary message with real message
+        setMessages((prev) => {
+          const filtered = prev.filter((msg) => msg._id !== tempMessage._id);
+          return [res.message, ...filtered];
+        });
+      } else {
+        // Remove temporary message if failed
+        setMessages((prev) =>
+          prev.filter((msg) => msg._id !== tempMessage._id)
+        );
+        console.error("Failed to send message:", res);
       }
     });
-
-    setInputText("");
   };
 
-  // Render a single message bubble
-  const renderMessage = ({ item }) => (
-    <>
-      <CustomText
-        label={moment(item.createdAt).format("h:mm A")}
-        color="#818898"
-        fontSize={12}
-        marginTop={5}
-        alignSelf={item.sender === userId ? "flex-end" : "flex-start"}
-      />
-      <View
-        style={[
-          styles.messageContainer,
-          item.sender === userId ? styles.userMessage : styles.otherMessage,
-        ]}
-      >
-        <CustomText
-          label={item?.content || item?.message}
-          color={item.sender === userId ? COLORS.white : COLORS.black}
-          lineHeight={25}
-        />
-      </View>
-    </>
-  );
+  // Typing indicator
+  useEffect(() => {
+    if (!socket || !clientId) return;
+
+    const typingTimeout = setTimeout(() => {
+      if (inputText) {
+        socket.emit("typing", { clientId, isTyping: true });
+      }
+    }, 500);
+
+    return () => clearTimeout(typingTimeout);
+  }, [inputText, socket, clientId]);
+
+  const isUserMessage = (message) => {
+    const messageSenderId =
+      typeof message.sender === "object" ? message.sender._id : message.sender;
+    return messageSenderId === userId;
+  };
+
+  const getMessageContent = (message) => {
+    return message?.content || message?.message || "";
+  };
+
+  const getMessageSender = (message) => {
+    if (typeof message.sender === "object") {
+      return message.sender._id;
+    }
+    return message.sender;
+  };
+
+  const renderMessage = ({ item }) => {
+    try {
+      const isUser = isUserMessage(item);
+      const messageContent = getMessageContent(item);
+      const messageTime = moment(item.createdAt).format("h:mm A");
+
+      // Debug logging
+      console.log("Rendering message:", {
+        id: item._id,
+        content: messageContent,
+        sender: item.sender,
+        senderId: getMessageSender(item),
+        isUser,
+        userId,
+      });
+
+      // return (
+      //   <View key={item._id || item.id} style={styles.messageWrapper}>
+      //     <CustomText
+      //       label={messageTime}
+      //       color="#818898"
+      //       fontSize={12}
+      //       marginTop={5}
+      //       alignSelf={isUser ? "flex-end" : "flex-start"}
+      //     />
+      //     <View
+      //       style={[
+      //         styles.messageContainer,
+      //         isUser ? styles.userMessage : styles.otherMessage,
+      //       ]}
+      //     >
+      //       <CustomText
+      //         label={messageContent}
+      //         color={isUser ? COLORS.black1 : COLORS.white}
+      //         lineHeight={25}
+      //       />
+      //     </View>
+      //   </View>
+      // );
+    } catch (error) {
+      console.error("Error rendering message:", error, item);
+      return null;
+    }
+  };
 
   return (
     <ScreenWrapper
@@ -173,9 +266,7 @@ const InboxScreen = ({ route }) => {
         >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {message?.client?.name || client?.name || "Name"}
-        </Text>
+        <Text style={styles.headerTitle}>{client?.name || "Name"}</Text>
       </View>
 
       {/* Messages */}
@@ -184,17 +275,21 @@ const InboxScreen = ({ route }) => {
           data={messages}
           renderItem={renderMessage}
           keyExtractor={(item) => item._id || item.id}
-          inverted
           contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+          showsVerticalScrollIndicator={false}
+          onRefresh={fetchMessages}
+          refreshing={refreshing}
         />
         {isTyping && (
-          <CustomText
-            label="Typing..."
-            color="#818898"
-            fontSize={12}
-            marginTop={5}
-            alignSelf="flex-start"
-          />
+          <View style={styles.typingContainer}>
+            <CustomText
+              label="Typing..."
+              color="#818898"
+              fontSize={12}
+              marginTop={5}
+              alignSelf="flex-start"
+            />
+          </View>
         )}
       </View>
     </ScreenWrapper>
@@ -218,11 +313,14 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: fonts.medium,
   },
+  messageWrapper: {
+    marginBottom: 10,
+  },
   messageContainer: {
     maxWidth: "70%",
     padding: 14,
     borderRadius: 15,
-    marginTop: 15,
+    marginTop: 5,
   },
   userMessage: {
     alignSelf: "flex-end",
@@ -232,8 +330,12 @@ const styles = StyleSheet.create({
   },
   otherMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#EAF5FF",
+    backgroundColor: COLORS.primaryColor,
     borderTopLeftRadius: 0,
     elevation: 1,
+  },
+  typingContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
 });
