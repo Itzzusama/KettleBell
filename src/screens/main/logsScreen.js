@@ -17,6 +17,8 @@ import { COLORS } from "../../utils/COLORS";
 import fonts from "../../assets/fonts";
 import { useNavigation } from "@react-navigation/native";
 import { GetApiRequest } from "../../services/api";
+import NoData from "../../components/NoData";
+import RouteName from "../../navigation/RouteName";
 
 const LogScreen = () => {
   const [activeTab, setActiveTab] = useState("workout");
@@ -34,6 +36,7 @@ const LogScreen = () => {
     try {
       const response = await GetApiRequest(endpoint);
       const results = response?.data?.data || [];
+
       setLogs(results);
     } catch (error) {
       console.error("Error fetching logs:", error.message || error);
@@ -50,7 +53,13 @@ const LogScreen = () => {
   const renderLogItem = ({ item }) => {
     if (activeTab === "meal") {
       return (
-        <View style={styles.logCard}>
+        <TouchableOpacity
+          style={styles.logCard}
+          activeOpacity={0.8}
+          onPress={() =>
+            navigation.navigate(RouteName.MealLogDetail, { log: item })
+          }
+        >
           <View style={styles.logHeader}>
             <Text style={styles.logTitle}>
               {item.mealPlan?.name || "Meal Plan"}
@@ -70,12 +79,18 @@ const LogScreen = () => {
           {item.notes ? (
             <Text style={styles.logNote}>🗒️ {item.notes}</Text>
           ) : null}
-        </View>
+        </TouchableOpacity>
       );
     }
 
     return (
-      <View style={styles.logCard}>
+      <TouchableOpacity
+        style={styles.logCard}
+        activeOpacity={0.8}
+        onPress={() =>
+          navigation.navigate(RouteName.WorkoutLogDetail, { log: item })
+        }
+      >
         <View style={styles.logHeader}>
           <Text style={styles.logTitle}>
             {item.workoutPlan?.name || "Workout Plan"}
@@ -103,7 +118,7 @@ const LogScreen = () => {
             🔥 Calories Burned: {item.caloriesBurned}
           </Text>
         )}
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -155,7 +170,20 @@ const LogScreen = () => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>No logs found.</Text>
+            <NoData
+              title={
+                activeTab === "meal"
+                  ? "No Meal Logs Found"
+                  : "No Workout Logs Found"
+              }
+              subtitle={
+                activeTab === "meal"
+                  ? "You haven’t added any meals yet. Start logging your meals to keep track of your nutrition."
+                  : "No workouts recorded yet. Log your workouts to stay on top of your fitness journey."
+              }
+              marginTop={120}
+              iconName={activeTab === "meal" ? "fast-food" : "barbell-outline"}
+            />
           }
         />
       )}

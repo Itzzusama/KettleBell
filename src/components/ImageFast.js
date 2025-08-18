@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image } from "expo-image";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -11,7 +11,6 @@ import {
 
 import CustomModal from "./CustomModal";
 // import Icons from "./Icons";
-
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,7 +25,7 @@ const ImageFast = ({
 }) => {
   const [isImageLoading, setIsImageLoading] = useState(false);
   const [isViewModal, setIsViewModal] = useState(false);
-
+  console.log(source);
   const SkeletonLoader = () => {
     const animatedValue = useRef(new Animated.Value(0)).current;
     useEffect(() => {

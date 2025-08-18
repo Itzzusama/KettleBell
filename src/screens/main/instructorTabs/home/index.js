@@ -379,11 +379,14 @@ export default function InstructorHome() {
             {filteredExercises.length === 0 && !isLoading ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>No exercises found</Text>
-                <Text style={styles.emptyStateSubtext}>
-                  {searchText
-                    ? "Try adjusting your search"
-                    : "Create your first exercise"}
-                </Text>
+                <TouchableOpacity
+                  style={styles.btn}
+                  onPress={() => navigation.navigate(RouteName.Create_Exercise)}
+                >
+                  <Text style={styles.emptyStateSubtext}>
+                    + Create exercise
+                  </Text>
+                </TouchableOpacity>
               </View>
             ) : (
               <FlatList
@@ -638,14 +641,25 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     color: "#FFF",
-    fontSize: wp(4),
+    fontSize: wp(5),
     fontFamily: fonts.medium,
     marginBottom: hp(1),
   },
   emptyStateSubtext: {
-    color: "#999",
+    color: COLORS.black1,
     fontSize: wp(3.5),
     fontFamily: fonts.regular,
     textAlign: "center",
+  },
+  btn: {
+    alignSelf: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
+
+    backgroundColor: COLORS.primaryColor,
+    borderRadius: wp(2),
+    borderWidth: 1,
+    borderColor: "#33373B",
   },
 });

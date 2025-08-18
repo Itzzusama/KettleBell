@@ -40,6 +40,8 @@ import { GetApiRequest } from "../../services/api";
 import { setUserData } from "../../store/slices/usersSlice";
 import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
 import Notifications from "../../screens/main/Notifications";
+import MealLogDetail from "../../screens/main/MealLogDetail";
+import WorkoutLogDetail from "../../screens/main/WorkoutLogDetail";
 
 const Stack = createNativeStackNavigator();
 
@@ -152,6 +154,11 @@ const MainStack = () => {
       <Stack.Screen
         name={RouteName.BMRCalculator}
         component={BMRCalculatorScreen}
+      />
+      <Stack.Screen name={RouteName.MealLogDetail} component={MealLogDetail} />
+      <Stack.Screen
+        name={RouteName.WorkoutLogDetail}
+        component={WorkoutLogDetail}
       />
     </Stack.Navigator>
   );

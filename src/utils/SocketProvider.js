@@ -6,7 +6,6 @@ import React, {
   useEffect,
   useState,
   useRef,
-  useCallback,
 } from "react";
 
 const SocketContext = createContext();
@@ -19,7 +18,6 @@ export const SocketProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   const [socket, setSocket] = useState(null);
-  // console.log("socket=====", socket);
 
   const socketRef = useRef(null);
   const initializeSocket = () => {
@@ -29,91 +27,57 @@ export const SocketProvider = ({ children }) => {
       reconnectionAttempts: 15,
       transports: ["websocket"],
       reconnection: true,
-      reconnectionAttempts: 15,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       randomizationFactor: 0.5,
       timeout: 20000,
     });
-
-    // ===== Event Bindings =====
     newSocket.on("connect", () => {
       console.log("Connected to socket server");
       // Re-authenticate if needed
       setSocket(newSocket);
-
     });
     // newSocket.on("authenticated", (id) => {
     //   console.log("newSocket=====-=-==-", id);
     //   setSocket(newSocket);
     // });
     newSocket.on("connect_error", (error) => {
-      console.error("❌ Socket connection error:", error?.message || error);
-      setIsConnected(false);
+      console.error("Socket connection error:", error);
     });
-
     newSocket.on("unauthorized", (error) => {
-      console.error("🚫 Unauthorized socket connection:", error?.message);
+      console.error("Unauthorized socket connection:", error.message);
     });
-
     newSocket.on("reconnect", (attemptNumber) => {
-      console.log(`♻️ Reconnected after ${attemptNumber} attempts`);
+      console.log("Reconnected after", attemptNumber, "attempts");
+      // Re-authenticate after reconnection
       newSocket.emit("authenticate", token);
     });
-    
+
     newSocket.on("disconnect", (reason) => {
-      console.warn("⚠️ Socket disconnected:", reason);
-      setIsConnected(false);
+      console.warn("Socket disconnected:", reason);
       setSocket(null);
-      // Try reconnect with delay
       setTimeout(() => {
-        console.log("🔄 Attempting to reconnect socket...");
-        connectSocket();
-      }, 3000);
+        console.log("Reconnecting socket...");
+        initializeSocket();
+      }, 3000); // 3-second delay before reconnecting
     });
-
     socketRef.current = newSocket;
-  }, [token]);
-
-  const disconnectSocket = useCallback(() => {
-    console.log("🔌 Disconnecting socket...");
-    socketRef.current?.disconnect();
-    setSocket(null);
-    setIsConnected(false);
-  }, []);
-
-  // Helper to emit events safely
-  const send = useCallback((event, data, callback) => {
-    if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit(event, data, callback);
-    } else {
-      console.warn(`⚠️ Cannot send event "${event}", socket not connected`);
-    }
-  }, []);
-
+  };
   useEffect(() => {
     if (token) {
       initializeSocket();
       console.log("===============Socket Initialize");
     } else {
-      console.log("⚠️ No token found, not connecting to socket");
-      disconnectSocket();
+      console.log("No Token found for authentication");
     }
-
+    // Clean up on unmount or app kill
     return () => {
-      disconnectSocket();
+      // console.log("Disconnecting socket...");
+      socketRef.current?.disconnect();
+      setSocket(null);
     };
-  }, [token, connectSocket, disconnectSocket]);
-
+  }, [token]);
   return (
-    <SocketContext.Provider
-      value={{
-        socket,
-        send,
-        isConnected,
-      }}
-    >
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
   );
 };

@@ -64,6 +64,8 @@ const RouteName = {
   LogScreen: "LogScreen",
   BMRCalculator: "BMRCalculatorScreen",
   Notifications: "Notifications",
+  MealLogDetail: "MealLogDetail",
+  WorkoutLogDetail: "WorkoutLogDetail",
 };
 
 export default RouteName;

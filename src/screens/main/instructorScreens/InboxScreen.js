@@ -6,44 +6,82 @@ import {
   TouchableOpacity,
   View,
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Image,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ScreenWrapper from "../../../components/ScreenWrapper";
 import { COLORS } from "../../../utils/COLORS";
 import Footer from "./molecules/Footer";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
+import moment from "moment/moment";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Modal from "react-native-modal";
 import fonts from "../../../assets/fonts";
 import { GetApiRequest } from "../../../services/api";
 import { useIsFocused } from "@react-navigation/native";
 import { useSocket } from "../../../utils/SocketProvider";
 import { useSelector } from "react-redux";
 import CustomText from "../../../components/CustomText";
-import moment from "moment";
 
 const InboxScreen = ({ route }) => {
+  const flatListRef = useRef();
   const navigation = useNavigation();
   const isFocus = useIsFocused();
-
-  // Get socket helpers
-  const { send, socket, isConnected } = useSocket();
-
+  const socket = useSocket();
+  const insets = useSafeAreaInsets();
   const { userData } = useSelector((state) => state.users);
   const client = route.params?.client;
   const userId = userData?._id;
-  const clientId = client?.id;
+  const clientId = client?.id || client?._id;
+  console.log(clientId);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const topInset = Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
-  console.log(client);
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [msgType, setMsgType] = useState("text");
+  const [url, setUrl] = useState("");
 
-  // Join conversation and fetch messages
+  useEffect(() => {
+    flatListRef?.current?.scrollToEnd({ animated: true });
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => keyBoardShow()
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => keyBoardHide()
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  const keyBoardShow = () => {
+    setIsKeyboardVisible(true);
+    setTimeout(() => {
+      flatListRef?.current.scrollToEnd({ animated: true });
+    }, 200);
+  };
+
+  const keyBoardHide = () => {
+    setIsKeyboardVisible(false);
+    setTimeout(() => {
+      flatListRef?.current.scrollToEnd({ animated: true });
+    }, 200);
+  };
+
   useEffect(() => {
     if (clientId) {
       fetchMessages();
@@ -51,23 +89,18 @@ const InboxScreen = ({ route }) => {
 
     if (socket && clientId) {
       socket.emit("joinConversation", clientId);
-      // Listen for new messages
       socket.on("newMessage", handleNewMessage);
       socket.on("error", handleError);
-      // Optionally listen for typing
-      socket.on("typing", handleTyping);
     }
 
     return () => {
       if (socket) {
         socket.off("newMessage", handleNewMessage);
-        socket.off("typing", handleTyping);
         socket.off("error", handleError);
       }
     };
   }, [socket, clientId]);
 
-  // Mark all messages as read when focused
   useEffect(() => {
     if (isFocus && socket && messages.length > 0) {
       const unread = messages.filter((m) => {
@@ -77,7 +110,7 @@ const InboxScreen = ({ route }) => {
       });
 
       unread.forEach((msg) => {
-        socket.emit("markMessageRead", msg._id);
+        socket.emit("markMessageRead", msg._id) || msg?.message?._id;
       });
     }
   }, [isFocus, messages, socket, userId]);
@@ -88,7 +121,6 @@ const InboxScreen = ({ route }) => {
       const response = await GetApiRequest(
         `api/chat/conversations/${clientId}/messages`
       );
-      console.log("Messages response:", response.data);
 
       if (response.data?.success && Array.isArray(response.data?.data)) {
         setMessages(response.data.data || []);
@@ -105,10 +137,8 @@ const InboxScreen = ({ route }) => {
   };
 
   const handleNewMessage = (msg) => {
-    console.log("New message received:", msg);
-    setMessages((prev) => [msg, ...prev]);
+    setMessages((prev) => [msg?.message, ...prev]);
 
-    // Mark as read if message is from other user
     const messageSenderId =
       typeof msg.sender === "object" ? msg.sender._id : msg.sender;
     if (messageSenderId !== userId) {
@@ -120,124 +150,118 @@ const InboxScreen = ({ route }) => {
     console.log("Socket error:", error);
   };
 
-  const handleTyping = (data) => {
-    if (data.clientId === clientId && data.isTyping) {
-      setIsTyping(true);
-      setTimeout(() => setIsTyping(false), 2000);
-    }
-  };
-
   const handleSend = () => {
-    if (!inputText.trim() || !socket) return;
+    if ((!inputText.trim() && !url) || !socket) return;
 
     const messageData = {
       recipientId: clientId,
-      message: inputText,
-      messageType: "text",
-    };
-    console.log("Sending message:", messageData);
-
-    // Create a temporary message for immediate UI feedback
-    const tempMessage = {
-      _id: `temp_${Date.now()}`,
-      content: inputText,
-      sender: { _id: userId },
-      createdAt: new Date().toISOString(),
-      messageType: "text",
-      isPending: true,
+      message: msgType === "image" ? url : inputText,
+      messageType: msgType,
     };
 
-    // Add temporary message to UI
-    setMessages((prev) => [tempMessage, ...prev]);
     setInputText("");
+    setUrl("");
+    setMsgType("text");
 
     socket.emit("sendMessage", messageData, (res) => {
-      console.log("Send message response:", res);
-      if (res?.success && res.message) {
-        // Replace temporary message with real message
+      if (res.message) {
         setMessages((prev) => {
-          const filtered = prev.filter((msg) => msg._id !== tempMessage._id);
-          return [res.message, ...filtered];
+          return [...prev, res.message];
         });
-      } else {
-        // Remove temporary message if failed
-        setMessages((prev) =>
-          prev.filter((msg) => msg._id !== tempMessage._id)
-        );
-        console.error("Failed to send message:", res);
       }
     });
   };
-
-  // Typing indicator
-  useEffect(() => {
-    if (!socket || !clientId) return;
-
-    const typingTimeout = setTimeout(() => {
-      if (inputText) {
-        socket.emit("typing", { clientId, isTyping: true });
-      }
-    }, 500);
-
-    return () => clearTimeout(typingTimeout);
-  }, [inputText, socket, clientId]);
 
   const isUserMessage = (message) => {
     const messageSenderId =
       typeof message.sender === "object" ? message.sender._id : message.sender;
     return messageSenderId === userId;
   };
+  const renderDateLabel = (date) => {
+    const today = moment().startOf("day");
+    const yesterday = moment().subtract(1, "day").startOf("day");
+    const messageDate = moment(date).startOf("day");
+
+    if (messageDate.isSame(today, "day")) return "Today";
+    if (messageDate.isSame(yesterday, "day")) return "Yesterday";
+    return messageDate.format("MM/DD/YYYY");
+  };
 
   const getMessageContent = (message) => {
-    return message?.content || message?.message || "";
-  };
+    let content = message?.content || message?.message || "";
 
-  const getMessageSender = (message) => {
-    if (typeof message.sender === "object") {
-      return message.sender._id;
+    if (typeof content === "object") {
+      try {
+        return JSON.stringify(content);
+      } catch {
+        return "";
+      }
     }
-    return message.sender;
+
+    return String(content);
   };
 
-  const renderMessage = ({ item }) => {
+  const renderMessage = ({ item, index }) => {
     try {
       const isUser = isUserMessage(item);
       const messageContent = getMessageContent(item);
       const messageTime = moment(item.createdAt).format("h:mm A");
 
-      // Debug logging
-      console.log("Rendering message:", {
-        id: item._id,
-        content: messageContent,
-        sender: item.sender,
-        senderId: getMessageSender(item),
-        isUser,
-        userId,
-      });
+      let showDate = false;
+      if (index === 0) {
+        showDate = true;
+      } else {
+        const prev = messages[index - 1];
+        if (!moment(item.createdAt).isSame(prev.createdAt, "day")) {
+          showDate = true;
+        }
+      }
 
-      // return (
-      //   <View key={item._id || item.id} style={styles.messageWrapper}>
-      //     <CustomText
-      //       label={messageTime}
-      //       color="#818898"
-      //       fontSize={12}
-      //       marginTop={5}
-      //       alignSelf={isUser ? "flex-end" : "flex-start"}
-      //     />
-      //     <View
-      //       style={[
-      //         styles.messageContainer,
-      //         isUser ? styles.userMessage : styles.otherMessage,
-      //       ]}
-      //     >
-      //       <CustomText
-      //         label={messageContent}
-      //         color={isUser ? COLORS.black1 : COLORS.white}
-      //         lineHeight={25}
-      //       />
-      //     </View>
-      //   </View>
-      // );
+      return (
+        <View key={item._id || item.id} style={styles.messageWrapper}>
+          {showDate && (
+            <View style={styles.dateSeparator}>
+              <Text style={styles.dateText}>
+                {renderDateLabel(item.createdAt)}
+              </Text>
+            </View>
+          )}
+          <CustomText
+            label={messageTime}
+            color="#818898"
+            fontSize={12}
+            marginTop={5}
+            alignSelf={isUser ? "flex-end" : "flex-start"}
+          />
+          <View
+            style={[
+              styles.messageContainer,
+              isUser ? styles.userMessage : styles.otherMessage,
+            ]}
+          >
+            {item?.messageType == "image" ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedImage(messageContent);
+                  setIsImageModalVisible(true);
+                }}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={{ uri: messageContent }}
+                  style={{ width: 80, height: 80, borderRadius: 10 }}
+                />
+              </TouchableOpacity>
+            ) : (
+              <CustomText
+                label={messageContent}
+                color={isUser ? COLORS.black1 : COLORS.white}
+                lineHeight={25}
+              />
+            )}
+          </View>
+        </View>
+      );
     } catch (error) {
       console.error("Error rendering message:", error, item);
       return null;
@@ -247,51 +271,98 @@ const InboxScreen = ({ route }) => {
   return (
     <ScreenWrapper
       backgroundColor={COLORS.backgroundColor}
+      paddingHorizontal={15}
       barStyle="light-content"
-      footerUnScrollable={() => (
-        <View style={{ marginBottom: 16 }}>
-          <Footer
-            inputText={inputText}
-            setInputText={setInputText}
-            sendMessage={handleSend}
-          />
+      headerUnScrollable={() => (
+        <View style={[styles.header, { marginTop: topInset }]}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{client?.name || "Message"}</Text>
         </View>
       )}
+      scrollEnabled={false}
     >
-      {/* Header */}
-      <View style={[styles.header, { marginTop: topInset }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{client?.name || "Name"}</Text>
-      </View>
-
-      {/* Messages */}
-      <View style={{ flex: 1, marginTop: 10 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
         <FlatList
+          ref={flatListRef}
           data={messages}
           renderItem={renderMessage}
           keyExtractor={(item) => item._id || item.id}
-          contentContainerStyle={{ flexGrow: 1, justifyContent: "flex-end" }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "flex-end",
+          }}
           showsVerticalScrollIndicator={false}
           onRefresh={fetchMessages}
           refreshing={refreshing}
+          onContentSizeChange={() =>
+            flatListRef.current?.scrollToEnd({ animated: true })
+          }
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
-        {isTyping && (
-          <View style={styles.typingContainer}>
-            <CustomText
-              label="Typing..."
-              color="#818898"
-              fontSize={12}
-              marginTop={5}
-              alignSelf="flex-start"
-            />
+
+        {url ? (
+          <View style={styles.previewWrapper}>
+            <Image source={{ uri: url }} style={styles.previewImage} />
           </View>
-        )}
-      </View>
+        ) : null}
+
+        <View
+          style={{
+            marginBottom: isKeyboardVisible
+              ? insets.bottom + 40
+              : insets.bottom,
+          }}
+        >
+          <Footer
+            inputText={inputText}
+            setInputText={setInputText}
+            setMsgType={setMsgType}
+            setUrl={setUrl}
+            handleSend={handleSend}
+          />
+        </View>
+      </KeyboardAvoidingView>
+      <Modal
+        isVisible={isImageModalVisible}
+        onBackdropPress={() => setIsImageModalVisible(false)}
+        style={{ margin: 0 }}
+      >
+        <View style={{ flex: 1, backgroundColor: "#000" }}>
+          {/* Close Button */}
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: 40,
+              right: 20,
+              zIndex: 2,
+            }}
+            onPress={() => setIsImageModalVisible(false)}
+          >
+            <Ionicons name="close" size={32} color="#fff" />
+          </TouchableOpacity>
+
+          {/* Full Screen Image */}
+          {selectedImage ? (
+            <Image
+              source={{ uri: selectedImage }}
+              style={{
+                flex: 1,
+                resizeMode: "contain",
+                width: "100%",
+                height: "100%",
+              }}
+            />
+          ) : null}
+        </View>
+      </Modal>
     </ScreenWrapper>
   );
 };
@@ -334,8 +405,34 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     elevation: 1,
   },
-  typingContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+  dateSeparator: {
+    alignSelf: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 10,
+    marginVertical: 8,
+    backgroundColor: "#242427",
+    borderRadius: wp(4),
+    borderWidth: 1,
+    borderColor: "#33373B",
+  },
+  dateText: {
+    color: COLORS.primaryColor,
+    fontSize: 14,
+    fontFamily: fonts.regular,
+    marginTop: 2,
+  },
+  previewWrapper: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 4,
+    elevation: 4,
+    alignItems: "flex-end",
+    alignSelf: "flex-end",
+  },
+  previewImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 10,
   },
 });

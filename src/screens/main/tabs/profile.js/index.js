@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AntDesign,
   Feather,
   FontAwesome,
   FontAwesome5,
@@ -32,6 +33,7 @@ import { GetApiRequest, PostApiRequest } from "../../../../services/api";
 import { resetProgress } from "../../../../store/slices/progressSlice";
 import { COLORS } from "../../../../utils/COLORS";
 import { useToast } from "../../../../utils/Toast/toastContext";
+import { coachInfo } from "../../../../utils/coachInfo";
 
 const { width } = Dimensions.get("window");
 
@@ -214,16 +216,7 @@ export default function Profile() {
               label: t("Profile.specialties_items.message"),
               navigateTo: "Message",
             },
-            {
-              icon: (
-                <MaterialCommunityIcons
-                  name="chart-line"
-                  size={hp(2.2)}
-                  color="#FFD700"
-                />
-              ),
-              label: t("Profile.specialties_items.workout_progress"),
-            },
+
             {
               icon: (
                 <MaterialCommunityIcons
@@ -242,7 +235,7 @@ export default function Profile() {
               activeOpacity={0.8}
               onPress={() => {
                 if (item.navigateTo == "Message") {
-                  navigation.navigate(RouteName.Message_screen);
+                  navigation.navigate("InboxScreen", { client: coachInfo() });
                 } else if (item.navigateTo == "LogScreen") {
                   navigation.navigate(RouteName.LogScreen);
                 } else if (item.navigateTo == "BMR") {
@@ -283,27 +276,14 @@ export default function Profile() {
           <Text style={styles.cardTitle}>{t("Profile.settings")}</Text>
           {[
             {
-              icon: (
-                <Ionicons name="settings-outline" size={18} color="#FFD700" />
-              ),
-              label: t("Profile.settings_items.app_settings"),
-              onPress: () => {},
-            },
-            {
-              icon: (
-                <MaterialCommunityIcons
-                  name="shield-check"
-                  size={18}
-                  color="#FFD700"
-                />
-              ),
+              icon: <Feather name="unlock" size={18} color="#FFD700" />,
               label: t("Profile.settings_items.privacy_policy"),
               onPress: () => {},
             },
             {
               icon: (
                 <MaterialCommunityIcons
-                  name="shield-check"
+                  name="shield-check-outline"
                   size={18}
                   color="#FFD700"
                 />

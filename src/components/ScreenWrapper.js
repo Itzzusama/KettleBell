@@ -78,7 +78,7 @@ const ScreenWrapper = ({
             paddingHorizontal,
             flex: 1,
             paddingTop: topInset,
-            paddingBottom
+            paddingBottom,
           }}
         >
           {children}

@@ -1,40 +1,44 @@
-import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
-import { LineChart } from 'react-native-chart-kit';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import fonts from '../assets/fonts';
-import { COLORS } from '../utils/COLORS';
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, View } from "react-native";
+import { LineChart } from "react-native-chart-kit";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../assets/fonts";
+import { COLORS } from "../utils/COLORS";
 
 const chartConfig = {
-  backgroundColor:COLORS.darkGray,
-  backgroundGradientFrom:COLORS.darkGray,
-  backgroundGradientTo:COLORS.darkGray,
+  backgroundColor: COLORS.darkGray,
+  backgroundGradientFrom: COLORS.darkGray,
+  backgroundGradientTo: COLORS.darkGray,
   decimalPlaces: 0,
-  color: () => '#ffffff',
-  labelColor: () => '#ffffff',
+  color: () => "#ffffff",
+  labelColor: () => "#ffffff",
   style: {
     borderRadius: 16,
   },
   propsForDots: {
-    r: '0', // Default dots are hidden
+    r: "0", // Default dots are hidden
   },
   propsForBackgroundLines: {
-    strokeDasharray: '',
-    stroke: '#444',
+    strokeDasharray: "",
+    stroke: "#444",
     strokeWidth: 1,
   },
 };
 
 const ClientReportChart = ({ dashboardData }) => {
-  const {t}=useTranslation()
+  console.log(dashboardData);
+  const { t } = useTranslation();
 
   // Default data if no dashboard data is available
   const defaultData = {
-    labels: ['Mon', 'Tues', 'Wed', 'Thurs', 'Fri', 'Sat', 'Sun'],
+    labels: ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"],
     datasets: [
       {
         data: [6000, 7000, 8500, 6134, 5500, 4500, 4000],
-        color: () => '#ffc107',
+        color: () => "#ffc107",
         strokeWidth: 3,
       },
     ],
@@ -47,15 +51,15 @@ const ClientReportChart = ({ dashboardData }) => {
     }
 
     const workouts = dashboardData.monthlyProgress.workouts;
-    const labels = workouts.map(item => item.month);
-    const data = workouts.map(item => item.count);
+    const labels = workouts.map((item) => item.month);
+    const data = workouts.map((item) => item.count);
 
     return {
       labels,
       datasets: [
         {
           data,
-          color: () => '#ffc107',
+          color: () => "#ffc107",
           strokeWidth: 3,
         },
       ],
@@ -79,11 +83,20 @@ const ClientReportChart = ({ dashboardData }) => {
         withInnerLines={true}
         withOuterLines={false}
         renderDotContent={({ x, y, index }) => {
-          if (index === Math.floor(chartData.datasets[0].data.length / 2)) { // Middle point
+          if (index === Math.floor(chartData.datasets[0].data.length / 2)) {
+            // Middle point
             return (
-              <View key={index} style={[styles.customDotContainer, { left: x - 20, top: y - 30 }]}>
+              <View
+                key={index}
+                style={[
+                  styles.customDotContainer,
+                  { left: x - 20, top: y - 30 },
+                ]}
+              >
                 <View style={styles.customDot} />
-                <Text style={styles.dotLabel}>{chartData.datasets[0].data[index].toLocaleString()}</Text>
+                <Text style={styles.dotLabel}>
+                  {chartData.datasets[0].data[index].toLocaleString()}
+                </Text>
               </View>
             );
           }
@@ -105,22 +118,22 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: wp(4),
     marginHorizontal: wp(5),
-    alignItems: 'center',
+    alignItems: "center",
   },
   title: {
-    color: '#fff',
+    color: "#fff",
     fontSize: wp(4.5),
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: hp(2),
-    alignSelf: 'flex-start',
-    fontFamily:fonts.medium
+    alignSelf: "flex-start",
+    fontFamily: fonts.medium,
   },
   chart: {
     borderRadius: wp(4),
   },
   customDotContainer: {
-    position: 'absolute',
-    alignItems: 'center',
+    position: "absolute",
+    alignItems: "center",
   },
   customDot: {
     width: wp(2),
@@ -133,9 +146,9 @@ const styles = StyleSheet.create({
   dotLabel: {
     color: COLORS.primaryColor,
     fontSize: wp(3),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: hp(0.5),
-    fontFamily:fonts.regular
+    fontFamily: fonts.regular,
   },
 });
 

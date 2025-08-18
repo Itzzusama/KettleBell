@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Ionicons } from "@expo/vector-icons"
-import { useNavigation } from "@react-navigation/native"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   KeyboardAvoidingView,
@@ -15,36 +15,36 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-} from "react-native"
+} from "react-native";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
-} from "react-native-responsive-screen"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { useDispatch, useSelector } from "react-redux"
-import fonts from "../../../assets/fonts"
-import { Icons } from "../../../assets/icons"
-import CustomButton from "../../../components/CustomButton"
-import ProgressBar from "../../../components/progressBar"
-import RouteName from "../../../navigation/RouteName/index"
+} from "react-native-responsive-screen";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import fonts from "../../../assets/fonts";
+import { Icons } from "../../../assets/icons";
+import CustomButton from "../../../components/CustomButton";
+import ProgressBar from "../../../components/progressBar";
+import RouteName from "../../../navigation/RouteName/index";
 import {
   nextSection,
   previousSection,
   setCurrentSection,
   updateUserData,
-} from "../../../store/slices/progressSlice"
-import { COLORS } from "../../../utils/COLORS"
+} from "../../../store/slices/progressSlice";
+import { COLORS } from "../../../utils/COLORS";
 
 const AddItemInput = ({ placeholder, onAdd, buttonText }) => {
-  const { t } = useTranslation()
-  const [inputValue, setInputValue] = useState("")
+  const { t } = useTranslation();
+  const [inputValue, setInputValue] = useState("");
   const insets = useSafeAreaInsets();
   const handleAdd = () => {
     if (inputValue.trim()) {
-      onAdd(inputValue.trim())
-      setInputValue("")
+      onAdd(inputValue.trim());
+      setInputValue("");
     }
-  }
+  };
 
   return (
     <View style={styles.inputContainer}>
@@ -62,25 +62,27 @@ const AddItemInput = ({ placeholder, onAdd, buttonText }) => {
         </TouchableOpacity>
       </View>
     </View>
-  )
-}
+  );
+};
 
 export default function NutritionPreferences() {
-  const { t } = useTranslation()
-  const navigation = useNavigation()
-  const dispatch = useDispatch()
-  const { userData, currentSection } = useSelector((state) => state.progress)
+  const { t } = useTranslation();
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { userData, currentSection } = useSelector((state) => state.progress);
   const insets = useSafeAreaInsets();
   const [dietaryRestrictions, setDietaryRestrictions] = useState(
     userData.nutrition?.dietaryRestrictions || []
-  )
+  );
   const [mealPreferences, setMealPreferences] = useState(
-    userData.nutrition?.mealPreferences ? [userData.nutrition.mealPreferences] : []
-  )
+    userData.nutrition?.mealPreferences
+      ? [userData.nutrition.mealPreferences]
+      : []
+  );
 
   useEffect(() => {
-    dispatch(setCurrentSection(6))
-  }, [dispatch])
+    dispatch(setCurrentSection(6));
+  }, [dispatch]);
 
   const handleNext = () => {
     dispatch(
@@ -88,37 +90,40 @@ export default function NutritionPreferences() {
         nutrition: {
           dietaryRestrictions,
           mealPreferences: mealPreferences[0] || "",
-        }
+        },
       })
-    )
-    dispatch(nextSection())
-    navigation.navigate(RouteName.Caloric_Needs)
-  }
+    );
+    dispatch(nextSection());
+    navigation.navigate(RouteName.All_Set);
+  };
 
   const handleBack = () => {
-    dispatch(previousSection())
-    navigation.goBack()
-  }
+    dispatch(previousSection());
+    navigation.goBack();
+  };
 
   const addDietaryRestriction = (restriction) => {
-    setDietaryRestrictions([...dietaryRestrictions, restriction])
-  }
+    setDietaryRestrictions([...dietaryRestrictions, restriction]);
+  };
 
   const addMealPreference = (preference) => {
-    setMealPreferences([...mealPreferences, preference]) // Store only one meal preference as a string
-  }
+    setMealPreferences([...mealPreferences, preference]); // Store only one meal preference as a string
+  };
 
   const removeDietaryRestriction = (index) => {
-    setDietaryRestrictions(dietaryRestrictions.filter((_, i) => i !== index))
-  }
+    setDietaryRestrictions(dietaryRestrictions.filter((_, i) => i !== index));
+  };
 
   const removeMealPreference = (index) => {
-    setMealPreferences([])
-  }
+    setMealPreferences([]);
+  };
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.headerColor} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.headerColor}
+      />
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -191,7 +196,7 @@ export default function NutritionPreferences() {
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -302,4 +307,4 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginVertical: hp(6),
   },
-})
+});

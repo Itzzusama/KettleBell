@@ -19,6 +19,8 @@ import fonts from "../../../assets/fonts";
 import { Images } from "../../../assets/images";
 import RouteName from "../../../navigation/RouteName";
 import { COLORS } from "../../../utils/COLORS";
+import { useDispatch } from "react-redux";
+import { setOnBoarding } from "../../../store/slices/AuthConfig";
 // Get initial window dimensions
 const { width, height } = Dimensions.get("window");
 
@@ -28,6 +30,7 @@ const scaleFont = (size) => (width / 375) * size;
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -68,6 +71,7 @@ export default function OnboardingScreen() {
       setCurrentIndex(nextIndex);
     } else {
       navigation.navigate(RouteName.LOGIN);
+      dispatch(setOnBoarding(true));
     }
   };
 

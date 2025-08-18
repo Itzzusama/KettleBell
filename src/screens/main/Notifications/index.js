@@ -12,6 +12,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import NoDataFound from "../../../components/NoDataFound";
 import moment from "moment";
 import { GetApiRequest } from "../../../services/api";
+import NoData from "../../../components/NoData";
 
 const Notifications = () => {
   const isFocus = useIsFocused();
@@ -23,7 +24,7 @@ const Notifications = () => {
     setLoading(true);
     try {
       const response = await GetApiRequest("api/notifications");
-
+      console.log(response?.data);
       setNotifications(response.data?.data);
     } catch (error) {
       console.log("err", error);
@@ -47,10 +48,14 @@ const Notifications = () => {
           <RefreshControl refreshing={loading} onRefresh={getNotification} />
         }
         ListEmptyComponent={
-          <NoDataFound
-            title={"No Notification"}
-            desc={"All New Notifications Will Appear here"}
-          />
+          !loading && (
+            <NoData
+              title={"No Notification"}
+              desc={"All New Notifications Will Appear here"}
+              marginTop={170}
+              iconName="notifications-off-sharp"
+            />
+          )
         }
         renderItem={({ item, i }) => (
           <Item
@@ -58,6 +63,7 @@ const Notifications = () => {
             title={item?.title}
             time={moment(item?.createdAt)?.fromNow()}
             desc={item?.message}
+            type={item?.type}
             // onCardPress={() =>
             //   item?.type == "message"
             //     ? navigation.navigate("Chat")

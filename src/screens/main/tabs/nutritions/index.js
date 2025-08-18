@@ -24,94 +24,15 @@ import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 
-const ProgressCircle = ({
-  percentage,
-  color = "#FEC635",
-  size = wp(20),
-  strokeWidth = wp(2),
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-  const { t } = useTranslation();
-
-  return (
-    <View style={styles.progressCircleContainer}>
-      <Svg width={size} height={size}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={COLORS.gray3}
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90, ${size / 2}, ${size / 2})`}
-        />
-      </Svg>
-      <View style={styles.progressCenter}>
-        <Text style={styles.progressText}>1190</Text>
-        <Text style={styles.progressLabel}>{t("Nutrition.kcal_left")}</Text>
-      </View>
-    </View>
-  );
-};
-
-const SmallProgressCircle = ({
-  percentage,
-  color = "#FEC635",
-  size = wp(6),
-  strokeWidth = wp(0.8),
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  return (
-    <Svg width={size} height={size}>
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke="gray"
-        strokeWidth={strokeWidth}
-        fill="none"
-      />
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke={color}
-        strokeWidth={strokeWidth}
-        fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
-        strokeLinecap="round"
-        transform={`rotate(-90, ${size / 2}, ${size / 2})`}
-      />
-    </Svg>
-  );
-};
-
 export default function Nutritions() {
   const navigation = useNavigation();
   const { t } = useTranslation();
-
-  // State for data only
+  const [avgCalories, setAvgCalories] = useState(0);
+  const [avgProtein, setAvgProtein] = useState(0);
+  const [avgCarbs, setAvgCarbs] = useState(0);
+  const [avgFat, setAvgFat] = useState(0);
   const [mealPlans, setMealPlans] = useState([]);
   const [recipes, setRecipes] = useState([]);
-
-  // Fetch initial data
   const fetchInitialData = async () => {
     try {
       const [mealPlansRes, recipesRes] = await Promise.all([
@@ -119,28 +40,41 @@ export default function Nutritions() {
         GetApiRequest("api/recipes"),
       ]);
 
-      // console.log(
-      //   "Meal plans response:========================>",
-      //   mealPlansRes?.data
-      // );
-      // console.log(
-      //   "Recipes response:========================>",
-      //   recipesRes?.data
-      // );
-
-      // Set initial meal plans - API returns object with mealPlans array
       if (mealPlansRes?.data?.mealPlans) {
         setMealPlans(mealPlansRes.data.mealPlans);
       } else {
-        console.log("No meal plans found");
         setMealPlans([]);
       }
-
       if (recipesRes?.data?.recipes) {
-        setRecipes(recipesRes.data.recipes);
+        const recipeList = recipesRes.data.recipes;
+        setRecipes(recipeList);
+
+        let totalCalories = 0,
+          totalProtein = 0,
+          totalCarbs = 0,
+          totalFat = 0;
+
+        recipeList.forEach((recipe) => {
+          if (recipe.nutrition) {
+            totalCalories += recipe.nutrition.calories || 0;
+            totalProtein += recipe.nutrition.protein || 0;
+            totalCarbs += recipe.nutrition.carbs || 0;
+            totalFat += recipe.nutrition.fat || 0;
+          }
+        });
+
+        const count = recipeList.length || 1;
+
+        setAvgCalories((totalCalories / count).toFixed(0));
+        setAvgProtein((totalProtein / count).toFixed(0));
+        setAvgCarbs((totalCarbs / count).toFixed(0));
+        setAvgFat((totalFat / count).toFixed(0));
       } else {
-        console.log("No recipes found");
         setRecipes([]);
+        setAvgCalories(0);
+        setAvgProtein(0);
+        setAvgCarbs(0);
+        setAvgFat(0);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -150,7 +84,6 @@ export default function Nutritions() {
     }
   };
 
-  // useEffect hooks
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -200,7 +133,6 @@ export default function Nutritions() {
       style={styles.recommendedCard}
       activeOpacity={0.8}
       onPress={() => {
-        // Pass the recipe ID to the detail screen
         navigation.navigate(RouteName.Receipe_Detail, {
           recipeId: item._id,
         });
@@ -256,74 +188,30 @@ export default function Nutritions() {
           <View style={styles.placeholder} />
         </View>
 
-        <View style={styles.caloriesCard}>
-          <View style={styles.caloriesRow}>
-            <ProgressCircle percentage={65} />
-            <View style={styles.caloriesStats}>
-              <View style={styles.statItem}>
-                <View style={styles.statHeader}>
-                  <View style={styles.statIcon}>
-                    <Text style={styles.emojiIcon}>🍽️</Text>
-                  </View>
-                  <Text style={styles.statLabel}>
-                    {t("Nutrition.eaten_label")}
-                  </Text>
-                </View>
-                <Text style={styles.statValue}>1190</Text>
-                <View style={{ borderWidth: 0.3, borderColor: COLORS.gray }} />
-                <Text style={styles.statUnit}>{t("Nutrition.kcal_unit")}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <View style={styles.statHeader}>
-                  <View style={styles.statIcon}>
-                    <Text style={styles.emojiIcon}>🔥</Text>
-                  </View>
-                  <Text style={styles.statLabel}>
-                    {t("Nutrition.burn_label")}
-                  </Text>
-                </View>
-                <Text style={styles.statValue}>2650</Text>
-                <Text style={styles.statUnit}>{t("Nutrition.kcal_unit")}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
         {/* Stats Section */}
-        <View style={styles.statsSection}>
-          <View style={styles.statBox}>
-            <Text style={styles.progressStatLabel}>
-              {t("Nutrition.avg_calories_label")}
-            </Text>
-            <View style={styles.progressStatRow}>
-              <SmallProgressCircle percentage={30} color="#FEC635" />
-              <Text style={styles.progressStatValue}>0</Text>
-              <Ionicons name="trending-up" size={wp(4)} color="#FEC635" />
-            </View>
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🔥</Text>
+            <Text style={styles.statValue}>{avgCalories} kcal</Text>
+            <Text style={styles.statLabel}>Avg Calories</Text>
           </View>
-          <View style={styles.statBox}>
-            <Text style={styles.progressStatLabel}>
-              {t("Nutrition.avg_protein_label")}
-            </Text>
-            <View style={styles.progressStatRow}>
-              <SmallProgressCircle percentage={0} color="#FEC635" />
-              <Text style={styles.progressStatValue}>
-                0{t("Nutrition.grams_unit")}
-              </Text>
-              <Ionicons name="trending-up" size={wp(4)} color="#FEC635" />
-            </View>
+
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🍞</Text>
+            <Text style={styles.statValue}>{avgCarbs} g</Text>
+            <Text style={styles.statLabel}>Avg Carbs</Text>
           </View>
-          <View style={styles.statBox}>
-            <Text style={styles.progressStatLabel}>
-              {t("Nutrition.completion_label")}
-            </Text>
-            <View style={styles.progressStatRow}>
-              <SmallProgressCircle percentage={0} color="#FEC635" />
-              <Text style={styles.progressStatValue}>
-                0{t("Nutrition.percent_unit")}
-              </Text>
-              <Ionicons name="trending-up" size={wp(4)} color="#FEC635" />
-            </View>
+
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🥩</Text>
+            <Text style={styles.statValue}>{avgProtein} g</Text>
+            <Text style={styles.statLabel}>Avg Protein</Text>
+          </View>
+
+          <View style={styles.statCard}>
+            <Text style={styles.statIcon}>🥑</Text>
+            <Text style={styles.statValue}>{avgFat} g</Text>
+            <Text style={styles.statLabel}>Avg Fat</Text>
           </View>
         </View>
 
@@ -351,24 +239,6 @@ export default function Nutritions() {
               <Text style={styles.noDataText}>No meal plans available</Text>
             </View>
           )}
-        </View>
-
-        {/* Recent Logs Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t("Nutrition.recent_logs_title")}
-            </Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>{t("Nutrition.see_all")}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.noLogsContainer}>
-            <View style={styles.noLogsIcon}>
-              <Ionicons name="document-outline" size={wp(12)} color="#333" />
-            </View>
-            <Text style={styles.noLogsText}>{t("Nutrition.no_logs_text")}</Text>
-          </View>
         </View>
 
         {/* Recommended Recipes Section */}
@@ -477,22 +347,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: hp(0.5),
   },
-  statIcon: {
-    marginRight: wp(1),
-  },
+
   emojiIcon: {
     fontSize: wp(4),
   },
-  statLabel: {
-    color: "#888",
-    fontSize: wp(2.5),
-    fontFamily: fonts.regular,
-  },
-  statValue: {
-    color: "#FFF",
-    fontSize: wp(4),
-    fontFamily: fonts.medium,
-  },
+
   statUnit: {
     color: "#888",
     fontSize: wp(3),
@@ -689,5 +548,38 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: hp(10),
+  },
+  statsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+
+    paddingHorizontal: 20,
+  },
+  statCard: {
+    width: "48%",
+    backgroundColor: "#242427",
+    borderRadius: wp(4),
+    borderWidth: 1,
+    borderColor: "#33373B",
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
+    alignItems: "center",
+  },
+  statIcon: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 20,
+    color: COLORS.white,
+    fontFamily: fonts.medium,
+    lineHeight: 28,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: COLORS.primaryColor,
   },
 });

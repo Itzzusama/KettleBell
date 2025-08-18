@@ -46,6 +46,7 @@ const ProgressCircle = ({
   const route = useRoute();
   const radius = (size - strokeWidth) / 2;
   const client = route.params?.client;
+
   const circumference = Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
   return (
@@ -100,67 +101,12 @@ export default function ProfileDashboard({ route }) {
 
   const weeklyProgress = {
     calories: clientDetail?.workoutStats?.totalCaloriesBurned || 0,
-    burnFat: clientDetail?.productivityMetrics?.weeklyProgress?.progressPercentage || 0,
+    burnFat:
+      clientDetail?.productivityMetrics?.weeklyProgress?.progressPercentage ||
+      0,
     completedExercise: clientDetail?.workoutStats?.adherenceRate || 0,
     uncompletedExercise: 100 - (clientDetail?.workoutStats?.adherenceRate || 0),
   };
-
-  // const workoutPlans = [
-  //   {
-  //     id: 1,
-  //     title: "Kettlebell Fundamentals",
-  //     exercises: 9,
-  //     days: 5,
-  //     image:
-  //       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-  //   },
-  // ];
-
-  const recentWorkouts = [
-    {
-      id: 1,
-      title: "Kettlebell Swing",
-      description: "Focus on hip hinge & explosive movement",
-      duration: "5 min",
-      completion: 80,
-      image:
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      id: 2,
-      title: "Kettlebell Press",
-      description: "Strengthen upper body with controlled presses",
-      duration: "7 min",
-      completion: 75,
-      image:
-        "https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    },
-  ];
-
-  const recentNutrition = [
-    // Custom Progress Semicircle component
-
-    {
-      id: 1,
-      title: "Weight Loss",
-      description:
-        "A delicious and nutritious bowl packed with protein to fuel workouts",
-      time: "9:00 am",
-      completion: 90,
-      image:
-        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    },
-    {
-      id: 2,
-      title: "Weight Loss",
-      description:
-        "A delicious and nutritious bowl packed with protein to fuel workouts",
-      time: "5:00 am",
-      completion: 90,
-      image:
-        "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    },
-  ];
 
   const [assignWorkoutModal, setAssignWorkoutModal] = useState(false);
   const [workoutPlans, setWorkoutPlans] = useState([]);
@@ -302,7 +248,7 @@ export default function ProfileDashboard({ route }) {
           <Text style={styles.profileName}>
             {client?.name ? client?.name : "Madison Smith"}
           </Text>
-          <Text style={styles.profileEmail}>madisons@example.com</Text>
+          {/* <Text style={styles.profileEmail}>{client?.email}</Text> */}
         </View>
 
         {/* Daily Progress */}
@@ -367,9 +313,7 @@ export default function ProfileDashboard({ route }) {
                   textStyle={styles.circleText}
                   formatText={() => `${weeklyProgress.burnFat}%`}
                 />
-                <Text style={styles.circleLabel}>
-                  Weekly Progress
-                </Text>
+                <Text style={styles.circleLabel}>Weekly Progress</Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
@@ -383,9 +327,7 @@ export default function ProfileDashboard({ route }) {
                   textStyle={styles.circleText}
                   formatText={() => `${weeklyProgress.completedExercise}%`}
                 />
-                <Text style={styles.circleLabel}>
-                  Workout Adherence
-                </Text>
+                <Text style={styles.circleLabel}>Workout Adherence</Text>
               </View>
               <View style={styles.progressCircleItem}>
                 <Progress.Circle
@@ -397,11 +339,11 @@ export default function ProfileDashboard({ route }) {
                   borderWidth={0}
                   showsText={true}
                   textStyle={styles.circleText}
-                  formatText={() => `${clientDetail?.mealStats?.adherenceRate || 0}%`}
+                  formatText={() =>
+                    `${clientDetail?.mealStats?.adherenceRate || 0}%`
+                  }
                 />
-                <Text style={styles.circleLabel}>
-                  Meal Adherence
-                </Text>
+                <Text style={styles.circleLabel}>Meal Adherence</Text>
               </View>
             </View>
           </View>

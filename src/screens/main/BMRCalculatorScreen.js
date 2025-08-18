@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     color: "#FFF",
-    fontSize: wp(3.4),
+    fontSize: 11,
     fontFamily: fonts.medium,
   },
 

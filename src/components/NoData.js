@@ -60,22 +60,14 @@ const NoData = ({
 export default NoData;
 
 const styles = StyleSheet.create({
-  wrapper: { width: "100%" },
+  wrapper: { width: "80%", alignSelf: "center" },
   noDataContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: hp(3.2),
+    paddingVertical: hp(3.6),
     paddingHorizontal: wp(4),
-    backgroundColor: "#242427",
-    borderRadius: wp(4),
-    borderWidth: 1,
-    borderColor: "#33373B",
+
     gap: hp(1.2),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 2,
   },
   compact: { paddingVertical: hp(2.2) },
   iconBadge: {

@@ -238,6 +238,49 @@ const Home = () => {
         backgroundColor="transparent"
         translucent
       />
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.logoContainer}>
+            <Image source={Images.SplashImage} style={styles.img} />
+          </View>
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                fontSize: 9,
+                fontFamily: fonts.regular,
+                color: "#5D5D5D",
+              }}
+            >
+              Welcome!
+            </Text>
+            <Text style={styles.welcomeText}>{userName}</Text>
+          </View>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() =>
+              navigation.navigate("InboxScreen", { client: coachInfo() })
+            }
+          >
+            <Ionicons name="chatbubble-outline" size={wp(6)} color="#FFF" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate(RouteName.Notifications)}
+            style={styles.iconButton}
+          >
+            <Ionicons name="notifications-outline" size={wp(6)} color="#FFF" />
+            <View style={styles.notificationDot} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.profileButton}>
+            <Image
+              source={{ uri: profileImageUri }}
+              style={styles.profileImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: hp(10) }}
@@ -251,53 +294,8 @@ const Home = () => {
           />
         }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
-              <Image source={Images.SplashImage} style={styles.img} />
-            </View>
-            <View style={{ alignItems: "center" }}>
-              <Text
-                style={{
-                  fontSize: 9,
-                  fontFamily: fonts.regular,
-                  color: "#5D5D5D",
-                }}
-              >
-                Welcome!
-              </Text>
-              <Text style={styles.welcomeText}>{userName}</Text>
-            </View>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() =>
-                navigation.navigate("InboxScreen", { client: coachInfo() })
-              }
-            >
-              <Ionicons name="chatbubble-outline" size={wp(6)} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={()=>navigation.navigate(RouteName.Notifications)} style={styles.iconButton}>
-              <Ionicons
-                name="notifications-outline"
-                size={wp(6)}
-                color="#FFF"
-              />
-              <View style={styles.notificationDot} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.profileButton}>
-              <Image
-                source={{ uri: profileImageUri }}
-                style={styles.profileImage}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
         {/* Search */}
-        <View style={styles.searchContainer}>
+        {/* <View style={styles.searchContainer}>
           <View style={styles.searchBar}>
             <Ionicons name="search" size={wp(5)} color="#FFFFFF" />
             <TextInput
@@ -306,7 +304,7 @@ const Home = () => {
               placeholderTextColor="#FFFFFF"
             />
           </View>
-        </View>
+        </View> */}
 
         {/* Top Stat Cards */}
         <View
@@ -466,9 +464,9 @@ const Home = () => {
             <Text style={styles.sectionTitle}>
               {t("Home.active_workout_plan_title")}
             </Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity>
+            {/* <TouchableOpacity>
+              <Text style={styles.seeAllText}>{t("Home.see_all_link")}</Text>
+            </TouchableOpacity> */}
           </View>
 
           <ScrollView
@@ -551,9 +549,9 @@ const Home = () => {
             <Text style={styles.sectionTitle}>
               {t("Home.recommended_exercise_title")}
             </Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllLink}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity>
+            {/* <TouchableOpacity>
+              <Text style={styles.seeAllText}>{t("Home.see_all_link")}</Text>
+            </TouchableOpacity> */}
           </View>
 
           <View style={styles.horizontalScrollContainer}>
@@ -565,7 +563,9 @@ const Home = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalExerciseList}
               ListEmptyComponent={
-                <Text style={styles.noWorkoutsText}>No exercises found</Text>
+                <View style={styles.noWorkoutsContainer}>
+                  <Text style={styles.noWorkoutsText}>No exercises found</Text>
+                </View>
               }
             />
           </View>
@@ -735,6 +735,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
     textAlign: "center",
     opacity: 0.7,
+    alignSelf: "center",
   },
 
   workoutCard: {
