@@ -42,6 +42,8 @@ import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
 import Notifications from "../../screens/main/Notifications";
 import MealLogDetail from "../../screens/main/MealLogDetail";
 import WorkoutLogDetail from "../../screens/main/WorkoutLogDetail";
+import EditProfile from "../../screens/main/editProfile";
+import { setUnseenNoti } from "../../store/slices/AuthConfig";
 
 const Stack = createNativeStackNavigator();
 
@@ -58,9 +60,19 @@ const MainStack = () => {
       console.error("Error fetching user role:", error);
     }
   };
-
+  const getUnseenNoti = async () => {
+    try {
+      const res = await GetApiRequest("api/notifications/unread-count");
+      if (res?.data?.success) {
+        dispatch(setUnseenNoti(res?.data?.unreadCount));
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    }
+  };
   useLayoutEffect(() => {
     getUser();
+    getUnseenNoti();
   }, []);
 
   return (
@@ -160,6 +172,7 @@ const MainStack = () => {
         name={RouteName.WorkoutLogDetail}
         component={WorkoutLogDetail}
       />
+      <Stack.Screen name={RouteName.EditProfile} component={EditProfile} />
     </Stack.Navigator>
   );
 };

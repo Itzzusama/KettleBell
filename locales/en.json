@@ -14,6 +14,9 @@
     "title": "Welcome to Fitness Coach",
     "description1": "Let's set up your profile to help your coach create the perfect fitness plan for you",
     "description2": "This will only take a few minutes and help us understand your fitness goals and needs",
+    "accountCreatedTitle": "Your Profile is Ready 🎉",
+    "accountCreatedDescription1": "Great job! Your profile has been created successfully.",
+    "accountCreatedDescription2": "You’re all set to begin your personalized fitness journey with your coach.",
     "description3": "Swipe through the following screens to complete your profile",
     "button": "Next",
     "greeting": "Hi {{name}}!"

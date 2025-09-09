@@ -70,12 +70,20 @@ export default function NutritionPreferences() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userData, currentSection } = useSelector((state) => state.progress);
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
   const insets = useSafeAreaInsets();
   const [dietaryRestrictions, setDietaryRestrictions] = useState(
-    userData.nutrition?.dietaryRestrictions || []
+    created
+      ? user.nutrition?.dietaryRestrictions
+      : userData.nutrition?.dietaryRestrictions || []
   );
   const [mealPreferences, setMealPreferences] = useState(
-    userData.nutrition?.mealPreferences
+    created
+      ? user?.nutrition?.mealPreferences
+        ? [user.nutrition.mealPreferences]
+        : []
+      : userData.nutrition?.mealPreferences
       ? [userData.nutrition.mealPreferences]
       : []
   );

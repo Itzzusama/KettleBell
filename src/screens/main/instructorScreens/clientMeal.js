@@ -14,9 +14,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import fonts from "../../../assets/fonts";
 import RouteName from "../../../navigation/RouteName";
@@ -27,7 +30,7 @@ export default function ClientMeal() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const toast = useToast();
-  const insets = useSafeAreaInsets()
+  const insets = useSafeAreaInsets();
   // State management
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,7 +44,12 @@ export default function ClientMeal() {
 
       if (res && res.data && Array.isArray(res.data)) {
         setRecipes(res.data);
-      } else if (res && res.data && res.data.data && Array.isArray(res.data.data)) {
+      } else if (
+        res &&
+        res.data &&
+        res.data.data &&
+        Array.isArray(res.data.data)
+      ) {
         setRecipes(res.data.data);
       } else if (res && Array.isArray(res)) {
         setRecipes(res);
@@ -66,7 +74,9 @@ export default function ClientMeal() {
     try {
       const res = await DeleteApiRequest(`api/meal-plans/${recipeId}`);
       if (res.status === 200 || res.status === 201) {
-        setRecipes(recipes.filter((recipe) => (recipe._id || recipe.id) !== recipeId));
+        setRecipes(
+          recipes.filter((recipe) => (recipe._id || recipe.id) !== recipeId)
+        );
         toast.showToast({
           type: "success",
           message: "Recipe deleted successfully",
@@ -121,7 +131,11 @@ export default function ClientMeal() {
 
   const RecipeCard = ({ recipe }) => {
     const getImageSource = () => {
-      if (recipe.images && Array.isArray(recipe.images) && recipe.images.length > 0) {
+      if (
+        recipe.images &&
+        Array.isArray(recipe.images) &&
+        recipe.images.length > 0
+      ) {
         return recipe.images[0];
       }
       if (recipe.banner) {
@@ -142,6 +156,7 @@ export default function ClientMeal() {
         onPress={() => {
           navigation.navigate(RouteName.Client_Meal_Detail, { recipe });
         }}
+        activeOpacity={0.8}
       >
         <Image
           source={{ uri: imageSource }}
@@ -150,11 +165,29 @@ export default function ClientMeal() {
             uri: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center",
           }}
         />
+
+        {/* Overlay with Name, Category, Weeks */}
+        {/* <View style={styles.cardContent}>
+          <Text style={styles.recipeName} numberOfLines={1}>
+            {recipe.name || "Unnamed"}
+          </Text>
+          <Text style={styles.recipeCategory} numberOfLines={1}>
+            {recipe.category?.name || "Uncategorized"}
+          </Text>
+          <Text style={styles.recipeWeeks}>
+            {recipe.numberOfWeeks ? `${recipe.numberOfWeeks} weeks` : "N/A"}
+          </Text>
+        </View> */}
+
+        {/* Edit/Delete icons */}
         <View style={styles.iconContainer}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              navigation.navigate(RouteName.Create_Meal, { recipe, isEditMode: true });
+              navigation.navigate(RouteName.Create_Meal, {
+                recipe,
+                isEditMode: true,
+              });
             }}
             accessible={true}
             accessibilityLabel="Edit recipe"
@@ -184,11 +217,18 @@ export default function ClientMeal() {
   );
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Meal Plans</Text>
@@ -233,9 +273,15 @@ export default function ClientMeal() {
         ListEmptyComponent={
           !loading ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="restaurant-outline" size={wp(15)} color={COLORS.gray3} />
+              <Ionicons
+                name="restaurant-outline"
+                size={wp(15)}
+                color={COLORS.gray3}
+              />
               <Text style={styles.emptyText}>No recipes found</Text>
-              <Text style={styles.emptySubText}>Add your first recipe to get started</Text>
+              <Text style={styles.emptySubText}>
+                Add your first recipe to get started
+              </Text>
             </View>
           ) : null
         }
@@ -367,5 +413,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: hp(1),
     lineHeight: wp(5),
+  },
+  cardContent: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(2),
+  },
+  recipeName: {
+    color: COLORS.white,
+    fontSize: wp(3.5),
+    fontFamily: fonts.medium,
+  },
+  recipeCategory: {
+    color: COLORS.gray2,
+    fontSize: wp(3),
+    fontFamily: fonts.regular,
+  },
+  recipeWeeks: {
+    color: COLORS.primaryColor,
+    fontSize: wp(3),
+    fontFamily: fonts.medium,
   },
 });

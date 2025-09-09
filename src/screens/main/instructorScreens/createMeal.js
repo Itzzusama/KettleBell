@@ -16,12 +16,19 @@ import {
   View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import fonts from "../../../assets/fonts";
 import CustomButton from "../../../components/CustomButton";
 import ExpoImagePicker from "../../../components/imagePicker";
-import { GetApiRequest, PostApiRequest, PutApiRequest } from "../../../services/api"; // Added PutApiRequest
+import {
+  GetApiRequest,
+  PostApiRequest,
+  PutApiRequest,
+} from "../../../services/api"; // Added PutApiRequest
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
 
@@ -66,7 +73,9 @@ export default function CreateMeal() {
   // Fetch meal plan categories
   const fetchCategories = async () => {
     try {
-      const response = await GetApiRequest("api/meal-plan-categories/my-categories");
+      const response = await GetApiRequest(
+        "api/meal-plan-categories/my-categories"
+      );
       let categoriesData = [];
 
       if (Array.isArray(response)) {
@@ -107,7 +116,11 @@ export default function CreateMeal() {
       return false;
     }
 
-    if (!numberOfWeeks.trim() || isNaN(numberOfWeeks) || Number.parseInt(numberOfWeeks) <= 0) {
+    if (
+      !numberOfWeeks.trim() ||
+      isNaN(numberOfWeeks) ||
+      Number.parseInt(numberOfWeeks) <= 0
+    ) {
       Alert.alert("Error", "Please enter a valid number of weeks");
       return false;
     }
@@ -133,9 +146,6 @@ export default function CreateMeal() {
 
     setIsLoading(true);
     try {
-      console.log("Starting meal plan process...");
-      console.log("Uploading image:", selectedImage);
-
       let bannerUrl = selectedImage;
 
       if (!bannerUrl || !bannerUrl.startsWith("http")) {
@@ -150,12 +160,13 @@ export default function CreateMeal() {
         banner: bannerUrl,
       };
 
-      console.log("Meal plan data being sent:", mealPlanData);
-
       let res;
       if (isEditMode) {
         // Update meal plan
-        res = await PutApiRequest(`api/meal-plans/${recipe._id || recipe.id}`, mealPlanData);
+        res = await PutApiRequest(
+          `api/meal-plans/${recipe._id || recipe.id}`,
+          mealPlanData
+        );
       } else {
         // Create new meal plan
         res = await PostApiRequest("api/meal-plans", mealPlanData);
@@ -163,19 +174,24 @@ export default function CreateMeal() {
 
       if (res.status === 200 || res.status === 201) {
         toast.showToast({
-          message: isEditMode ? "Meal plan updated successfully" : "Meal plan created successfully",
+          message: isEditMode
+            ? "Meal plan updated successfully"
+            : "Meal plan created successfully",
           type: "success",
           duration: 3000,
         });
 
-        // Navigate back or to meal plan detail
         navigation.goBack();
       } else {
         throw new Error("Failed to process meal plan");
       }
     } catch (error) {
       console.error("Meal plan error:", error);
-      Alert.alert("Error", error.message || `Failed to ${isEditMode ? "update" : "create"} meal plan`);
+      Alert.alert(
+        "Error",
+        error.message ||
+          `Failed to ${isEditMode ? "update" : "create"} meal plan`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -188,18 +204,29 @@ export default function CreateMeal() {
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.backgroundColor} />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={COLORS.backgroundColor}
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={hp(3)} color={COLORS.white} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isEditMode ? "Edit Meal Plan" : "Add Meal Plan"}</Text>
+        <Text style={styles.headerTitle}>
+          {isEditMode ? "Edit Meal Plan" : "Add Meal Plan"}
+        </Text>
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Upload Banner Image Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Banner</Text>
@@ -241,7 +268,9 @@ export default function CreateMeal() {
             zIndex={2000}
             zIndexInverse={1000}
             loading={categories.length === 0}
-            ActivityIndicatorComponent={() => <Text style={styles.dropdownText}>Loading categories...</Text>}
+            ActivityIndicatorComponent={() => (
+              <Text style={styles.dropdownText}>Loading categories...</Text>
+            )}
           />
         </View>
 
@@ -276,7 +305,15 @@ export default function CreateMeal() {
         {/* Create/Update Button */}
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={isLoading ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update Meal Plan" : "Create Meal Plan")}
+            title={
+              isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                ? "Update Meal Plan"
+                : "Create Meal Plan"
+            }
             onPress={handleMealPlan}
             disabled={isLoading}
             loading={isLoading}

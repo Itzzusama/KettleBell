@@ -15,9 +15,12 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import fonts from "../../../assets/fonts";
 import RouteName from "../../../navigation/RouteName";
 import { DeleteApiRequest, GetApiRequest } from "../../../services/api";
@@ -29,12 +32,11 @@ export default function ClientRecipe() {
   const { t } = useTranslation();
   const toast = useToast();
 
-  // State management
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // 🔹 NEW
 
-  // Fetch recipes from API
   const getRecipes = async () => {
     try {
       setLoading(true);
@@ -42,7 +44,12 @@ export default function ClientRecipe() {
 
       if (res && res.data && Array.isArray(res.data)) {
         setRecipes(res.data);
-      } else if (res && res.data && res.data.data && Array.isArray(res.data.data)) {
+      } else if (
+        res &&
+        res.data &&
+        res.data.data &&
+        Array.isArray(res.data.data)
+      ) {
         setRecipes(res.data.data);
       } else if (res && Array.isArray(res)) {
         setRecipes(res);
@@ -62,12 +69,13 @@ export default function ClientRecipe() {
     }
   };
 
-  // Delete recipe function
   const deleteRecipe = async (recipeId) => {
     try {
       const res = await DeleteApiRequest(`api/recipes/${recipeId}`);
       if (res.status === 200 || res.status === 201) {
-        setRecipes(recipes.filter((recipe) => (recipe._id || recipe.id) !== recipeId));
+        setRecipes(
+          recipes.filter((recipe) => (recipe._id || recipe.id) !== recipeId)
+        );
         toast.showToast({
           type: "success",
           message: "Recipe deleted successfully",
@@ -122,9 +130,12 @@ export default function ClientRecipe() {
 
   // Recipe Card with Edit and Delete Icons
   const RecipeCard = ({ recipe }) => {
-    // Handle different image sources from API response
     const getImageSource = () => {
-      if (recipe.images && Array.isArray(recipe.images) && recipe.images.length > 0) {
+      if (
+        recipe.images &&
+        Array.isArray(recipe.images) &&
+        recipe.images.length > 0
+      ) {
         return recipe.images[0];
       }
       if (recipe.banner) {
@@ -133,7 +144,6 @@ export default function ClientRecipe() {
       if (recipe.image) {
         return recipe.image;
       }
-      // Fallback placeholder image
       return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center";
     };
 
@@ -157,7 +167,10 @@ export default function ClientRecipe() {
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => {
-              navigation.navigate(RouteName.Add_Recipe, { recipe, isEditMode: true });
+              navigation.navigate(RouteName.Add_Recipe, {
+                recipe,
+                isEditMode: true,
+              });
             }}
             accessible={true}
             accessibilityLabel="Edit recipe"
@@ -179,19 +192,30 @@ export default function ClientRecipe() {
 
   const renderRecipe = ({ item }) => <RecipeCard recipe={item} />;
 
-  // Load recipes on component mount
+  const filteredRecipes = recipes.filter((recipe) =>
+    recipe.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   useFocusEffect(
     useCallback(() => {
       getRecipes();
     }, [])
   );
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t("ClientRecipe.title")}</Text>
@@ -213,12 +237,15 @@ export default function ClientRecipe() {
             style={styles.searchInput}
             placeholder={t("ClientRecipe.placeholder")}
             placeholderTextColor={COLORS.white}
+            value={searchQuery}
+            onChangeText={(text) => setSearchQuery(text)} // 🔹 Updates state
           />
         </View>
       </View>
 
+      {/* Recipe Grid */}
       <FlatList
-        data={recipes}
+        data={filteredRecipes} // 🔹 Filtered list
         renderItem={renderRecipe}
         keyExtractor={(item) => (item._id || item.id).toString()}
         numColumns={2}
@@ -236,9 +263,19 @@ export default function ClientRecipe() {
         ListEmptyComponent={
           !loading ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="restaurant-outline" size={wp(15)} color={COLORS.gray3} />
-              <Text style={styles.emptyText}>No recipes found</Text>
-              <Text style={styles.emptySubText}>Add your first recipe to get started</Text>
+              <Ionicons
+                name="restaurant-outline"
+                size={wp(15)}
+                color={COLORS.gray3}
+              />
+              <Text style={styles.emptyText}>
+                {searchQuery ? "No matching recipes" : "No recipes found"}
+              </Text>
+              {!searchQuery && (
+                <Text style={styles.emptySubText}>
+                  Add your first recipe to get started
+                </Text>
+              )}
             </View>
           ) : null
         }
@@ -336,18 +373,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     borderRadius: wp(5),
     padding: wp(1),
-  },
-  loadingContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: hp(10),
-  },
-  loadingText: {
-    color: COLORS.white,
-    fontSize: wp(3.5),
-    fontFamily: fonts.regular,
-    marginTop: hp(2),
   },
   emptyContainer: {
     flex: 1,

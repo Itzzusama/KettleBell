@@ -69,20 +69,30 @@ export default function FitnessGoal() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userData, currentSection } = useSelector((state) => state.progress);
-
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
+  const goal =
+    user?.fitnessGoals?.primaryGoal == "Weight Gain"
+      ? "weightGain"
+      : "weightLoss";
   const primaryGoalOptions = [
     { label: "Weight Loss", value: "weightLoss" },
     { label: "Weight Gain", value: "weightGain" },
-    
   ];
 
   // Initialize state from Redux
   const [open, setOpen] = useState(false);
   const [selectedPrimaryGoal, setSelectedPrimaryGoal] = useState(
-    userData.fitnessGoals?.primaryGoal?.toLowerCase() || "weightLoss"
+    created
+      ? goal
+      : userData.fitnessGoals?.primaryGoal?.toLowerCase() || "weightLoss"
   );
-  const [specificGoals, setSpecificGoals] = useState(userData.fitnessGoals?.specificGoals || []);
-const insets = useSafeAreaInsets();
+  const [specificGoals, setSpecificGoals] = useState(
+    created
+      ? user.fitnessGoals?.specificGoals
+      : userData.fitnessGoals?.specificGoals || []
+  );
+  const insets = useSafeAreaInsets();
   useEffect(() => {
     dispatch(setCurrentSection(5));
   }, [dispatch]);
@@ -91,7 +101,12 @@ const insets = useSafeAreaInsets();
     dispatch(
       updateUserData({
         fitnessGoals: {
-          primaryGoal: selectedPrimaryGoal.charAt(0).toUpperCase() + selectedPrimaryGoal.slice(1).replace(/([A-Z])/g, ' $1').trim(),
+          primaryGoal:
+            selectedPrimaryGoal.charAt(0).toUpperCase() +
+            selectedPrimaryGoal
+              .slice(1)
+              .replace(/([A-Z])/g, " $1")
+              .trim(),
           specificGoals,
         },
       })
@@ -142,7 +157,9 @@ const insets = useSafeAreaInsets();
           <Text style={styles.subtitle}>{t("FitnessGoal.subtitle")}</Text>
 
           {/* Primary Goal Dropdown */}
-          <Text style={styles.sectionLabel}>{t("FitnessGoal.primaryGoal")}</Text>
+          <Text style={styles.sectionLabel}>
+            {t("FitnessGoal.primaryGoal")}
+          </Text>
           <View style={styles.dropdownContainer}>
             <DropDownPicker
               open={open}

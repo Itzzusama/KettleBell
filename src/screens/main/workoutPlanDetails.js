@@ -27,6 +27,7 @@ import { Images } from "../../assets/images";
 import RouteName from "../../navigation/RouteName";
 import { GetApiRequest } from "../../services/api";
 import { COLORS } from "../../utils/COLORS";
+import { useSelector } from "react-redux";
 
 if (
   Platform.OS === "android" &&
@@ -37,13 +38,14 @@ if (
 const WorkoutPlanDetails = ({ route }) => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const { userData } = useSelector((state) => state.users);
+  const clientId = userData?._id;
   const [expandedDays, setExpandedDays] = useState({});
   const [workoutDay, setWorkoutDay] = useState([]);
   const [workout, setWorkout] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { workoutId } = route.params;
-  const [profile, setProfile] = useState({});
   // Animation refs
   const rotateAnims = useRef([]).current;
   const fadeAnims = useRef([]).current;
@@ -55,14 +57,6 @@ const WorkoutPlanDetails = ({ route }) => {
       fadeAnims[index] = new Animated.Value(0);
     });
   }, [workoutDay]);
-  const Profile = async () => {
-    try {
-      const res = await GetApiRequest("api/auth/me");
-      setProfile(res?.data?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const toggleDay = (dayIndex) => {
     const config = {
       duration: 500,
@@ -138,15 +132,14 @@ const WorkoutPlanDetails = ({ route }) => {
 
   useEffect(() => {
     fetchWorkoutPlan();
-    Profile();
   }, [workoutId]);
 
   const handleExercisePress = (detail, id) => {
     navigation.navigate(RouteName.Exercise_Detail, {
       detail: detail,
       workoutId: workoutId,
-      clientId: profile?._id,
-      catName: workout?.category?.name,
+      clientId: clientId,
+      catName: detail?.category?.name,
     });
   };
   const renderDayCard = (day, index) => {
@@ -349,16 +342,7 @@ const WorkoutPlanDetails = ({ route }) => {
                 : "N/A"}
             </Text>
           </View>
-          <View style={styles.infoItem}>
-            <Ionicons
-              name="fitness"
-              size={wp(4.5)}
-              color={COLORS.primaryColor}
-            />
-            <Text style={styles.infoText}>
-              {workout?.exercisesCount || "N/A"} Exercises
-            </Text>
-          </View>
+
           <View style={styles.infoItem}>
             <Ionicons name="time" size={wp(4.5)} color={COLORS.primaryColor} />
             <Text style={styles.infoText}>

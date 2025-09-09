@@ -1,5 +1,3 @@
-import BMRCalculatorScreen from "../../screens/main/BMRCalculatorScreen";
-
 const RouteName = {
   AuthStack: "AuthStack",
   MainStack: "Main",
@@ -66,6 +64,7 @@ const RouteName = {
   Notifications: "Notifications",
   MealLogDetail: "MealLogDetail",
   WorkoutLogDetail: "WorkoutLogDetail",
+  EditProfile: "EditProfile",
 };
 
 export default RouteName;

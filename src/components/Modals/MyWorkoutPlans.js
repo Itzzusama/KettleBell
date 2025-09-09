@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
@@ -14,7 +15,6 @@ import CustomText from "../CustomText";
 import { COLORS } from "../../utils/COLORS";
 import fonts from "../../assets/fonts";
 import { GetApiRequest } from "../../services/api";
-import ImageFast from "../ImageFast";
 
 const MyWorkoutPlans = ({
   isVisible,
@@ -57,7 +57,7 @@ const MyWorkoutPlans = ({
     >
       <ScrollView contentContainerStyle={styles.mainContainer}>
         <CustomText
-          label="My Workout Plans"
+          label={type == "meal" ? "My Meal Plans" : "My Workout Plans"}
           fontFamily={fonts.bold}
           fontSize={18}
           color={COLORS.primaryColor}
@@ -85,10 +85,15 @@ const MyWorkoutPlans = ({
                     backgroundColor: plan === item._id && COLORS.primaryColor,
                   }}
                 >
-                  <ImageFast
-                    source={{ uri: item?.images[0] }}
-                    style={styles.image}
-                  />
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={{
+                        uri: type == "meal" ? item?.banner : item?.images[0],
+                      }}
+                      style={styles.image}
+                    />
+                  </View>
+
                   <CustomText
                     label={item?.name}
                     marginLeft={12}
@@ -153,11 +158,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  image: {
-    height: "80%",
+  imageContainer: {
+    height: 120,
     width: "100%",
     borderWidth: 1,
     borderColor: COLORS.gray,
     borderRadius: 6,
+  },
+  image: {
+    height: "100%",
+    width: "100%",
+    borderRadius: 6,
+    overflow: "hidden",
   },
 });

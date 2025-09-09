@@ -16,6 +16,7 @@ import {
   Dimensions,
   Image,
   Modal,
+  Pressable,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -34,6 +35,7 @@ import { resetProgress } from "../../../../store/slices/progressSlice";
 import { COLORS } from "../../../../utils/COLORS";
 import { useToast } from "../../../../utils/Toast/toastContext";
 import { coachInfo } from "../../../../utils/coachInfo";
+import { setCreated } from "../../../../store/slices/usersSlice";
 
 const { width } = Dimensions.get("window");
 
@@ -48,7 +50,7 @@ export default function Profile() {
   const dispatch = useDispatch();
   const toast = useToast();
   const toggleSwitch = () => setIsNotificationEnabled((prev) => !prev);
-
+  const profilePicture = userData?.avatar || "";
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -150,7 +152,10 @@ export default function Profile() {
       >
         {/* Profile Info */}
         <View style={styles.profileInfo}>
-          <View style={styles.profileImageContainer}>
+          <Pressable
+            style={styles.profileImageContainer}
+            onPress={() => navigation.navigate(RouteName.EditProfile)}
+          >
             <Image
               source={{
                 uri:
@@ -162,19 +167,44 @@ export default function Profile() {
             <View style={styles.editIconContainer}>
               <FontAwesome name="pencil" size={14} color="white" />
             </View>
-          </View>
+          </Pressable>
           <Text style={styles.profileName}>{userData?.name}</Text>
           <Text style={styles.profileEmail}>{userData?.email}</Text>
         </View>
 
         {/* Health Profile */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("Profile.health")}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={[styles.cardTitle]}>{t("Profile.health")}</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                dispatch(setCreated(true));
+                navigation.navigate("AuthStack", {
+                  screen: RouteName.Fitness_Coach,
+                });
+              }}
+            >
+              <Feather
+                name="edit-3"
+                size={18}
+                color={COLORS.white}
+                style={{ marginBottom: 16 }}
+              />
+            </TouchableOpacity>
+          </View>
+
           {[
             {
               icon: <FontAwesome5 name="bullseye" size={16} color="#FFD700" />,
               label: t("Profile.health_items.primary_goal"),
-              value: userData?.fitnessGoals?.primaryGoal,
+              value: userData?.fitnessGoals?.primaryGoal || "N/A",
             },
             {
               icon: (
@@ -185,7 +215,7 @@ export default function Profile() {
                 />
               ),
               label: t("Profile.health_items.fitness_level"),
-              value: userData?.fitnessBackground?.activityLevel,
+              value: userData?.fitnessBackground?.activityLevel || "N/A",
             },
           ].map((item, index) => (
             <View style={styles.infoRow} key={index}>
@@ -252,7 +282,6 @@ export default function Profile() {
           ))}
         </View>
 
-        {/* Notification */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t("Profile.notification")}</Text>
           <View style={styles.menuItem}>
@@ -271,7 +300,6 @@ export default function Profile() {
           </View>
         </View>
 
-        {/* Settings */}
         <View style={[styles.card, { marginBottom: 40 }]}>
           <Text style={styles.cardTitle}>{t("Profile.settings")}</Text>
           {[
@@ -319,7 +347,6 @@ export default function Profile() {
         </View>
       </ScrollView>
 
-      {/* Logout Modal */}
       <LogoutModal />
     </SafeAreaView>
   );

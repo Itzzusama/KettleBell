@@ -6,15 +6,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Alert,
   FlatList,
   Image,
   Platform,
+  RefreshControl,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -32,11 +31,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Icons } from "../../../../assets/icons";
 import LogoutModal from "../../../../components/LogoutModal";
 import { setToken } from "../../../../store/slices/AuthConfig";
-import {
-  clearUserData,
-  setUserData,
-} from "../../../../store/slices/usersSlice";
+import { clearUserData } from "../../../../store/slices/usersSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCallback } from "react";
 
 export default function InstructorHome() {
   const navigation = useNavigation();
@@ -49,8 +46,9 @@ export default function InstructorHome() {
   const [logoutModal, setLogoutModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
-
+  const [refreshing, setRefreshing] = useState(false);
   const userData = useSelector((state) => state.users);
+  const { unseenNoti } = useSelector((state) => state?.authConfigs);
 
   const { t } = useTranslation();
 
@@ -145,22 +143,24 @@ export default function InstructorHome() {
           style={{
             backgroundColor: COLORS.white,
             borderRadius: 100,
-            padding: 4,
+            padding: 6,
           }}
         >
           <Image
             source={icon}
-            style={{ width: wp(5), height: wp(5), resizeMode: "contain" }}
+            style={{
+              width: wp(4),
+              height: wp(4),
+              resizeMode: "contain",
+              tintColor: COLORS.darkGray,
+            }}
           />
         </View>
       </View>
-      <Text style={styles.cardNumber}>{number}</Text>
-      <Ionicons
-        name="arrow-up"
-        size={wp(4)}
-        color="#FFF"
-        style={styles.cardArrow}
-      />
+      <View style={styles.cardFooter}>
+        <Text style={styles.cardNumber}>{number}</Text>
+        <Ionicons name="arrow-up" size={wp(4)} color="#FFF" />
+      </View>
     </LinearGradient>
   );
 
@@ -252,7 +252,7 @@ export default function InstructorHome() {
     {
       title: t("InstructorHome.activePlans"),
       number: dashboardData?.planUsage?.totalActivePlans || "0",
-      icon: Images.dumble,
+      icon: Icons.exercise,
     },
     {
       title: t("InstructorHome.totalClients"),
@@ -270,7 +270,11 @@ export default function InstructorHome() {
       icon: Icons.nutrition,
     },
   ];
-
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await Promise.all([getDashboardData(), getCategories(), getMyPlans()]);
+    setRefreshing(false);
+  }, []);
   return (
     <View style={styles.container}>
       <StatusBar
@@ -278,68 +282,54 @@ export default function InstructorHome() {
         backgroundColor={"transparent"}
         translucent
       />
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <View style={styles.logoContainer}>
+            <Image source={Images.SplashImage} style={styles.img} />
+          </View>
+          <Text style={styles.userName}>
+            {userData?.userData?.name || "John Abraham"}
+          </Text>
+        </View>
+        <View style={styles.headerRight}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate(RouteName.Notifications)}
+            style={styles.iconButton}
+          >
+            {unseenNoti > 0 && <View style={styles.notificationDot} />}
+
+            <Ionicons name="notifications-outline" size={wp(6)} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => setLogoutModal(true)}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={Images.logout}
+              style={{
+                height: 26,
+                width: 26,
+                tintColor: COLORS.primaryColor,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: hp(10) }}
         showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <View style={styles.logoContainer}>
-              <Image source={Images.SplashImage} style={styles.img} />
-            </View>
-            <Text style={styles.userName}>
-              {userData?.userData?.name || "John Abraham"}
-            </Text>
-          </View>
-          <View style={styles.headerRight}>
-            {/* <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => navigation.navigate(RouteName.Client_Message)}
-            >
-              <Ionicons name="chatbubble-outline" size={wp(6)} color="#fff" />
-            </TouchableOpacity> */}
-            <TouchableOpacity
-              onPress={() => navigation.navigate(RouteName.Notifications)}
-              style={styles.iconButton}
-            >
-              <View style={styles.notificationDot} />
-              <Ionicons
-                name="notifications-outline"
-                size={wp(6)}
-                color="#fff"
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() => setLogoutModal(true)}
-            >
-              <Image
-                source={Images.logout}
-                style={{
-                  height: 26,
-                  width: 26,
-                  tintColor: COLORS.primaryColor,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Search Bar */}
-        {/* <View style={styles.searchContainer}>
-          <Feather name="search" size={wp(5)} color="#ffffff" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t("InstructorHome.search_placeholder")}
-            placeholderTextColor="#ffffff"
-            value={searchText}
-            onChangeText={setSearchText}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#fff"
+            colors={["#FFD700"]}
           />
-        </View> */}
-
-        {/* Dashboard Stats Cards */}
+        }
+      >
         <View style={styles.activePlansContainer}>
           <View style={styles.activePlansRow}>
             <ActivePlanCard {...dashboardCards[0]} />
@@ -509,30 +499,36 @@ const styles = StyleSheet.create({
     width: (wp(100) - wp(10) - wp(3)) / 2,
     padding: wp(4),
     borderRadius: wp(4),
-    position: "relative",
+    height: 130,
   },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: hp(1),
+
+    flex: 1,
   },
   cardTitle: {
     color: "#FFF",
     fontSize: wp(3.5),
-    fontFamily: fonts.regular,
+    fontFamily: fonts.medium,
     width: "80%",
   },
   cardNumber: {
     color: "#FFF",
     fontSize: wp(6),
-    fontFamily: fonts.regular,
-    marginBottom: hp(0.5),
+    fontFamily: fonts.semiBold,
   },
   cardArrow: {
     position: "absolute",
     bottom: wp(4),
     right: wp(4),
+  },
+  cardFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 20,
   },
   myExerciseSection: {
     paddingHorizontal: wp(5),
@@ -584,6 +580,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
     lineHeight: wp(4),
   },
+
   activeCategoryText: {
     color: "#000",
     fontFamily: fonts.medium,

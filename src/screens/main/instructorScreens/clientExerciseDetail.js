@@ -1,7 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Ionicons } from "@expo/vector-icons";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Alert,
@@ -13,12 +17,15 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import fonts from '../../../assets/fonts';
-import { Images } from '../../../assets/images/index';
-import { GetApiRequest } from '../../../services/api';
-import { COLORS } from '../../../utils/COLORS';
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../assets/fonts";
+import { Images } from "../../../assets/images/index";
+import { GetApiRequest } from "../../../services/api";
+import { COLORS } from "../../../utils/COLORS";
 
 const ClientExerciseDetail = () => {
   const navigation = useNavigation();
@@ -82,7 +89,10 @@ const ClientExerciseDetail = () => {
     <View style={styles.errorContainer}>
       <Ionicons name="alert-circle-outline" size={wp(15)} color={COLORS.red} />
       <Text style={styles.errorText}>Failed to load exercise details</Text>
-      <TouchableOpacity style={styles.retryButton} onPress={fetchExerciseDetails}>
+      <TouchableOpacity
+        style={styles.retryButton}
+        onPress={fetchExerciseDetails}
+      >
         <Text style={styles.retryButtonText}>Retry</Text>
       </TouchableOpacity>
     </View>
@@ -91,8 +101,12 @@ const ClientExerciseDetail = () => {
   // Main render
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['right', 'left', 'top']}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
 
         {/* Header */}
         <View style={styles.header}>
@@ -112,8 +126,12 @@ const ClientExerciseDetail = () => {
 
   if (error || !exerciseData) {
     return (
-      <SafeAreaView style={styles.container} edges={['right', 'left', 'top']}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
 
         {/* Header */}
         <View style={styles.header}>
@@ -143,8 +161,12 @@ const ClientExerciseDetail = () => {
   } = exerciseData;
 
   return (
-    <SafeAreaView style={styles.container} edges={['right', 'left', 'top']}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
@@ -165,7 +187,9 @@ const ClientExerciseDetail = () => {
         {/* Main Image */}
         <View style={styles.imageContainer}>
           <Image
-            source={images && images.length > 0 ? { uri: images[0] } : Images.dumyImg}
+            source={
+              images && images.length > 0 ? { uri: images[0] } : Images.dumyImg
+            }
             style={styles.mainImage}
             resizeMode="cover"
           />
@@ -173,40 +197,133 @@ const ClientExerciseDetail = () => {
 
         <View style={styles.infoContainer}>
           <Text style={styles.exerciseTitle}>{name}</Text>
-          <Text style={styles.exerciseDescription}>
-            {description}
-          </Text>
-          <View style={{ borderWidth: 0.5, borderColor: '#333', marginVertical: hp(0.2) }} />
+          <Text style={styles.exerciseDescription}>{description}</Text>
+          <View
+            style={{
+              borderWidth: 0.5,
+              borderColor: "#333",
+              marginVertical: hp(0.2),
+            }}
+          />
 
           <View style={{ marginVertical: hp(2) }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
-                <Image
-                  source={Images.dumble}
-                  style={styles.detailImage}
-                />
-                <Text style={styles.detailLabel}>{t("ClientExerciseDetail.Category")}</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>
+                  {t("ClientExerciseDetail.Category")}
+                </Text>
               </View>
-              <Text style={styles.detailValue}>{category?.name || 'N/A'}</Text>
+              <Text style={styles.detailValue}>{category?.name || "N/A"}</Text>
             </View>
-            <View style={{ borderWidth: 0.5, borderColor: '#333', marginVertical: hp(2) }} />
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: wp(2) }}>
-                <Image
-                  source={Images.dumble}
-                  style={styles.detailImage}
-                />
-                <Text style={styles.detailLabel}>{t("ClientExerciseDetail.Difficulty")}</Text>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>
+                  {t("ClientExerciseDetail.Difficulty")}
+                </Text>
               </View>
               <Text style={styles.detailValue}>{difficulty}</Text>
             </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Sets</Text>
+              </View>
+              <Text style={styles.detailValue}>{exerciseData?.sets}</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Reps</Text>
+              </View>
+              <Text style={styles.detailValue}>{exerciseData?.reps}</Text>
+            </View>
           </View>
-          <View style={{ borderWidth: 0.5, borderColor: '#333', marginVertical: hp(0.2), marginBottom: hp(2) }} />
+          <View
+            style={{
+              borderWidth: 0.5,
+              borderColor: "#333",
+              marginVertical: hp(0.2),
+              marginBottom: hp(2),
+            }}
+          />
 
           {/* Target Muscles */}
           {targetMuscles && targetMuscles.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t("ClientExerciseDetail.TargetMuscles")}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("ClientExerciseDetail.TargetMuscles")}
+              </Text>
               <View style={styles.tagsContainer}>
                 {targetMuscles.map((muscle, index) => (
                   <View key={index} style={styles.tag}>
@@ -220,7 +337,9 @@ const ClientExerciseDetail = () => {
           {/* Equipment */}
           {equipment && equipment.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t("ClientExerciseDetail.Equipment")}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("ClientExerciseDetail.Equipment")}
+              </Text>
               <View style={styles.tagsContainer}>
                 {equipment.map((item, index) => (
                   <View key={index} style={styles.tag}>
@@ -235,7 +354,9 @@ const ClientExerciseDetail = () => {
           {instructions && instructions.length > 0 && (
             <View style={styles.section2}>
               <View style={styles.instructionsContainer}>
-                <Text style={styles.instructionsTitle}>{t("ClientExerciseDetail.Instructions")}</Text>
+                <Text style={styles.instructionsTitle}>
+                  {t("ClientExerciseDetail.Instructions")}
+                </Text>
                 {instructions.map((instruction, index) => (
                   <View key={index} style={styles.instructionItem}>
                     <Text style={styles.instructionNumber}>{index + 1}.</Text>
@@ -257,37 +378,37 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.backgroundColor,
-    paddingTop: hp(6)
+    paddingTop: hp(6),
   },
   scrollView: {
     flex: 1,
     backgroundColor: COLORS.backgroundColor,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: wp(5),
     paddingVertical: hp(2),
     borderBottomWidth: 0.5,
-    borderBottomColor: '#333',
+    borderBottomColor: "#333",
   },
   backButton: {
     padding: wp(2),
   },
   headerTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: hp(2.3),
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
     fontFamily: fonts.medium,
   },
   imageContainer: {
     paddingHorizontal: wp(5),
     paddingTop: hp(2),
-    alignItems: 'center',
+    alignItems: "center",
   },
   mainImage: {
-    width: '100%',
+    width: "100%",
     height: hp(25),
     borderRadius: wp(4),
   },
@@ -296,18 +417,16 @@ const styles = StyleSheet.create({
     paddingTop: hp(3),
   },
   exerciseTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(6),
     fontFamily: fonts.medium,
-
   },
   exerciseDescription: {
-    color: '#888',
+    color: "#888",
     fontSize: wp(2.7),
     lineHeight: wp(5),
     marginBottom: hp(3),
     fontFamily: fonts.regular,
-
   },
   detailsRow: {
     marginBottom: hp(3),
@@ -322,16 +441,15 @@ const styles = StyleSheet.create({
   detailImage: {
     width: wp(5),
     height: wp(5),
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   detailLabel: {
     color: COLORS.white,
     fontSize: wp(3.2),
     fontFamily: fonts.regular,
-
   },
   detailValue: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(3.7),
     fontFamily: fonts.regular,
   },
@@ -345,29 +463,28 @@ const styles = StyleSheet.create({
     marginBottom: hp(3),
   },
   sectionTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4),
     fontFamily: fonts.medium,
     marginBottom: hp(1.5),
   },
   tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: wp(2),
   },
   tag: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: "#2A2A2A",
     paddingHorizontal: wp(5),
     paddingVertical: hp(0.5),
     borderRadius: wp(5),
     borderWidth: 0.5,
-    borderColor: '#444',
+    borderColor: "#444",
   },
   tagText: {
-    color: '#5C5C60',
+    color: "#5C5C60",
     fontSize: wp(2.8),
     fontFamily: fonts.regular,
-
   },
   instructionsHeader: {
     paddingHorizontal: wp(4),
@@ -376,7 +493,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   instructionsTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(5),
     fontFamily: fonts.medium,
     paddingBottom: hp(2),
@@ -387,70 +504,69 @@ const styles = StyleSheet.create({
     padding: wp(4),
   },
   instructionItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: hp(1.5),
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   instructionNumber: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(3.5),
     fontFamily: fonts.medium,
     marginRight: wp(2),
     minWidth: wp(5),
   },
   instructionText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(3.5),
     lineHeight: wp(5),
     flex: 1,
     fontFamily: fonts.regular,
-
   },
   buttonContainer: {
     paddingHorizontal: wp(5),
     paddingVertical: hp(2),
-    backgroundColor: '#1A1A1A',
-    alignItems: 'center',
+    backgroundColor: "#1A1A1A",
+    alignItems: "center",
   },
   startButton: {
     borderRadius: wp(3),
-    overflow: 'hidden',
-    width: '100%',
+    overflow: "hidden",
+    width: "100%",
     maxWidth: 400, // Added for responsiveness on larger screens
   },
   startButtonTouchable: {
     paddingVertical: hp(2),
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   startButtonText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4.5),
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.backgroundColor,
   },
   loadingText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4),
     marginTop: hp(2),
     fontFamily: fonts.medium,
   },
   errorContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: COLORS.backgroundColor,
     padding: wp(5),
   },
   errorText: {
     color: COLORS.red,
     fontSize: wp(4.5),
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: hp(2),
     fontFamily: fonts.medium,
   },
@@ -462,9 +578,9 @@ const styles = StyleSheet.create({
     marginTop: hp(3),
   },
   retryButtonText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: wp(4.5),
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontFamily: fonts.medium,
   },
 });

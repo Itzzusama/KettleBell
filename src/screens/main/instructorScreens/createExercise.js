@@ -30,7 +30,7 @@ import CustomButton from "../../../components/CustomButton";
 import {
   GetApiRequest,
   PostApiRequest,
-  PutApiRequest
+  PutApiRequest,
 } from "../../../services/api";
 import { COLORS } from "../../../utils/COLORS";
 import { uploadAndGetUrl } from "../../../utils/constant";
@@ -56,6 +56,8 @@ export default function CreateExercise() {
   const [selectedDifficulty, setSelectedDifficulty] = useState("Beginner");
   const [instruction, setInstruction] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
+  const [sets, setSets] = useState(0);
+  const [reps, setReps] = useState(0);
   const [steps, setSteps] = useState([]);
   const [selectedEquipment, setSelectedEquipment] = useState([]);
   const [selectedMuscles, setSelectedMuscles] = useState([]);
@@ -81,8 +83,12 @@ export default function CreateExercise() {
       setDescription(exerciseData.description || "");
       setSelectedDifficulty(exerciseData.difficulty || "Beginner");
       setSelectedImages(exerciseData.images || []);
-      setSelectedEquipment(exerciseData.equipment?.filter((item) => item.trim()) || []);
-      setSelectedMuscles(exerciseData.targetMuscles?.filter((item) => item.trim()) || []);
+      setSelectedEquipment(
+        exerciseData.equipment?.filter((item) => item.trim()) || []
+      );
+      setSelectedMuscles(
+        exerciseData.targetMuscles?.filter((item) => item.trim()) || []
+      );
       setSteps(exerciseData.instructions?.filter((item) => item.trim()) || []);
       setDuration(exerciseData.duration?.toString() || "");
     }
@@ -112,7 +118,7 @@ export default function CreateExercise() {
 
   const pickMultipleImages = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: "images",
       allowsEditing: false,
       quality: 0.8,
       allowsMultipleSelection: true,
@@ -235,7 +241,39 @@ export default function CreateExercise() {
       });
       return false;
     }
+    if (!duration.trim() || isNaN(Number.parseInt(duration))) {
+      toast.showToast({
+        type: "error",
+        message: "Please enter a valid duration in minutes",
+        duration: 4000,
+      });
+      return false;
+    }
+    if (
+      !sets.trim() ||
+      isNaN(Number.parseInt(sets)) ||
+      Number.parseInt(sets) <= 0
+    ) {
+      toast.showToast({
+        type: "error",
+        message: "Please enter valid sets (greater than 0)",
+        duration: 4000,
+      });
+      return false;
+    }
 
+    if (
+      !reps.trim() ||
+      isNaN(Number.parseInt(reps)) ||
+      Number.parseInt(reps) <= 0
+    ) {
+      toast.showToast({
+        type: "error",
+        message: "Please enter valid reps (greater than 0)",
+        duration: 4000,
+      });
+      return false;
+    }
     if (!selectedCategory) {
       toast.showToast({
         type: "error",
@@ -249,15 +287,6 @@ export default function CreateExercise() {
       toast.showToast({
         type: "error",
         message: "Description is required",
-        duration: 4000,
-      });
-      return false;
-    }
-
-    if (!duration.trim() || isNaN(Number.parseInt(duration))) {
-      toast.showToast({
-        type: "error",
-        message: "Please enter a valid duration in minutes",
         duration: 4000,
       });
       return false;
@@ -296,19 +325,19 @@ export default function CreateExercise() {
   // Add exercise to workout day
   const addExerciseToDay = async (exerciseId) => {
     try {
-      const url = `api/workout-plans/${workoutId}/daily-workouts/${day}/exercises`
-      const response = await PostApiRequest(url, { exerciseId })
+      const url = `api/workout-plans/${workoutId}/daily-workouts/${day}/exercises`;
+      const response = await PostApiRequest(url, { exerciseId });
 
       if (response.data.success || response.status === 200) {
         // Close modal and refresh workout data
       } else {
-        throw new Error("Failed to add exercise")
+        throw new Error("Failed to add exercise");
       }
     } catch (err) {
-      console.error("Error adding exercise:", err)
-      Alert.alert("Error", err.message || "Failed to add exercise")
+      console.error("Error adding exercise:", err);
+      Alert.alert("Error", err.message || "Failed to add exercise");
     }
-  }
+  };
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -359,10 +388,13 @@ export default function CreateExercise() {
         equipment: selectedEquipment,
         targetMuscles: selectedMuscles,
         instructions: steps,
+        sets: sets,
+        reps: reps,
         duration: Number.parseInt(duration),
       };
-
+      console.log(payload);
       let response;
+
       if (isEditMode && exerciseData) {
         response = await PutApiRequest(
           `api/exercises/${exerciseData._id}`,
@@ -373,9 +405,8 @@ export default function CreateExercise() {
       }
 
       if (response && response.data) {
-
         if (workoutId && day && onExerciseAdded) {
-          await addExerciseToDay(response.data.data._id)
+          await addExerciseToDay(response.data.data._id);
         }
 
         toast.showToast({
@@ -413,11 +444,7 @@ export default function CreateExercise() {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons
-            name="arrow-back"
-            size={hp(3)}
-            color={COLORS.white}
-          />
+          <Ionicons name="arrow-back" size={hp(3)} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {isEditMode ? "Edit Exercise" : t("CreateExercise.title")}
@@ -507,7 +534,28 @@ export default function CreateExercise() {
               keyboardType="numeric"
             />
           </View>
-
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Sets</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Sets"
+              placeholderTextColor={COLORS.gray2}
+              value={sets}
+              onChangeText={setSets}
+              keyboardType="numeric"
+            />
+          </View>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reps</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Reps"
+              placeholderTextColor={COLORS.gray2}
+              value={reps}
+              onChangeText={setReps}
+              keyboardType="numeric"
+            />
+          </View>
           <View style={[styles.section, { zIndex: 3000 }]}>
             <Text style={styles.sectionTitle}>
               {t("CreateExercise.Category")}
@@ -839,7 +887,7 @@ const styles = StyleSheet.create({
     color: "#999",
     fontFamily: fonts.regular,
     fontSize: 12,
-    textAlign: 'center'
+    textAlign: "center",
   },
   uploadFormats: {
     color: "#666",
@@ -966,4 +1014,4 @@ const styles = StyleSheet.create({
   createButton: {
     marginBottom: hp(3),
   },
-})
+});

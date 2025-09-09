@@ -65,12 +65,17 @@ export default function HealthInformation() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.progress);
-
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
   const [medicalConditions, setMedicalConditions] = useState(
-    userData.healthInfo?.medicalConditions || []
+    created
+      ? user?.healthInfo?.medicalConditions
+      : userData.healthInfo?.medicalConditions || []
   );
   const [injuries, setInjuries] = useState(
-    userData.healthInfo?.injuriesOrLimitations || []
+    created
+      ? user?.healthInfo?.injuriesOrLimitations
+      : userData.healthInfo?.injuriesOrLimitations || []
   );
 
   useEffect(() => {
@@ -78,12 +83,14 @@ export default function HealthInformation() {
   }, [dispatch]);
 
   const handleNext = () => {
-    dispatch(updateUserData({ 
-      healthInfo: { 
-        medicalConditions, 
-        injuriesOrLimitations: injuries 
-      }
-    }));
+    dispatch(
+      updateUserData({
+        healthInfo: {
+          medicalConditions,
+          injuriesOrLimitations: injuries,
+        },
+      })
+    );
     dispatch(nextSection());
     navigation.navigate(RouteName.Fitness_Background);
   };
@@ -278,7 +285,7 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: COLORS.primaryColor,
     paddingHorizontal: 10,
-    paddingVertical:5,
+    paddingVertical: 5,
     borderRadius: wp(2),
     marginRight: wp(1),
   },
@@ -290,7 +297,7 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: wp(2), 
+    gap: wp(2),
     marginBottom: hp(2),
   },
   tag: {

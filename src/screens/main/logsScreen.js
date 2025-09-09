@@ -75,10 +75,6 @@ const LogScreen = () => {
             </Text>
             <Text style={styles.pillTag}>🗓️ {item.dailyMeal?.name}</Text>
           </View>
-
-          {item.notes ? (
-            <Text style={styles.logNote}>🗒️ {item.notes}</Text>
-          ) : null}
         </TouchableOpacity>
       );
     }

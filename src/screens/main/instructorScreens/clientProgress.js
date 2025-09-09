@@ -34,6 +34,7 @@ import AssignWorkout from "../../../components/Modals/AssignWorkout";
 import CustomText from "../../../components/CustomText";
 import NoDataFound from "../../../components/NoDataFound";
 import RouteName from "../../../navigation/RouteName";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Custom Progress Semicircle component
 const ProgressCircle = ({
@@ -147,10 +148,8 @@ export default function ProfileDashboard({ route }) {
       const response = await GetApiRequest(
         `api/clients/${client?.id}/workout-logs`
       );
-      // console.log("res---=-=-", response.data);
 
       setWorkoutLog(response.data?.data);
-      // setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
   const getMealLogs = async () => {
@@ -158,10 +157,8 @@ export default function ProfileDashboard({ route }) {
       const response = await GetApiRequest(
         `api/clients/${client?.id}/meal-logs`
       );
-      // console.log("res---=-=-", response.data);
 
       setMealLogs(response.data?.data);
-      // setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
   const getAllClientDetail = async () => {
@@ -169,9 +166,8 @@ export default function ProfileDashboard({ route }) {
       const response = await GetApiRequest(
         `api/client-productivity/${client?.id}/productivity`
       );
-      console.log("res---=-=-details", response.data);
+
       setClientDetail(response.data?.data);
-      // setMealPlans(response.data?.data?.mealPlans);
     } catch (error) {}
   };
 
@@ -251,28 +247,7 @@ export default function ProfileDashboard({ route }) {
           {/* <Text style={styles.profileEmail}>{client?.email}</Text> */}
         </View>
 
-        {/* Daily Progress */}
-        <View style={styles.sectionContainer2}>
-          <Text style={styles.sectionTitle}>{t("ClientProgress.title2")}</Text>
-          <View style={styles.dailyProgressContainer}>
-            <ProgressCircle percentage={dailyProgress.consumed} />
-            <View style={styles.progressStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{dailyProgress.remaining}</Text>
-                <Text style={styles.statLabel}>
-                  {t("ClientProgress.Remaining")}
-                </Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{dailyProgress.target}</Text>
-                <Text style={styles.statLabel}>
-                  {t("ClientProgress.target")}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
+        {/* Weekly Progress */}
         {/* Weekly Progress */}
         <View style={styles.sectionContainer2}>
           <View style={styles.sectionHeader}>
@@ -285,66 +260,60 @@ export default function ProfileDashboard({ route }) {
               </Text>
             </View>
           </View>
-          <View style={styles.weeklyProgressContainer}>
-            <View style={styles.caloriesContainer}>
-              <Text style={styles.caloriesLabel}>
-                {t("ClientProgress.calories")}
+
+          <View style={styles.weeklyProgressRow}>
+            {/* First Half Score */}
+            <LinearGradient
+              colors={[COLORS.primaryColor, "#f3f2e269"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientCard}
+            >
+              <Ionicons name="sunny-outline" size={wp(7)} color="#fff" />
+              <Text style={styles.cardValue}>
+                {clientDetail?.productivityMetrics?.weeklyProgress
+                  ?.firstHalfScore || 0}
               </Text>
-              <View style={styles.caloriesRow}>
-                <Image source={Icons.flame} style={styles.caloriesIcon} />
-                <Text style={styles.caloriesNumber}>
-                  {weeklyProgress.calories.toLocaleString()}
-                </Text>
-              </View>
-              <Text style={[styles.caloriesLabel, { marginTop: hp(1) }]}>
-                Streak: {getStreak()} days
+              <Text style={styles.cardLabel}>First Half</Text>
+            </LinearGradient>
+
+            {/* Second Half Score */}
+            <LinearGradient
+              colors={["#f3f2e269", COLORS.primaryColor]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.gradientCard}
+            >
+              <Ionicons name="moon-outline" size={wp(7)} color="#fff" />
+              <Text style={styles.cardValue}>
+                {clientDetail?.productivityMetrics?.weeklyProgress
+                  ?.secondHalfScore || 0}
               </Text>
-            </View>
-            <View style={styles.progressCircles}>
-              <View style={styles.progressCircleItem}>
-                <Progress.Circle
-                  size={wp(18)}
-                  progress={weeklyProgress.burnFat / 100}
-                  thickness={wp(1.8)}
-                  color="#FFB800"
-                  unfilledColor={COLORS.gray3}
-                  borderWidth={0}
-                  showsText={true}
-                  textStyle={styles.circleText}
-                  formatText={() => `${weeklyProgress.burnFat}%`}
-                />
-                <Text style={styles.circleLabel}>Weekly Progress</Text>
-              </View>
-              <View style={styles.progressCircleItem}>
-                <Progress.Circle
-                  size={wp(18)}
-                  progress={weeklyProgress.completedExercise / 100}
-                  thickness={wp(1.8)}
-                  color="#3585FE"
-                  unfilledColor={COLORS.gray3}
-                  borderWidth={0}
-                  showsText={true}
-                  textStyle={styles.circleText}
-                  formatText={() => `${weeklyProgress.completedExercise}%`}
-                />
-                <Text style={styles.circleLabel}>Workout Adherence</Text>
-              </View>
-              <View style={styles.progressCircleItem}>
-                <Progress.Circle
-                  size={wp(18)}
-                  progress={clientDetail?.mealStats?.adherenceRate || 0}
-                  thickness={wp(1.8)}
-                  color="#7876F5"
-                  unfilledColor={COLORS.gray3}
-                  borderWidth={0}
-                  showsText={true}
-                  textStyle={styles.circleText}
-                  formatText={() =>
-                    `${clientDetail?.mealStats?.adherenceRate || 0}%`
-                  }
-                />
-                <Text style={styles.circleLabel}>Meal Adherence</Text>
-              </View>
+              <Text style={styles.cardLabel}>Second Half</Text>
+            </LinearGradient>
+
+            {/* Meal Adherence */}
+            <View style={styles.circleCard}>
+              <Progress.Circle
+                size={wp(18)}
+                progress={
+                  (clientDetail?.productivityMetrics?.weeklyProgress
+                    ?.progressPercentage || 0) / 100
+                }
+                thickness={wp(2)}
+                color={COLORS.primaryColor}
+                unfilledColor="rgba(255,255,255,0.1)"
+                borderWidth={0}
+                showsText={true}
+                textStyle={styles.circleText}
+                formatText={() =>
+                  `${
+                    clientDetail?.productivityMetrics?.weeklyProgress
+                      ?.progressPercentage || 0
+                  }%`
+                }
+              />
+              <Text style={styles.circleLabel}>Progress</Text>
             </View>
           </View>
         </View>
@@ -369,7 +338,7 @@ export default function ProfileDashboard({ route }) {
               <Text style={styles.productivityNumber}>
                 {clientDetail?.workoutStats?.totalDuration || 0}
               </Text>
-              <Text style={styles.productivityLabel}>Total Hours</Text>
+              <Text style={styles.productivityLabel}>Total Duration</Text>
             </View>
           </View>
         </View>
@@ -399,7 +368,7 @@ export default function ProfileDashboard({ route }) {
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.workoutCard}>
                 <Image
-                  source={{ uri: item?.image }}
+                  source={{ uri: item?.workoutPlan?.images[0] }}
                   style={styles.workoutCardImage}
                 />
                 <View style={styles.workoutCardOverlay}>
@@ -443,7 +412,9 @@ export default function ProfileDashboard({ route }) {
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.workoutCard}>
                 <Image
-                  source={{ uri: item?.image }}
+                  source={{
+                    uri: item?.mealPlan?.images[0] || item?.mealPlan?.banner,
+                  }}
                   style={styles.workoutCardImage}
                 />
                 <View style={styles.workoutCardOverlay}>
@@ -509,7 +480,7 @@ export default function ProfileDashboard({ route }) {
                           workout.workoutPlan?.description ||
                           ""}
                       </Text>
-                      <View style={styles.completionBadge}>
+                      {/* <View style={styles.completionBadge}>
                         <Progress.Circle
                           size={wp(10)}
                           progress={
@@ -525,7 +496,7 @@ export default function ProfileDashboard({ route }) {
                             `${workout.status === "completed" ? 100 : 75}%`
                           }
                         />
-                      </View>
+                      </View> */}
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -610,7 +581,7 @@ export default function ProfileDashboard({ route }) {
                         {meal.notes || "No notes available"}
                       </Text>
                     </View>
-                    <View style={styles.nutritionCompletionContainer}>
+                    {/* <View style={styles.nutritionCompletionContainer}>
                       <Progress.Bar
                         progress={0.9}
                         width={wp(60)}
@@ -624,7 +595,7 @@ export default function ProfileDashboard({ route }) {
                         90
                         {t("ClientProgress.complete")}
                       </Text>
-                    </View>
+                    </View> */}
                   </View>
                 </TouchableOpacity>
               ))
@@ -1066,5 +1037,74 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     color: "#888888",
     textAlign: "center",
+  },
+  progressRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: hp(2),
+  },
+
+  weeklyProgressRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: hp(2),
+  },
+
+  gradientCard: {
+    flex: 1,
+    marginHorizontal: wp(1.5),
+    borderRadius: wp(5),
+    paddingVertical: hp(2.5),
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+
+  cardValue: {
+    fontSize: wp(6),
+    fontFamily: fonts.semiBold,
+    color: "#fff",
+    marginTop: hp(0.5),
+  },
+
+  cardLabel: {
+    fontSize: wp(3.2),
+    fontFamily: fonts.medium,
+    color: "rgba(255,255,255,0.9)",
+    marginTop: hp(0.3),
+  },
+
+  circleCard: {
+    flex: 1,
+    marginHorizontal: wp(1.5),
+    borderRadius: wp(5),
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.05)",
+    paddingVertical: hp(2),
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+
+  circleText: {
+    fontSize: wp(4),
+    fontFamily: fonts.semiBold,
+    color: COLORS.primaryColor,
+  },
+
+  circleLabel: {
+    fontSize: wp(3.2),
+    fontFamily: fonts.medium,
+    color: "#EEE",
+    marginTop: hp(1),
   },
 });

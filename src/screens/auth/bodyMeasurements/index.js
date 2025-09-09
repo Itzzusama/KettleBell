@@ -63,6 +63,8 @@ export default function BodyMeasurements() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.progress);
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
   const insets = useSafeAreaInsets();
   const toast = useToast();
 
@@ -105,11 +107,21 @@ export default function BodyMeasurements() {
           <Text style={styles.subtitle}>{t("BodyMeasurements.subtitle")}</Text>
           <Formik
             initialValues={{
-              chest: userData.bodyMeasurements?.chest?.toString() || "",
-              waist: userData.bodyMeasurements?.waist?.toString() || "",
-              hips: userData.bodyMeasurements?.hips?.toString() || "",
-              thighs: userData.bodyMeasurements?.thighs?.toString() || "",
-              arms: userData.bodyMeasurements?.arms?.toString() || "",
+              chest: created
+                ? user.bodyMeasurements?.chest?.toString()
+                : userData.bodyMeasurements?.chest?.toString() || "",
+              waist: created
+                ? user.bodyMeasurements?.waist?.toString()
+                : userData.bodyMeasurements?.waist?.toString() || "",
+              hips: created
+                ? user.bodyMeasurements?.hips?.toString()
+                : userData.bodyMeasurements?.hips?.toString() || "",
+              thighs: created
+                ? user.bodyMeasurements?.thighs?.toString()
+                : userData.bodyMeasurements?.thighs?.toString() || "",
+              arms: created
+                ? user.bodyMeasurements?.arms?.toString()
+                : userData.bodyMeasurements?.arms?.toString() || "",
             }}
             validationSchema={BodyMeasurementsSchema}
             onSubmit={(values) => {

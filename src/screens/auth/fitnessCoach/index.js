@@ -1,26 +1,43 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Image, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from 'react-native-responsive-screen';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
-import fonts from '../../../assets/fonts';
-import { Icons } from '../../../assets/icons';
-import CustomButton from '../../../components/CustomButton';
-import ProgressBar from '../../../components/progressBar';
-import RouteName from '../../../navigation/RouteName';
-import { nextSection, previousSection, setCurrentSection } from '../../../store/slices/progressSlice';
-import { COLORS } from '../../../utils/COLORS';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Image,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import fonts from "../../../assets/fonts";
+import { Icons } from "../../../assets/icons";
+import CustomButton from "../../../components/CustomButton";
+import ProgressBar from "../../../components/progressBar";
+import RouteName from "../../../navigation/RouteName";
+import {
+  nextSection,
+  previousSection,
+  setCurrentSection,
+} from "../../../store/slices/progressSlice";
+import { COLORS } from "../../../utils/COLORS";
 
 export default function FitnessCoach() {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { userData } = useSelector(state => state.progress);
-  const profileImageUri = userData.profilePicture;
-  const userName = userData.name;
+  const { userData } = useSelector((state) => state.progress);
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
+  const profileImageUri = userData.profilePicture || user?.avatar;
+  const userName = userData.name || user?.name;
   const insets = useSafeAreaInsets();
 
   const handleNext = () => {
@@ -39,8 +56,12 @@ export default function FitnessCoach() {
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-      
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
+
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -51,7 +72,11 @@ export default function FitnessCoach() {
           <Image source={Icons.profile} style={styles.profileIcon} />
         </View>
         <ProgressBar />
-        <Text style={styles.title}>{t("fitnessCoach.title")}</Text>
+        <Text style={styles.title}>
+          {created
+            ? t("fitnessCoach.accountCreatedTitle")
+            : t("fitnessCoach.title")}
+        </Text>
       </View>
 
       <ScrollView
@@ -59,16 +84,25 @@ export default function FitnessCoach() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.content}>
-          <Text style={styles.greeting}>{t('fitnessCoach.greeting', { name: userName })}</Text>
-          <Text style={styles.description}>
-            {t("fitnessCoach.description1")}
+          <Text style={styles.greeting}>
+            {t("fitnessCoach.greeting", { name: userName })}
           </Text>
+          <Text style={styles.description}>
+            {created
+              ? t("fitnessCoach.accountCreatedDescription1")
+              : t("fitnessCoach.description1")}
+          </Text>
+
           <Text style={styles.subDescription}>
-            {t("fitnessCoach.description2")}
+            {created
+              ? t("fitnessCoach.accountCreatedDescription2")
+              : t("fitnessCoach.description2")}
           </Text>
           <View style={styles.imageContainer}>
             <Image
-              source={profileImageUri ? { uri: profileImageUri } : Icons.profile}
+              source={
+                profileImageUri ? { uri: profileImageUri } : Icons.profile
+              }
               style={styles.profileImage}
             />
           </View>
@@ -102,8 +136,8 @@ const styles = StyleSheet.create({
   backButton: {
     width: wp(10),
     height: wp(10),
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   profileIconContainer: {
     marginBottom: hp(2),
@@ -111,7 +145,7 @@ const styles = StyleSheet.create({
   profileIcon: {
     width: wp(10),
     height: wp(10),
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
   scrollContent: {
     flexGrow: 1,
@@ -124,14 +158,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: wp(6),
     fontFamily: fonts.bold,
-    color: 'white',
+    color: "white",
     marginBottom: hp(2),
     paddingBottom: hp(2),
   },
   greeting: {
     fontSize: wp(5),
     fontFamily: fonts.medium,
-    color: 'white',
+    color: "white",
     marginBottom: hp(2),
     marginTop: hp(2),
   },
@@ -150,7 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(5),
   },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: hp(5),
   },
   profileImage: {
@@ -162,11 +196,12 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     fontStyle: "italic",
     color: COLORS.gray2,
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: hp(2.5),
   },
   buttonContainer: {
     marginBottom: hp(5),
     paddingHorizontal: wp(5),
+    marginTop: 20,
   },
 });

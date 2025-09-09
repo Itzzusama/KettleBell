@@ -26,7 +26,7 @@ const KettlebellSwing = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { detail, workoutId, clientId, catName } = route?.params || {};
-
+  console.log(detail);
   const { t } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const instructions = t("ExerciseDetail.instructions", {
@@ -127,6 +127,58 @@ const KettlebellSwing = () => {
                 <Text style={styles.detailLabel}>Difficulty</Text>
               </View>
               <Text style={styles.detailValue}>{detail?.difficulty}</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Sets</Text>
+              </View>
+              <Text style={styles.detailValue}>{detail?.sets}</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Reps</Text>
+              </View>
+              <Text style={styles.detailValue}>{detail?.reps}</Text>
             </View>
           </View>
           <View

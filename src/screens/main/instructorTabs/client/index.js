@@ -213,17 +213,6 @@ export default function ClientScreen() {
                     color="white"
                   />
                 </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate(RouteName.Client_Progress)}
-                  // onPress={() => navigation.navigate(RouteName.PROFILE)}
-                >
-                  <Ionicons
-                    name="chevron-forward"
-                    size={hp(2.5)}
-                    color={COLORS.white}
-                  />
-                </TouchableOpacity>
               </View>
             </TouchableOpacity>
           ))}
@@ -238,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.backgroundColor,
     paddingTop: hp(6),
-    paddingBottom:105
+    paddingBottom: 105,
   },
   header: {
     flexDirection: "row",

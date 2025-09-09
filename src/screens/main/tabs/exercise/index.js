@@ -282,6 +282,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     paddingHorizontal: wp(4),
     marginBottom: hp(2),
+    marginVertical: 2,
   },
   searchBar: {
     flexDirection: "row",
@@ -292,6 +293,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.3,
     borderColor: COLORS.gray2,
     height: hp(7),
+    overflow: "hidden",
   },
   searchInput: {
     flex: 1,

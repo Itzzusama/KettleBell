@@ -24,13 +24,11 @@ const KettlebellSwing = () => {
   const { t } = useTranslation();
 
   const { exercise, exercisesState } = useRoute().params;
-  console.log("exercise", exercise);
-  console.log("exercisesState", exercisesState);
 
   const targetMuscles = exercise.targetMuscles;
   const equipment = exercise.equipment;
   const instructions = exercise.instructions;
-
+  console.log(exercise);
   return (
     <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
       <StatusBar
@@ -135,6 +133,58 @@ const KettlebellSwing = () => {
                 </Text>
               </View>
               <Text style={styles.detailValue}>{exercise?.difficulty}</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Sets</Text>
+              </View>
+              <Text style={styles.detailValue}>{exercise?.sets}</Text>
+            </View>
+            <View
+              style={{
+                borderWidth: 0.5,
+                borderColor: "#333",
+                marginVertical: hp(2),
+              }}
+            />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: wp(2),
+                }}
+              >
+                <Image source={Images.dumble} style={styles.detailImage} />
+                <Text style={styles.detailLabel}>Reps</Text>
+              </View>
+              <Text style={styles.detailValue}>{exercise?.reps}</Text>
             </View>
           </View>
           <View

@@ -19,7 +19,10 @@ const chartConfig = {
     borderRadius: 16,
   },
   propsForDots: {
-    r: "0", // Default dots are hidden
+    r: "4",
+    strokeWidth: 2,
+    stroke: "#ffc107",
+    fill: "#242427",
   },
   propsForBackgroundLines: {
     strokeDasharray: "",
@@ -29,28 +32,52 @@ const chartConfig = {
 };
 
 const ClientReportChart = ({ dashboardData }) => {
-  console.log(dashboardData);
   const { t } = useTranslation();
 
-  // Default data if no dashboard data is available
-  const defaultData = {
-    labels: ["Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun"],
-    datasets: [
-      {
-        data: [6000, 7000, 8500, 6134, 5500, 4500, 4000],
-        color: () => "#ffc107",
-        strokeWidth: 3,
-      },
-    ],
+  const getLastSixMonths = () => {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const now = new Date();
+    const result = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      result.push(months[d.getMonth()]);
+    }
+
+    return result;
   };
 
-  // Generate chart data from dashboard monthly progress
+  const defaultData = {
+    labels: getLastSixMonths(),
+    datasets: [
+      {
+        data: Array(6).fill(0),
+        color: () => "#ffc107",
+        strokeWidth: 2,
+      },
+    ],
+    legend: ["New Clients"],
+  };
+
   const generateChartData = () => {
-    if (!dashboardData?.monthlyProgress?.workouts) {
+    if (!dashboardData?.monthlyProgress?.newClients) {
       return defaultData;
     }
 
-    const workouts = dashboardData.monthlyProgress.workouts;
+    const workouts = dashboardData.monthlyProgress.newClients.slice(-6);
     const labels = workouts.map((item) => item.month);
     const data = workouts.map((item) => item.count);
 
@@ -63,6 +90,7 @@ const ClientReportChart = ({ dashboardData }) => {
           strokeWidth: 3,
         },
       ],
+      legend: ["New Clients"],
     };
   };
 
@@ -73,8 +101,8 @@ const ClientReportChart = ({ dashboardData }) => {
       <Text style={styles.title}>{t("InstructorHome.clientReport")}</Text>
       <LineChart
         data={chartData}
-        width={wp(90)} // Responsive width
-        height={hp(32)} // Responsive height
+        width={wp(90)}
+        height={hp(32)}
         chartConfig={chartConfig}
         bezier
         style={styles.chart}
@@ -82,31 +110,11 @@ const ClientReportChart = ({ dashboardData }) => {
         withShadow={false}
         withInnerLines={true}
         withOuterLines={false}
-        renderDotContent={({ x, y, index }) => {
-          if (index === Math.floor(chartData.datasets[0].data.length / 2)) {
-            // Middle point
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.customDotContainer,
-                  { left: x - 20, top: y - 30 },
-                ]}
-              >
-                <View style={styles.customDot} />
-                <Text style={styles.dotLabel}>
-                  {chartData.datasets[0].data[index].toLocaleString()}
-                </Text>
-              </View>
-            );
-          }
-          return null;
-        }}
         yAxisLabel=""
         yAxisSuffix=""
         formatYLabel={(value) => `${parseInt(value)}`}
         yLabelsOffset={15}
-        segments={4}
+        segments={6}
       />
     </View>
   );
@@ -131,23 +139,11 @@ const styles = StyleSheet.create({
   chart: {
     borderRadius: wp(4),
   },
-  customDotContainer: {
-    position: "absolute",
-    alignItems: "center",
-  },
-  customDot: {
-    width: wp(2),
-    height: wp(2),
-    borderRadius: wp(1),
-    backgroundColor: COLORS.primaryColor,
-    borderWidth: 2,
-    borderColor: COLORS.primaryColor,
-  },
   dotLabel: {
-    color: COLORS.primaryColor,
+    color: "#ffc107",
     fontSize: wp(3),
     fontWeight: "bold",
-    marginTop: hp(0.5),
+    textAlign: "center",
     fontFamily: fonts.regular,
   },
 });

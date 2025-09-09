@@ -6,25 +6,26 @@ import Header from "../../../components/Header";
 
 import Item from "./molecules/Item";
 
-import { Images } from "../../../assets/images";
 import { COLORS } from "../../../utils/COLORS";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
-import NoDataFound from "../../../components/NoDataFound";
+
 import moment from "moment";
-import { GetApiRequest } from "../../../services/api";
+import { GetApiRequest, PutApiRequest } from "../../../services/api";
 import NoData from "../../../components/NoData";
+import { useDispatch } from "react-redux";
+import { setUnseenNoti } from "../../../store/slices/AuthConfig";
 
 const Notifications = () => {
   const isFocus = useIsFocused();
-  const navigation = useNavigation();
+
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
-
+  const dispatch = useDispatch();
   const getNotification = async () => {
     setLoading(true);
     try {
       const response = await GetApiRequest("api/notifications");
-      console.log(response?.data);
+
       setNotifications(response.data?.data);
     } catch (error) {
       console.log("err", error);
@@ -33,9 +34,19 @@ const Notifications = () => {
       setLoading(false);
     }
   };
-
+  const markRead = async () => {
+    try {
+      const response = await PutApiRequest("api/notifications/read-all");
+      if (response?.data?.success) {
+        dispatch(setUnseenNoti(response?.data?.unreadCount));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
   useEffect(() => {
     getNotification();
+    markRead();
   }, [isFocus]);
 
   return (
@@ -64,17 +75,6 @@ const Notifications = () => {
             time={moment(item?.createdAt)?.fromNow()}
             desc={item?.message}
             type={item?.type}
-            // onCardPress={() =>
-            //   item?.type == "message"
-            //     ? navigation.navigate("Chat")
-            //     : item?.type == "donation"
-            //     ? navigation.navigate("Donations")
-            //     : item?.type == "job-apply"
-            //     ? navigation.navigate("Jobs")
-            //     : item?.type == "event-purchase"
-            //     ? navigation.navigate("Events")
-            //     : ""
-            // }
           />
         )}
       />

@@ -1,12 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 export const usersSlice = createSlice({
-  name: 'users',
+  name: "users",
   initialState: {
     userData: {},
     location: {},
     unseenBadge: {},
-    role: null, // Add role to initial state
+    role: null,
+    created: false,
   },
   reducers: {
     setUserData(state, action) {
@@ -25,6 +26,9 @@ export const usersSlice = createSlice({
     setUserRole(state, action) {
       state.role = action.payload; // Explicit action to set role
     },
+    setCreated(state, action) {
+      state.created = action.payload; // Explicit action to set role
+    },
     clearUserData(state) {
       state.userData = {};
       state.location = {};
@@ -34,6 +38,13 @@ export const usersSlice = createSlice({
   },
 });
 
-export const { setUserData, setLocation, setUnseenBadge, setUserRole, clearUserData } = usersSlice.actions;
+export const {
+  setUserData,
+  setLocation,
+  setUnseenBadge,
+  setUserRole,
+  setCreated,
+  clearUserData,
+} = usersSlice.actions;
 
 export default usersSlice.reducer;

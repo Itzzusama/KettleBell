@@ -1,11 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  token: '',
+  token: "",
   isOnBoarding: false,
+  unseenNoti: 0,
 };
 export const authConfigsSlice = createSlice({
-  name: 'authConfigs',
+  name: "authConfigs",
   initialState: initialState,
   reducers: {
     setToken(state, action) {
@@ -14,12 +15,16 @@ export const authConfigsSlice = createSlice({
     setOnBoarding(state, action) {
       state.isOnBoarding = action.payload;
     },
+    setUnseenNoti(state, action) {
+      state.unseenNoti = action.payload;
+    },
     logout(state, action) {
-      state.token = '';
+      state.token = "";
     },
   },
 });
 
-export const {setToken, setOnBoarding, logout} = authConfigsSlice.actions;
+export const { setToken, setOnBoarding, setUnseenNoti, logout } =
+  authConfigsSlice.actions;
 
 export default authConfigsSlice.reducer;

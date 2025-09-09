@@ -40,7 +40,6 @@ const InboxScreen = ({ route }) => {
   const client = route.params?.client;
   const userId = userData?._id;
   const clientId = client?.id || client?._id;
-  console.log(clientId);
   const [isImageModalVisible, setIsImageModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -137,7 +136,7 @@ const InboxScreen = ({ route }) => {
   };
 
   const handleNewMessage = (msg) => {
-    setMessages((prev) => [msg?.message, ...prev]);
+    // setMessages((prev) => [msg?.message, ...prev]);
 
     const messageSenderId =
       typeof msg.sender === "object" ? msg.sender._id : msg.sender;

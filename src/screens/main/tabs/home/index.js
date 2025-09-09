@@ -14,7 +14,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -22,7 +21,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import Svg, { Circle } from "react-native-svg";
+
 import { useSelector } from "react-redux";
 
 import fonts from "../../../../assets/fonts";
@@ -32,164 +31,71 @@ import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 import { coachInfo } from "../../../../utils/coachInfo";
+import StatsSection from "../molecules/StatsSection";
 
 const { width } = Dimensions.get("window");
-
-/** Circular gauge with absolute center text (no % sign forced). */
-const ProgressCircle = ({
-  value = 0,
-  max = 100,
-  centerText,
-  color = "#FEC635",
-  size = wp(15),
-  strokeWidth = wp(1.5),
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const safeMax = Math.max(1, Number(max) || 1);
-  const ratio = Math.max(0, Math.min(1, (Number(value) || 0) / safeMax));
-  const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - ratio * circumference;
-
-  return (
-    <View style={{ width: size, height: size }}>
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={COLORS.white}
-          strokeWidth={strokeWidth}
-          fill="none"
-          opacity={0.15}
-        />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeDasharray={strokeDasharray}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-      <View style={[styles.percentageContainer, { width: size, height: size }]}>
-        <Text style={[styles.percentageText, { fontSize: size * 0.25 }]}>
-          {centerText ?? String(value)}
-        </Text>
-      </View>
-    </View>
-  );
-};
 
 const Home = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { userData } = useSelector((state) => state.users);
-
+  const clientId = userData?._id;
   const profileImageUri = userData?.avatar;
   const userName = userData?.name || "User";
-
+  const [stats, setStats] = useState({});
   const [workdata, setWorkoutPlans] = useState([]);
   const [exercisesState, setExercisesState] = useState([]);
-  const [productivity, setProductivity] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const clientId = userData?._id;
+  const [refreshing, setRefreshing] = useState(false);
+  const { unseenNoti } = useSelector((state) => state?.authConfigs);
 
   const onRefresh = async () => {
     setRefreshing(true);
     try {
+      await fetchStats();
       await fetchInitialData();
     } catch (error) {
-      console.error("Error refreshing data:", error);
       Alert.alert("Error", "Failed to refresh data");
     } finally {
       setRefreshing(false);
     }
   };
-
+  const fetchStats = async () => {
+    try {
+      const res = await GetApiRequest(`api/users/dashboard-stats`);
+      if (res?.data?.success) {
+        setStats(res?.data?.data?.workoutStats);
+      }
+    } catch (err) {}
+  };
   const fetchInitialData = async () => {
     try {
       if (!clientId) return;
 
       const [exercisesRes, workoutRes, productivityRes] = await Promise.all([
         GetApiRequest("api/exercises"),
-        GetApiRequest("api/workout-plans"),
+        GetApiRequest(`api/clients/${clientId}/plans`),
         GetApiRequest(
           `api/client-productivity/${clientId}/productivity?period=7`
         ),
       ]);
 
       setExercisesState(exercisesRes?.data?.data || []);
-      setWorkoutPlans(workoutRes?.data || []);
-      setProductivity(productivityRes?.data || null);
+      setWorkoutPlans(workoutRes?.data?.data?.workoutPlans || []);
     } catch (error) {
       console.error("Error fetching data:", error);
       Alert.alert("Error", "Failed to load data");
       setExercisesState([]);
       setWorkoutPlans([]);
-      setProductivity(null);
     }
   };
 
   useEffect(() => {
-    if (clientId) fetchInitialData();
+    if (clientId) {
+      fetchStats();
+      fetchInitialData();
+    }
   }, [clientId]);
-
-  // ======= Derive UI values from productivity =======
-  const period = productivity?.period || 7;
-
-  const activeWorkoutPlans =
-    productivity?.data?.assignedPlans?.workoutPlans?.length || 0;
-  const activeMealPlans =
-    productivity?.data?.assignedPlans?.mealPlans?.length || 0;
-
-  const mealLogs = productivity?.data?.mealStats?.totalLogs || 0;
-  const workoutLogs = productivity?.data?.workoutStats?.totalLogs || 0;
-  const totalLogs7d = mealLogs + workoutLogs;
-
-  // weeklyProgress inside productivityMetrics
-  const metrics = productivity?.data?.productivityMetrics || {};
-  const weekly = metrics?.weeklyProgress || {};
-  const streak = metrics?.streak ?? 0;
-  const firstHalfScore = Math.max(
-    0,
-    Math.min(100, Number(weekly.firstHalfScore) || 0)
-  );
-  const secondHalfScore = Math.max(
-    0,
-    Math.min(100, Number(weekly.secondHalfScore) || 0)
-  );
-  const progressPct = Number.isFinite(weekly.progressPercentage)
-    ? weekly.progressPercentage
-    : 0;
-  const progressAbs = Math.max(0, Math.min(100, Math.abs(progressPct)));
-  const progressPositive = progressPct >= 0;
-  const progressDisplay =
-    (progressPositive ? "+" : "") + String(progressPct) + "%";
-
-  // ======= Top cards =======
-  const statCards = [
-    {
-      title: "Active\nPlans",
-      value: String(activeWorkoutPlans + activeMealPlans).padStart(2, "0"),
-      icon: Icons.dumble,
-    },
-    {
-      title: "Meal Logs\n(7d)",
-      value: String(mealLogs).padStart(2, "0"),
-      icon: Icons.flame,
-    },
-    {
-      title: "Workout Logs\n(7d)",
-      value: String(workoutLogs).padStart(2, "0"),
-      icon: Icons.dumble,
-    },
-  ];
 
   const renderExercise = ({ item }) => (
     <TouchableOpacity
@@ -271,7 +177,7 @@ const Home = () => {
             style={styles.iconButton}
           >
             <Ionicons name="notifications-outline" size={wp(6)} color="#FFF" />
-            <View style={styles.notificationDot} />
+            {unseenNoti > 0 && <View style={styles.notificationDot} />}
           </TouchableOpacity>
           <TouchableOpacity style={styles.profileButton}>
             <Image
@@ -294,179 +200,13 @@ const Home = () => {
           />
         }
       >
-        {/* Search */}
-        {/* <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={wp(5)} color="#FFFFFF" />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={t("Exercise.search_placeholder")}
-              placeholderTextColor="#FFFFFF"
-            />
-          </View>
-        </View> */}
+        <StatsSection stats={stats} />
 
-        {/* Top Stat Cards */}
-        <View
-          style={{
-            flexDirection: "row",
-            marginBottom: hp(3),
-            gap: wp(2),
-            marginHorizontal: wp(5),
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-          }}
-        >
-          {statCards.map((item, index) => (
-            <View
-              key={index}
-              style={[
-                styles.statCard,
-                {
-                  backgroundColor: COLORS.primaryColor,
-                  padding: wp(3),
-                  borderRadius: wp(4),
-                  gap: hp(2),
-                  width: width < 400 ? "48%" : "30%",
-                  marginBottom: wp(2),
-                },
-              ]}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: fonts.medium,
-                    fontSize: 9,
-                    color: "#5D5D5D",
-                  }}
-                >
-                  {item.title}
-                </Text>
-                <View
-                  style={{
-                    backgroundColor: "#FFF",
-                    borderRadius: 999,
-                    padding: 2,
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <Image
-                    source={item.icon}
-                    style={{
-                      width: wp(3),
-                      height: wp(3),
-                      resizeMode: "contain",
-                    }}
-                  />
-                </View>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: hp(1),
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text
-                  style={{
-                    fontFamily: fonts.medium,
-                    fontSize: 20,
-                    color: "white",
-                  }}
-                >
-                  {item.value}
-                </Text>
-                <Ionicons name="arrow-up" size={wp(4)} color="#FFF" />
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Weekly Progress (circles only, includes weeklyProgress data) */}
-        <View style={styles.weeklyProgressContainer}>
-          <View style={styles.sectionHeader}>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: wp(2) }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  fontFamily: fonts.semiBold,
-                  color: "#FFF",
-                }}
-              >
-                {t("Home.weekly_progress_title")}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.progressSection}>
-            {/* Keep the left "Total Logs" quick stat */}
-            <View style={styles.caloriesSection}>
-              <Text style={styles.caloriesLabel}>Total Logs (7d)</Text>
-              <View
-                style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
-              >
-                <Image
-                  source={Icons.flame}
-                  style={{ resizeMode: "contain", width: hp(2), height: hp(2) }}
-                />
-                <Text style={styles.caloriesValue}>
-                  {mealLogs + workoutLogs}
-                </Text>
-              </View>
-            </View>
-
-            {/* Circles for weeklyProgress */}
-            <View style={styles.progressCircles}>
-              <View style={styles.progressItem}>
-                <ProgressCircle
-                  value={firstHalfScore}
-                  max={100}
-                  color="#3BA55D"
-                  centerText={String(firstHalfScore)}
-                />
-                <Text style={styles.progressLabel}>First Half</Text>
-              </View>
-
-              <View style={styles.progressItem}>
-                <ProgressCircle
-                  value={secondHalfScore}
-                  max={100}
-                  color="#7876F5"
-                  centerText={String(secondHalfScore)}
-                />
-                <Text style={styles.progressLabel}>Second Half</Text>
-              </View>
-
-              <View style={styles.progressItem}>
-                <ProgressCircle
-                  value={progressAbs}
-                  max={100}
-                  color={progressPositive ? "#52FFB2" : "#FF9A9A"}
-                  centerText={progressDisplay}
-                />
-                <Text style={styles.progressLabel}>Δ vs first half</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* Active Workout Plans */}
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>
               {t("Home.active_workout_plan_title")}
             </Text>
-            {/* <TouchableOpacity>
-              <Text style={styles.seeAllText}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity> */}
           </View>
 
           <ScrollView
@@ -478,14 +218,14 @@ const Home = () => {
                 styles.emptyScrollViewContent,
             ]}
           >
-            {workdata?.data && workdata.data.length > 0 ? (
-              workdata.data.map((workout, index) => (
+            {workdata?.length > 0 ? (
+              workdata.map((workout, index) => (
                 <TouchableOpacity
                   activeOpacity={0.8}
                   key={workout.id}
                   onPress={() =>
                     navigation.navigate(RouteName.WorkoutPlans_Details, {
-                      workoutId: workout.id,
+                      workoutId: workout?.workoutPlan?._id,
                     })
                   }
                   style={[
@@ -497,7 +237,7 @@ const Home = () => {
                   <Image
                     source={{
                       uri:
-                        workout.images?.[0] ||
+                        workout?.workoutPlan?.images?.[0] ||
                         "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
                     }}
                     style={styles.workoutImage}
@@ -517,18 +257,14 @@ const Home = () => {
                         numberOfLines={1}
                         ellipsizeMode="tail"
                       >
-                        {workout.name}
+                        {workout?.workoutPlan?.name}
                       </Text>
                       <View style={styles.workoutMeta}>
-                        <Text style={styles.workoutDetails} numberOfLines={1}>
-                          {workout.exercisesCount}{" "}
-                          {workout.exercisesCount === 1
-                            ? "exercise"
-                            : "exercises"}
-                        </Text>
                         <Text style={styles.workoutDuration}>
-                          {workout.numberOfWeeks}{" "}
-                          {workout.numberOfWeeks === 1 ? "week" : "weeks"}
+                          {workout?.workoutPlan?.numberOfWeeks}{" "}
+                          {workout?.workoutPlan?.numberOfWeeks === 1
+                            ? "week"
+                            : "weeks"}
                         </Text>
                       </View>
                     </View>
@@ -638,10 +374,21 @@ const styles = StyleSheet.create({
   },
 
   statCard: {
-    flex: 1,
-    padding: wp(4),
-    borderRadius: wp(4),
-    position: "relative",
+    backgroundColor: COLORS.primaryColor,
+    padding: wp(3),
+    borderRadius: wp(3),
+    marginBottom: hp(2),
+  },
+  statTitle: {
+    color: "#EEE",
+    fontSize: wp(3),
+    fontFamily: fonts.regular,
+    marginBottom: hp(0.5),
+  },
+  statValue: {
+    color: "#FFF",
+    fontSize: wp(4.5),
+    fontFamily: fonts.semiBold,
   },
 
   weeklyProgressContainer: {
@@ -712,7 +459,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold || fonts.medium,
   },
 
-  sectionContainer: { paddingHorizontal: wp(5), marginBottom: hp(3) },
+  sectionContainer: { paddingHorizontal: wp(5) },
   sectionTitle: { color: "#FFF", fontSize: wp(4.5), fontFamily: fonts.medium },
 
   workoutCardScrollable: { width: wp(85), marginRight: wp(3) },
@@ -721,7 +468,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: hp(4),
   },
   noWorkoutsContainer: {
     width: width - wp(10),

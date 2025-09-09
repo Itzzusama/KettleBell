@@ -1,4 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  FontAwesome5,
+} from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,58 +27,33 @@ import fonts from "../../../../assets/fonts";
 import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
+import { useSelector } from "react-redux";
 
 export default function Nutritions() {
   const navigation = useNavigation();
   const { t } = useTranslation();
-  const [avgCalories, setAvgCalories] = useState(0);
-  const [avgProtein, setAvgProtein] = useState(0);
-  const [avgCarbs, setAvgCarbs] = useState(0);
-  const [avgFat, setAvgFat] = useState(0);
+  const [stats, setStats] = useState({});
   const [mealPlans, setMealPlans] = useState([]);
   const [recipes, setRecipes] = useState([]);
+  const { userData } = useSelector((state) => state.users);
+  const clientId = userData?._id;
   const fetchInitialData = async () => {
     try {
       const [mealPlansRes, recipesRes] = await Promise.all([
-        GetApiRequest("api/meal-plans"),
+        GetApiRequest(`api/clients/${clientId}/plans`),
         GetApiRequest("api/recipes"),
       ]);
 
-      if (mealPlansRes?.data?.mealPlans) {
-        setMealPlans(mealPlansRes.data.mealPlans);
+      if (mealPlansRes?.data?.success) {
+        setMealPlans(mealPlansRes?.data?.data?.mealPlans);
       } else {
         setMealPlans([]);
       }
       if (recipesRes?.data?.recipes) {
         const recipeList = recipesRes.data.recipes;
         setRecipes(recipeList);
-
-        let totalCalories = 0,
-          totalProtein = 0,
-          totalCarbs = 0,
-          totalFat = 0;
-
-        recipeList.forEach((recipe) => {
-          if (recipe.nutrition) {
-            totalCalories += recipe.nutrition.calories || 0;
-            totalProtein += recipe.nutrition.protein || 0;
-            totalCarbs += recipe.nutrition.carbs || 0;
-            totalFat += recipe.nutrition.fat || 0;
-          }
-        });
-
-        const count = recipeList.length || 1;
-
-        setAvgCalories((totalCalories / count).toFixed(0));
-        setAvgProtein((totalProtein / count).toFixed(0));
-        setAvgCarbs((totalCarbs / count).toFixed(0));
-        setAvgFat((totalFat / count).toFixed(0));
       } else {
         setRecipes([]);
-        setAvgCalories(0);
-        setAvgProtein(0);
-        setAvgCarbs(0);
-        setAvgFat(0);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -84,49 +63,58 @@ export default function Nutritions() {
     }
   };
 
+  const fetchStats = async () => {
+    try {
+      const res = await GetApiRequest(`api/users/dashboard-stats`);
+      if (res?.data?.success) {
+        console.log(res?.data?.data?.workoutStats);
+        setStats(res?.data?.data?.mealStats);
+      }
+    } catch (err) {}
+  };
+
   useEffect(() => {
+    fetchStats();
     fetchInitialData();
   }, []);
 
-  const renderMealPlan = ({ item }) => (
-    <TouchableOpacity
-      style={styles.mealCard}
-      onPress={() =>
-        navigation.navigate(RouteName.Recipe_Time, { mealPlan: item })
-      }
-      activeOpacity={0.8}
-    >
-      <Image
-        source={{
-          uri:
-            item.banner ||
-            item.image ||
-            "/placeholder.svg?height=200&width=300",
-        }}
-        style={styles.mealImage}
-      />
-      <View style={styles.mealOverlay}>
-        <View style={styles.tagContainer}>
-          <Text style={styles.mealTitle} numberOfLines={1}>
-            {item.name}
-          </Text>
-        </View>
-        <View style={styles.mealContent}>
-          <View style={styles.mealInfo}>
-            <Text style={styles.clientText} numberOfLines={1}>
-              {item.description || `${item.servings} servings`}
+  const renderMealPlan = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.mealCard}
+        onPress={() =>
+          navigation.navigate(RouteName.Recipe_Time, {
+            mealPlan: item?.mealPlan,
+          })
+        }
+        activeOpacity={0.8}
+      >
+        <Image
+          source={{
+            uri:
+              item?.mealPlan?.banner ||
+              item.mealPlan?.images[0] ||
+              "/placeholder.svg?height=200&width=300",
+          }}
+          style={styles.mealImage}
+        />
+        <View style={styles.mealOverlay}>
+          <View style={styles.tagContainer}>
+            <Text style={styles.mealTitle} numberOfLines={1}>
+              {item?.mealPlan?.name}
             </Text>
-            <View style={styles.durationContainer}>
-              <Ionicons name="time-outline" size={wp(3)} color={COLORS.white} />
-              <Text style={styles.durationText}>
-                {item.prepTime ? `${item.prepTime}min` : "15min"}
+          </View>
+          <View style={styles.mealContent}>
+            <View style={styles.mealInfo}>
+              <Text style={styles.clientText} numberOfLines={1}>
+                {item?.mealPlan?.description || `${item.servings} servings`}
               </Text>
             </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderRecommendedRecipe = ({ item }) => (
     <TouchableOpacity
@@ -176,42 +164,76 @@ export default function Nutritions() {
         backgroundColor="transparent"
         translucent
       />
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={wp(6)} color="#FFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t("Nutrition.header_title")}</Text>
+        <View style={styles.placeholder} />
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={wp(6)} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t("Nutrition.header_title")}</Text>
-          <View style={styles.placeholder} />
-        </View>
-
-        {/* Stats Section */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Text style={styles.statIcon}>🔥</Text>
-            <Text style={styles.statValue}>{avgCalories} kcal</Text>
-            <Text style={styles.statLabel}>Avg Calories</Text>
+            <MaterialCommunityIcons
+              name="fire"
+              size={28}
+              color="#FEC635"
+              style={styles.statIcon}
+            />
+            <View>
+              <Text style={styles.statValue}>
+                {stats?.totalCalories || 0} kcal
+              </Text>
+              <Text style={styles.statLabel}>Calories</Text>
+            </View>
           </View>
 
           <View style={styles.statCard}>
-            <Text style={styles.statIcon}>🍞</Text>
-            <Text style={styles.statValue}>{avgCarbs} g</Text>
-            <Text style={styles.statLabel}>Avg Carbs</Text>
+            <MaterialCommunityIcons
+              name="bread-slice"
+              size={28}
+              color="#FEC635"
+              style={styles.statIcon}
+            />
+            <View>
+              <Text style={styles.statValue}>
+                {stats?.nutritionTotals?.carbs || 0} g
+              </Text>
+              <Text style={styles.statLabel}>Carbs</Text>
+            </View>
           </View>
 
           <View style={styles.statCard}>
-            <Text style={styles.statIcon}>🥩</Text>
-            <Text style={styles.statValue}>{avgProtein} g</Text>
-            <Text style={styles.statLabel}>Avg Protein</Text>
+            <MaterialCommunityIcons
+              name="food-steak"
+              size={28}
+              color="#FEC635"
+              style={styles.statIcon}
+            />
+            <View>
+              <Text style={styles.statValue}>
+                {stats?.nutritionTotals?.protein || 0} g
+              </Text>
+              <Text style={styles.statLabel}>Protein</Text>
+            </View>
           </View>
 
           <View style={styles.statCard}>
-            <Text style={styles.statIcon}>🥑</Text>
-            <Text style={styles.statValue}>{avgFat} g</Text>
-            <Text style={styles.statLabel}>Avg Fat</Text>
+            <MaterialCommunityIcons
+              name="peanut-outline"
+              size={28}
+              color="#FEC635"
+              style={styles.statIcon}
+            />
+            <View>
+              <Text style={styles.statValue}>
+                {stats?.nutritionTotals?.fat || 0} g
+              </Text>
+              <Text style={styles.statLabel}>Fat</Text>
+            </View>
           </View>
         </View>
 
@@ -221,9 +243,6 @@ export default function Nutritions() {
             <Text style={styles.sectionTitle}>
               {t("Nutrition.active_meal_plan_title")}
             </Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAllText}>{t("Nutrition.view_all")}</Text>
-            </TouchableOpacity>
           </View>
           {mealPlans.length > 0 ? (
             <FlatList
@@ -553,33 +572,35 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   statCard: {
     width: "48%",
-    backgroundColor: "#242427",
-    borderRadius: wp(4),
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#242427", // keep the dark background
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#33373B",
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 12,
-    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   statIcon: {
-    fontSize: 24,
-    marginBottom: 8,
+    marginRight: 12,
   },
   statValue: {
-    fontSize: 20,
-    color: COLORS.white,
+    fontSize: 18,
     fontFamily: fonts.medium,
-    lineHeight: 28,
-    marginBottom: 4,
+    color: COLORS.white,
   },
   statLabel: {
-    fontSize: 14,
-    color: COLORS.primaryColor,
+    fontSize: 13,
+    color: COLORS.white, // matches your theme
+    marginTop: 2,
+    fontFamily: fonts.regular,
   },
 });

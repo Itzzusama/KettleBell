@@ -55,12 +55,17 @@ const BasicInfoSchema = Yup.object().shape({
 export default function BasicInformation() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets()
+  const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
   const toast = useToast();
   const { userData } = useSelector((state) => state.progress);
+  const user = useSelector((state) => state.users.userData);
+  const created = useSelector((state) => state.users.created);
+
   const [selectedGender, setSelectedGender] = useState(
-    userData.basicInfo?.gender || "male"
+    created
+      ? user.basicInfo?.gender?.toLowerCase()
+      : userData.basicInfo?.gender || "male"
   );
   const [bmi, setBmi] = useState(userData.basicInfo?.bmi || "");
 
@@ -113,9 +118,15 @@ export default function BasicInformation() {
           <Text style={styles.sectionTitle}>{t("BasicInfo.description")}</Text>
           <Formik
             initialValues={{
-              age: userData.basicInfo?.age?.toString() || "",
-              height: userData.basicInfo?.height?.toString() || "",
-              weight: userData.basicInfo?.weight?.toString() || "",
+              age: created
+                ? user.basicInfo?.age?.toString()
+                : userData.basicInfo?.age?.toString() || "",
+              height: created
+                ? user.basicInfo?.height?.toString()
+                : userData.basicInfo?.height?.toString() || "",
+              weight: created
+                ? user.basicInfo?.weight?.toString()
+                : userData.basicInfo?.weight?.toString() || "",
             }}
             validationSchema={BasicInfoSchema}
             onSubmit={(values) => {
@@ -177,7 +188,8 @@ export default function BasicInformation() {
                         key={gender}
                         style={[
                           styles.genderButton,
-                          selectedGender === gender && styles.genderButtonSelected,
+                          selectedGender === gender &&
+                            styles.genderButtonSelected,
                         ]}
                         onPress={() => setSelectedGender(gender)}
                       >
@@ -185,7 +197,7 @@ export default function BasicInformation() {
                           style={[
                             styles.genderButtonText,
                             selectedGender === gender &&
-                            styles.genderButtonTextSelected,
+                              styles.genderButtonTextSelected,
                           ]}
                         >
                           {t(`BasicInfo.genders.${gender}`)}

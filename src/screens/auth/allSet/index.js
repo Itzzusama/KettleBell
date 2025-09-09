@@ -40,6 +40,7 @@ export default function AllSet() {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
+  const user = useSelector((state) => state.users.userData);
   // console.log("userData====", userData);
 
   useEffect(() => {
@@ -55,7 +56,7 @@ export default function AllSet() {
       }
 
       const payload = {
-        name: userData.name || "",
+        name: userData.name || user?.name || "",
         basicInfo: {
           gender: userData.basicInfo?.gender || "",
           age: parseInt(userData.basicInfo?.age) || 0,
@@ -90,8 +91,6 @@ export default function AllSet() {
         },
       };
 
-      console.log("API Payload====", JSON.stringify(payload, null, 2));
-
       const response = await axios.put(
         `${baseUrl}api/auth/update-details`,
         payload,
@@ -102,7 +101,6 @@ export default function AllSet() {
         }
       );
 
-      console.log("response.data==================>>>>>>", response.data);
       toast.showToast({
         type: "success",
         message: response.data.message,

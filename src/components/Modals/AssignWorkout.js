@@ -33,8 +33,6 @@ const AssignWorkout = ({
   const [assignLoading, setAssignLoading] = useState(false);
   const toast = useToast();
 
-  
-
   const handleAssignPlan = async () => {
     if (!plan) {
       toast.showToast({
@@ -55,7 +53,6 @@ const AssignWorkout = ({
     }
 
     try {
-
       const formattedDate = moment(startDate).toISOString();
       setAssignLoading(true);
 
@@ -133,7 +130,7 @@ const AssignWorkout = ({
         />
         <View style={styles.border}>
           {/* Workout Plan Selection */}
-          <View style={styles.inputContainer}>
+          {/* <View style={styles.inputContainer}>
             <CustomText
               label="Selected Workout Plan"
               fontFamily={fonts.medium}
@@ -148,7 +145,7 @@ const AssignWorkout = ({
               editable={false}
               placeholderTextColor={COLORS.gray2}
             />
-          </View>
+          </View> */}
 
           {/* Start Date */}
           <View style={styles.inputContainer}>
