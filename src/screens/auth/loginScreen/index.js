@@ -27,7 +27,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomInput from "../../../components/CustomInput";
 import RouteName from "../../../navigation/RouteName";
 import { PostApiRequest } from "../../../services/api";
-import { setToken } from "../../../store/slices/AuthConfig";
+import { setOnBoarding, setToken } from "../../../store/slices/AuthConfig";
 import { setUserData, setUserRole } from "../../../store/slices/usersSlice";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
@@ -107,28 +107,22 @@ export default function Login() {
         duration: 4000,
       });
       if (loginResponse.data?.token) {
-        await AsyncStorage.setItem("token", loginResponse.data?.token);
-        await AsyncStorage.setItem(
-          "refreshToken",
-          loginResponse.data?.refreshToken
-        );
         dispatch(setToken(loginResponse.data?.token));
         dispatch(setUserData(loginResponse.data?.user));
-        // Set role from API response if available
-        if (loginResponse.data?.user?.role) {
-          await AsyncStorage.setItem("role", loginResponse.data?.user?.role);
-          dispatch(setUserRole(loginResponse.data?.user?.role));
-        }
+        dispatch(setUserRole(loginResponse.data?.user?.role));
+        dispatch(setOnBoarding(loginResponse.data?.user?.onboardingCompleted));
+
         navigation.reset({
           index: 0,
           routes: [{ name: "Main" }],
         });
       }
     } catch (error) {
-      console.error("Login error:", error);
       toast.showToast({
         type: "error",
-        message: "An error occurred during login. Please try again.",
+        message:
+          error?.response?.data?.message ||
+          "An error occurred during login. Please try again.",
         duration: 4000,
       });
     } finally {

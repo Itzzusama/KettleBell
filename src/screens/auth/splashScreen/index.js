@@ -9,11 +9,13 @@ import { COLORS } from "../../../utils/COLORS";
 export default function SplashScreen() {
   const navigation = useNavigation();
   const isToken = useSelector((state) => state.authConfigs.token);
-
+  const isOnBoarding = useSelector((state) => state.authConfigs.isOnBoarding);
   useEffect(() => {
     const timer = setTimeout(() => {
       // console.log("navigation.replace(RouteName.ONBOARDING_SCREEN)", JSON.stringify(isToken))
-      navigation.replace(isToken ? RouteName.MainStack : RouteName.AuthStack);
+      navigation.replace(
+        isToken && isOnBoarding ? RouteName.MainStack : RouteName.AuthStack
+      );
     }, 3000);
 
     return () => clearTimeout(timer);

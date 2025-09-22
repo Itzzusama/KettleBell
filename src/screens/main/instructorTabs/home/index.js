@@ -235,7 +235,7 @@ export default function InstructorHome() {
       setLogoutModal(false);
       dispatch(setToken(""));
       dispatch(clearUserData({}));
-      await AsyncStorage.removeItem("token");
+
       navigation.reset({
         index: 0,
         routes: [{ name: RouteName.AuthStack }],
@@ -319,7 +319,7 @@ export default function InstructorHome() {
       </View>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{ paddingBottom: hp(10) }}
+        contentContainerStyle={{ paddingBottom: hp(20) }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl

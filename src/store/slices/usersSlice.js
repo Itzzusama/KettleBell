@@ -34,6 +34,7 @@ export const usersSlice = createSlice({
       state.location = {};
       state.unseenBadge = {};
       state.role = null; // Reset role on logout
+      state.created = false;
     },
   },
 });

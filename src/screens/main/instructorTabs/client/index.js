@@ -5,6 +5,7 @@ import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  Alert,
   Image,
   SafeAreaView,
   ScrollView,
@@ -23,7 +24,11 @@ import {
 import fonts from "../../../../assets/fonts";
 import { Images } from "../../../../assets/images";
 import RouteName from "../../../../navigation/RouteName";
-import { GetApiRequest } from "../../../../services/api";
+import {
+  GetApiRequest,
+  DeleteApiRequest,
+  PutApiRequest,
+} from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 
 export default function ClientScreen() {
@@ -34,12 +39,10 @@ export default function ClientScreen() {
   const isFocus = useIsFocused();
 
   const handleAddClient = () => {
-    console.log("Add new client");
     navigation.navigate(RouteName.AddClient);
   };
 
   const handleClientPress = (client) => {
-    // navigation.navigate(RouteName.Client_profile, { client });
     navigation.navigate(RouteName.Client_Progress, { client });
   };
 
@@ -49,9 +52,8 @@ export default function ClientScreen() {
 
       setClient(
         res.data?.data.map((item) => {
-          // Consistency calculation
           let filledSections = 0;
-          // Check basicInfo
+
           const basicInfoFilled =
             item.basicInfo &&
             Object.values(item.basicInfo).some(
@@ -62,7 +64,7 @@ export default function ClientScreen() {
                 !(Array.isArray(v) && v.length === 0)
             );
           if (basicInfoFilled) filledSections++;
-          // Check fitnessGoals
+
           const fitnessGoalsFilled =
             item.fitnessGoals &&
             ((item.fitnessGoals.primaryGoal &&
@@ -71,7 +73,7 @@ export default function ClientScreen() {
               (Array.isArray(item.fitnessGoals.specificGoals) &&
                 item.fitnessGoals.specificGoals.length > 0));
           if (fitnessGoalsFilled) filledSections++;
-          // Check healthInfo
+
           const healthInfoFilled =
             item.healthInfo &&
             ((Array.isArray(item.healthInfo.medicalConditions) &&
@@ -79,17 +81,20 @@ export default function ClientScreen() {
               (Array.isArray(item.healthInfo.injuriesOrLimitations) &&
                 item.healthInfo.injuriesOrLimitations.length > 0));
           if (healthInfoFilled) filledSections++;
+
           let consistency = 0;
           if (filledSections === 1) consistency = 33;
           else if (filledSections === 2) consistency = 66;
           else if (filledSections === 3) consistency = 100;
-          // ... fallback to 0 if none
+
           return {
             id: item._id,
             name: item.name,
-            image: item.avatar, // Avatar might be null
-            status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded", // Map API field to status
+            image: item.avatar,
+            status: item.onboardingCompleted ? "Onboarded" : "Not Onboarded",
+            isActive: item.isActive,
             consistency,
+            isVerified: item.isVerified,
           };
         })
       );
@@ -98,6 +103,44 @@ export default function ClientScreen() {
     }
   };
 
+  const toggleClientStatus = async (id, isActive) => {
+    try {
+      await PutApiRequest(`api/clients/${id}`, { isActive: !isActive });
+      getapirequest();
+    } catch (error) {
+      console.log("toggle error", error);
+    }
+  };
+
+  const deleteClient = async (id) => {
+    Alert.alert(
+      "Delete Client",
+      "Are you sure you want to delete this client?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await DeleteApiRequest(`api/clients/${id}`);
+              getapirequest();
+            } catch (error) {
+              console.log("delete error", error);
+            }
+          },
+        },
+      ]
+    );
+  };
+  const verifyClient = async (id) => {
+    try {
+      await PutApiRequest(`api/clients/${id}`, { isVerified: true });
+      getapirequest();
+    } catch (error) {
+      console.log("verify error", error);
+    }
+  };
   useEffect(() => {
     getapirequest();
   }, [isFocus]);
@@ -159,7 +202,9 @@ export default function ClientScreen() {
               key={client.id}
               style={styles.clientCard}
               onPress={() => handleClientPress(client)}
+              activeOpacity={0.7}
             >
+              {/* Info Section */}
               <View style={styles.clientInfo}>
                 {client.image ? (
                   <Image
@@ -199,20 +244,63 @@ export default function ClientScreen() {
                   </View>
                 </View>
               </View>
-              <View style={styles.clientActions}>
-                <TouchableOpacity
-                  style={styles.messageBadge}
-                  activeOpacity={0.6}
-                  onPress={() =>
-                    navigation.navigate(RouteName.InboxScreen, { client })
-                  }
-                >
-                  <MaterialCommunityIcons
-                    name="message-text-outline"
-                    size={20}
-                    color="white"
-                  />
-                </TouchableOpacity>
+
+              {/* Chat icon (top-right) */}
+              <TouchableOpacity
+                style={styles.messageBadge}
+                onPress={() =>
+                  navigation.navigate(RouteName.InboxScreen, { client })
+                }
+              >
+                <MaterialCommunityIcons
+                  name="message-text-outline"
+                  size={20}
+                  color="white"
+                />
+              </TouchableOpacity>
+
+              {/* Footer actions */}
+              <View style={styles.cardFooter}>
+                {!client.isVerified ? (
+                  <TouchableOpacity
+                    style={[styles.footerButtonPrimary]}
+                    onPress={() => verifyClient(client.id)}
+                  >
+                    <Text style={styles.footerButtonText}>Verify Client</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[
+                        styles.footerButton,
+                        {
+                          backgroundColor: client.isActive
+                            ? "#E53935"
+                            : "#4CAF50",
+                        },
+                      ]}
+                      onPress={() =>
+                        toggleClientStatus(client.id, client.isActive)
+                      }
+                    >
+                      <Text style={styles.footerButtonText}>
+                        {client.isActive ? "Deactivate" : "Activate"}
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.footerButton,
+                        {
+                          backgroundColor: COLORS.primaryColor,
+                        },
+                      ]}
+                      onPress={() => deleteClient(client.id)}
+                    >
+                      <Text style={styles.footerButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </View>
             </TouchableOpacity>
           ))}
@@ -287,9 +375,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(4),
   },
   clientCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: COLORS.darkGray,
     borderRadius: wp(3),
     padding: hp(1.5),
@@ -311,11 +396,6 @@ const styles = StyleSheet.create({
   placeholderImage: {
     justifyContent: "center",
     alignItems: "center",
-  },
-  placeholderText: {
-    color: COLORS.white,
-    fontSize: hp(1.4),
-    fontFamily: fonts.regular,
   },
   clientDetails: {
     flex: 1,
@@ -340,7 +420,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: hp(1.2),
     fontFamily: fonts.regular,
-    color: COLORS.gray2,
+    color: COLORS.black2,
   },
   consistencyContainer: {
     flexDirection: "row",
@@ -363,16 +443,62 @@ const styles = StyleSheet.create({
     color: COLORS.gray2,
     marginLeft: wp(2),
   },
-  clientActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
   messageBadge: {
+    position: "absolute",
+    top: hp(1.5),
+    right: wp(3),
     backgroundColor: COLORS.primaryColor,
     width: wp(8),
     height: wp(8),
     borderRadius: wp(4),
     justifyContent: "center",
     alignItems: "center",
+  },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: hp(1.2),
+    gap: wp(2),
+  },
+
+  footerButtonPrimary: {
+    flex: 1,
+    backgroundColor: COLORS.primaryColor,
+    paddingVertical: hp(1),
+    borderRadius: wp(2),
+    alignItems: "center",
+  },
+
+  footerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.6),
+    borderRadius: wp(2),
+    minWidth: wp(20),
+    justifyContent: "center",
+  },
+
+  footerButtonOutline: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E53935",
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(0.6),
+    borderRadius: wp(2),
+    justifyContent: "center",
+  },
+
+  footerButtonText: {
+    fontSize: hp(1.4),
+    fontFamily: fonts.medium,
+    color: COLORS.white,
+  },
+
+  footerButtonDelete: {
+    fontSize: hp(1.4),
+    fontFamily: fonts.medium,
+    color: "#E53935",
   },
 });

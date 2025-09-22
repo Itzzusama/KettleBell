@@ -27,14 +27,28 @@ import RouteName from "../../../navigation/RouteName";
 import { PostApiRequest } from "../../../services/api";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
+import {
+  setExpired,
+  setOnBoarding,
+  setToken,
+} from "../../../store/slices/AuthConfig";
+import { setCreated, setUserData } from "../../../store/slices/usersSlice";
+import { resetProgress } from "../../../store/slices/progressSlice";
+import { useDispatch } from "react-redux";
 
 export default function Otp() {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
   const navigation = useNavigation();
   const route = useRoute();
-  const toast = useToast()
-  const { email, flow, profilePicture, otp: otpFromParams } = route.params || {}; // Extract email and flow props
-  const insets = useSafeAreaInsets()
+  const toast = useToast();
+  const {
+    email,
+    flow,
+    profilePicture,
+    otp: otpFromParams,
+  } = route.params || {}; // Extract email and flow props
+  const insets = useSafeAreaInsets();
   const [otp, setOtp] = useState(["", "", "", ""]);
   const inputs = useRef([]);
   const [loading, setLoading] = useState(false);
@@ -72,16 +86,20 @@ export default function Otp() {
 
       if (verifyResponse.data.success) {
         toast.showToast({
-          type: 'success',
+          type: "success",
           message: verifyResponse.data.message,
           duration: 4000,
         });
-        AsyncStorage.setItem("token", verifyResponse.data.token);
-        AsyncStorage.setItem("refreshToken", verifyResponse.data.refreshToken);
+
+        dispatch(setToken(verifyResponse.data.token));
+        dispatch(setExpired(false));
+        dispatch(setCreated(false));
+        dispatch(setOnBoarding(false));
+
         navigation.navigate(RouteName.Account_Created, { profilePicture });
       } else {
         toast.showToast({
-          type: 'error',
+          type: "error",
           message: verifyResponse.data.message,
           duration: 4000,
         });
@@ -108,13 +126,13 @@ export default function Otp() {
       if (response.data.success) {
         navigation.navigate(RouteName.Reset_Password, { resetToken, email });
         toast.showToast({
-          type: 'success',
+          type: "success",
           message: response.data.message,
           duration: 4000,
         });
       } else {
         toast.showToast({
-          type: 'error',
+          type: "error",
           message: response.data.message,
           duration: 4000,
         });
@@ -122,7 +140,7 @@ export default function Otp() {
     } catch (error) {
       console.error("error=====", error);
       toast.showToast({
-        type: 'error',
+        type: "error",
         message: "An error occurred during login. Please try again.",
         duration: 4000,
       });

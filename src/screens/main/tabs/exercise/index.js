@@ -62,7 +62,6 @@ export default function Exercise() {
         setExercisesState([]);
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to load data");
       setExercisesState([]);
     }
   };

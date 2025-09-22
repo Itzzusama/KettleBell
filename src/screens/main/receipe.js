@@ -99,7 +99,7 @@ export default function YourRecipesScreen() {
     } catch (error) {
       console.error("Error fetching recipes:", error);
       dispatch(fetchRecipesFailure(error.message));
-      Alert.alert("Error", "Failed to load recipes");
+
       setFilteredRecipes([]);
     }
   };

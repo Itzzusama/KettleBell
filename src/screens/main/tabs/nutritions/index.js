@@ -57,7 +57,7 @@ export default function Nutritions() {
       }
     } catch (error) {
       console.error("Error fetching data:", error);
-      Alert.alert("Error", "Failed to load data");
+
       setMealPlans([]);
       setRecipes([]);
     }

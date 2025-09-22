@@ -4,6 +4,7 @@ const initialState = {
   token: "",
   isOnBoarding: false,
   unseenNoti: 0,
+  isExpired: false,
 };
 export const authConfigsSlice = createSlice({
   name: "authConfigs",
@@ -18,13 +19,16 @@ export const authConfigsSlice = createSlice({
     setUnseenNoti(state, action) {
       state.unseenNoti = action.payload;
     },
+    setExpired(state, action) {
+      state.isExpired = action.payload;
+    },
     logout(state, action) {
       state.token = "";
     },
   },
 });
 
-export const { setToken, setOnBoarding, setUnseenNoti, logout } =
+export const { setToken, setOnBoarding, setUnseenNoti, logout, setExpired } =
   authConfigsSlice.actions;
 
 export default authConfigsSlice.reducer;

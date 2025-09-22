@@ -154,14 +154,14 @@ export default function SignUp() {
         message: otpResponse.data.message,
         duration: 4000,
       });
-      AsyncStorage.setItem("token", otpResponse.data.token);
-      AsyncStorage.setItem("refreshToken", otpResponse.data.refreshToken);
+
       if (otpResponse.data.success) {
         toast.showToast({
           type: "success",
           message: otpResponse.data.message,
           duration: 4000,
         });
+        dispatch(updateUserData({}));
         dispatch(updateUserData({ email, password, profilePicture, name }));
         dispatch(nextSection());
         navigation.navigate(RouteName.OTP, {

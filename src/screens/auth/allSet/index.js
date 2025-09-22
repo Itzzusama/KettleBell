@@ -26,11 +26,15 @@ import RouteName from "../../../navigation/RouteName/index";
 import { baseUrl } from "../../../services/api";
 import {
   previousSection,
+  resetProgress,
   setCurrentSection,
   setSetupComplete,
+  updateUserData,
 } from "../../../store/slices/progressSlice";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
+import { clearUserData } from "../../../store/slices/usersSlice";
+import { setOnBoarding } from "../../../store/slices/AuthConfig";
 
 export default function AllSet() {
   const { t } = useTranslation();
@@ -41,8 +45,8 @@ export default function AllSet() {
   const [loading, setLoading] = useState(false);
   const insets = useSafeAreaInsets();
   const user = useSelector((state) => state.users.userData);
-  // console.log("userData====", userData);
-
+  const created = useSelector((state) => state.users.created);
+  const token = useSelector((state) => state.authConfigs.token);
   useEffect(() => {
     dispatch(setCurrentSection(8));
   }, [dispatch]);
@@ -50,7 +54,6 @@ export default function AllSet() {
   const handleStartJourney = async () => {
     setLoading(true);
     try {
-      const token = await AsyncStorage.getItem("token");
       if (!token) {
         throw new Error("No authentication token found");
       }
@@ -90,7 +93,7 @@ export default function AllSet() {
           mealPreferences: userData.nutrition?.mealPreferences || "",
         },
       };
-
+      console.log(payload);
       const response = await axios.put(
         `${baseUrl}api/auth/update-details`,
         payload,
@@ -103,9 +106,12 @@ export default function AllSet() {
 
       toast.showToast({
         type: "success",
-        message: response.data.message,
+        message: response.data.message || "Setup completed successfully!",
         duration: 4000,
       });
+      console.log(response?.data?.user?.onboardingCompleted);
+
+      dispatch(setOnBoarding(response?.data?.user?.onboardingCompleted));
       dispatch(setSetupComplete(true));
       navigation.navigate(RouteName.MainStack);
     } catch (error) {
@@ -113,6 +119,7 @@ export default function AllSet() {
         "Failed to update user details:",
         error.response?.data?.message || error.message
       );
+
       toast.showToast({
         type: "error",
         message:

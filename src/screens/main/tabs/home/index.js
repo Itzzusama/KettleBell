@@ -44,7 +44,6 @@ const Home = () => {
   const userName = userData?.name || "User";
   const [stats, setStats] = useState({});
   const [workdata, setWorkoutPlans] = useState([]);
-  const [exercisesState, setExercisesState] = useState([]);
 
   const [refreshing, setRefreshing] = useState(false);
   const { unseenNoti } = useSelector((state) => state?.authConfigs);
@@ -55,37 +54,33 @@ const Home = () => {
       await fetchStats();
       await fetchInitialData();
     } catch (error) {
-      Alert.alert("Error", "Failed to refresh data");
     } finally {
       setRefreshing(false);
     }
   };
   const fetchStats = async () => {
     try {
-      const res = await GetApiRequest(`api/users/dashboard-stats`);
+      const res = await GetApiRequest(`api/users/dashboard-stats/${clientId}`);
       if (res?.data?.success) {
-        setStats(res?.data?.data?.workoutStats);
+        // console.log(res?.data);
+        setStats(res?.data?.data);
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
   const fetchInitialData = async () => {
     try {
       if (!clientId) return;
 
-      const [exercisesRes, workoutRes, productivityRes] = await Promise.all([
-        GetApiRequest("api/exercises"),
+      const [workoutRes] = await Promise.all([
         GetApiRequest(`api/clients/${clientId}/plans`),
-        GetApiRequest(
-          `api/client-productivity/${clientId}/productivity?period=7`
-        ),
       ]);
 
-      setExercisesState(exercisesRes?.data?.data || []);
       setWorkoutPlans(workoutRes?.data?.data?.workoutPlans || []);
     } catch (error) {
       console.error("Error fetching data:", error);
-      Alert.alert("Error", "Failed to load data");
-      setExercisesState([]);
+
       setWorkoutPlans([]);
     }
   };
@@ -96,46 +91,6 @@ const Home = () => {
       fetchInitialData();
     }
   }, [clientId]);
-
-  const renderExercise = ({ item }) => (
-    <TouchableOpacity
-      style={styles.exerciseCard}
-      onPress={() =>
-        navigation.navigate(RouteName.Exercise_Detail2, {
-          exercise: item,
-          exercisesState: exercisesState,
-        })
-      }
-    >
-      <Image
-        source={{
-          uri:
-            item.images?.[0] ||
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9n8KUvSF8IZzTvs6t22w1kA4qpaBCyqqrTg&s",
-        }}
-        style={styles.exerciseImage}
-      />
-      <LinearGradient
-        colors={["transparent", "rgba(0,0,0,0.8)"]}
-        style={styles.exerciseOverlay}
-      >
-        <View style={styles.exerciseInfo}>
-          <Text style={styles.exerciseTitle}>{item.name || "N/A"}</Text>
-          <View style={styles.exerciseMeta}>
-            <Text style={styles.exerciseDetails}>
-              {item.difficulty || "N/A"}
-            </Text>
-            <View style={styles.durationContainer}>
-              <Ionicons name="time-outline" size={wp(3.5)} color="#FEC635" />
-              <Text style={styles.exerciseDuration}>
-                {item.duration || "N/A"} weeks
-              </Text>
-            </View>
-          </View>
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
 
   return (
     <SafeAreaView style={styles.container} edges={["right", "left", "top"]}>
@@ -277,34 +232,6 @@ const Home = () => {
               </View>
             )}
           </ScrollView>
-        </View>
-
-        {/* Recommended Exercises */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t("Home.recommended_exercise_title")}
-            </Text>
-            {/* <TouchableOpacity>
-              <Text style={styles.seeAllText}>{t("Home.see_all_link")}</Text>
-            </TouchableOpacity> */}
-          </View>
-
-          <View style={styles.horizontalScrollContainer}>
-            <FlatList
-              data={exercisesState}
-              renderItem={renderExercise}
-              keyExtractor={(item) => item.id?.toString() || String(item._id)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalExerciseList}
-              ListEmptyComponent={
-                <View style={styles.noWorkoutsContainer}>
-                  <Text style={styles.noWorkoutsText}>No exercises found</Text>
-                </View>
-              }
-            />
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -463,7 +390,7 @@ const styles = StyleSheet.create({
   sectionTitle: { color: "#FFF", fontSize: wp(4.5), fontFamily: fonts.medium },
 
   workoutCardScrollable: { width: wp(85), marginRight: wp(3) },
-  scrollViewContent: { paddingVertical: hp(1) },
+  scrollViewContent: { paddingVertical: hp(1), paddingBottom: 60 },
   emptyScrollViewContent: {
     flexGrow: 1,
     justifyContent: "center",

@@ -35,7 +35,8 @@ import { resetProgress } from "../../../../store/slices/progressSlice";
 import { COLORS } from "../../../../utils/COLORS";
 import { useToast } from "../../../../utils/Toast/toastContext";
 import { coachInfo } from "../../../../utils/coachInfo";
-import { setCreated } from "../../../../store/slices/usersSlice";
+import { clearUserData, setCreated } from "../../../../store/slices/usersSlice";
+import { setToken } from "../../../../store/slices/AuthConfig";
 
 const { width } = Dimensions.get("window");
 
@@ -61,8 +62,8 @@ export default function Profile() {
         duration: 3000,
       });
 
-      await AsyncStorage.clear();
-      dispatch(resetProgress());
+      dispatch(clearUserData());
+      dispatch(setToken(""));
     } catch (error) {
       toast.showToast({
         status: "error",

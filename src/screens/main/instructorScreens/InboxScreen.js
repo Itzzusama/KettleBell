@@ -309,6 +309,15 @@ const InboxScreen = ({ route }) => {
 
         {url ? (
           <View style={styles.previewWrapper}>
+            {/* Close Button */}
+            <TouchableOpacity
+              style={styles.previewCloseButton}
+              onPress={() => setUrl("")}
+            >
+              <Ionicons name="close" size={18} color="#fff" />
+            </TouchableOpacity>
+
+            {/* Preview Image */}
             <Image source={{ uri: url }} style={styles.previewImage} />
           </View>
         ) : null}
@@ -422,16 +431,28 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   previewWrapper: {
-    backgroundColor: "#fff",
+    backgroundColor: "#000",
     borderRadius: 12,
     padding: 4,
     elevation: 4,
-    alignItems: "flex-end",
+    alignItems: "center",
     alignSelf: "flex-end",
+    position: "relative",
   },
+
   previewImage: {
     width: 80,
     height: 80,
     borderRadius: 10,
+  },
+
+  previewCloseButton: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: 12,
+    padding: 3,
+    zIndex: 2,
   },
 });

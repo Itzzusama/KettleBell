@@ -1,53 +1,64 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-
-// Replace localhost with your machine's IP
-//export const baseUrl = 'http://localhost:3000/';
+import { store } from "../store";
+import { setExpired } from "../store/slices/AuthConfig";
+import { useSelector } from "react-redux";
 export const baseUrl = "https://www.fitness.tacosdecrema.com/";
 
-const getHeaders = async (contentType = "application/json") => {
-  const token = await AsyncStorage.getItem("token");
-  const refreshToken = await AsyncStorage.getItem("refreshToken");
-  const headers = {
+const api = axios.create({
+  baseURL: baseUrl,
+  headers: {
     Accept: "application/json",
-    "Content-Type": contentType,
-  };
+    "Content-Type": "application/json",
+  },
+});
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+api.interceptors.request.use(async (config) => {
+  const token = store.getState()?.authConfigs?.token;
+
+  config.headers.Authorization = `Bearer ${token}`;
+
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response) {
+      if (error.response.status === 440) {
+        store.dispatch(setExpired(true));
+      } else {
+        store.dispatch(setExpired(false));
+      }
+    }
+    return Promise.reject(error);
   }
-
-  if (refreshToken) {
-    headers.RefreshToken = `Bearer ${refreshToken}`;
-  }
-
-  return headers;
-};
+);
 
 export const PostApiRequest = async (url, data, isMultipart = false) => {
-  const headers = await getHeaders(
-    isMultipart ? "multipart/form-data" : "application/json"
-  );
-  const result = await axios.post(baseUrl + url, data, { headers });
+  const result = await api.post(url, data, {
+    headers: {
+      "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
+    },
+  });
   return result;
 };
 
 export const GetApiRequest = async (url) => {
-  const headers = await getHeaders();
-  const result = await axios.get(baseUrl + url, { headers });
+  const result = await api.get(url);
   return result;
 };
 
 export const PutApiRequest = async (url, data, isMultipart = false) => {
-  const headers = await getHeaders(
-    isMultipart ? "multipart/form-data" : "application/json"
-  );
-  const result = await axios.put(baseUrl + url, data, { headers });
+  const result = await api.put(url, data, {
+    headers: {
+      "Content-Type": isMultipart ? "multipart/form-data" : "application/json",
+    },
+  });
   return result;
 };
 
 export const DeleteApiRequest = async (url) => {
-  const headers = await getHeaders();
-  const result = await axios.delete(baseUrl + url, { headers });
+  const result = await api.delete(url);
   return result;
 };
