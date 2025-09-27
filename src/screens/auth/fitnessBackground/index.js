@@ -30,6 +30,21 @@ import {
   updateUserData,
 } from "../../../store/slices/progressSlice";
 import { COLORS } from "../../../utils/COLORS";
+
+const normalizeActivity = (value) => {
+  if (!value) return null;
+  const v = String(value).toLowerCase().replace(/\s+/g, "");
+
+  const aliases = {
+    veryactive: "veryActive",
+    active: "active",
+    moderate: "moderate",
+    light: "light",
+    sedentary: "sedentary",
+  };
+
+  return aliases[v] || null;
+};
 export default function FitnessBackground() {
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -40,21 +55,25 @@ export default function FitnessBackground() {
   const insets = useSafeAreaInsets();
   const [selectedFitnessLevel, setSelectedFitnessLevel] = useState(
     created
-      ? user.fitnessBackground?.fitnessLevel?.toLowerCase()
-      : userData.fitnessBackground?.fitnessLevel || "beginner"
+      ? user?.fitnessBackground?.fitnessLevel?.toLowerCase() || "beginner"
+      : userData?.fitnessBackground?.fitnessLevel?.toLowerCase() || "beginner"
   );
   const [selectedActivityLevel, setSelectedActivityLevel] = useState(
-    userData.fitnessBackground?.activityLevel?.toLowerCase() || "moderate"
+    created
+      ? normalizeActivity(user?.fitnessBackground?.activityLevel) || "moderate"
+      : normalizeActivity(userData?.fitnessBackground?.activityLevel) ||
+          "moderate"
   );
   const [exerciseFrequency, setExerciseFrequency] = useState(
     created
-      ? user.fitnessBackground?.exerciseFrequency
-      : userData.fitnessBackground?.exerciseFrequency || ""
+      ? user?.fitnessBackground?.exerciseFrequency?.toString() || ""
+      : userData?.fitnessBackground?.exerciseFrequency?.toString() || ""
   );
+
   const [exerciseHistory, setExerciseHistory] = useState(
     created
-      ? user.fitnessBackground?.exerciseHistory
-      : userData.fitnessBackground?.exerciseHistory || ""
+      ? user?.fitnessBackground?.exerciseHistory || ""
+      : userData?.fitnessBackground?.exerciseHistory || ""
   );
 
   const fitnessLevelOptions = ["beginner", "intermediate", "advance"];

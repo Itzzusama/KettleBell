@@ -155,7 +155,8 @@ export default function BasicInformation() {
               }, [values.height, values.weight]);
 
               // Show toast for validation errors
-              useEffect(() => {
+              {
+                /* useEffect(() => {
                 if (touched.age && errors.age) {
                   toast.showToast({
                     type: "error",
@@ -177,7 +178,8 @@ export default function BasicInformation() {
                     duration: 4000,
                   });
                 }
-              }, [errors, touched]);
+              }, [errors, touched]); */
+              }
 
               return (
                 <>

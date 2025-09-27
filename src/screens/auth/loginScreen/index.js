@@ -101,21 +101,28 @@ export default function Login() {
     try {
       setLoading(true);
       const loginResponse = await PostApiRequest("api/auth/login", data);
-      toast.showToast({
-        type: "success",
-        message: loginResponse.data.message,
-        duration: 4000,
-      });
-      if (loginResponse.data?.token) {
-        dispatch(setToken(loginResponse.data?.token));
-        dispatch(setUserData(loginResponse.data?.user));
-        dispatch(setUserRole(loginResponse.data?.user?.role));
-        dispatch(setOnBoarding(loginResponse.data?.user?.onboardingCompleted));
 
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "Main" }],
-        });
+      if (loginResponse.data?.token) {
+        if (loginResponse.data?.user?.isVerified) {
+          toast.showToast({
+            type: "success",
+            message: loginResponse.data.message,
+            duration: 4000,
+          });
+          dispatch(setToken(loginResponse.data?.token));
+          dispatch(setUserData(loginResponse.data?.user));
+          dispatch(setUserRole(loginResponse.data?.user?.role));
+          dispatch(
+            setOnBoarding(loginResponse.data?.user?.onboardingCompleted)
+          );
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Main" }],
+          });
+        } else {
+          navigation.navigate(RouteName.UNVERIFIED_USER);
+        }
       }
     } catch (error) {
       toast.showToast({

@@ -65,6 +65,7 @@ const RouteName = {
   MealLogDetail: "MealLogDetail",
   WorkoutLogDetail: "WorkoutLogDetail",
   EditProfile: "EditProfile",
+  UNVERIFIED_USER: "UnverifiedUser",
 };
 
 export default RouteName;

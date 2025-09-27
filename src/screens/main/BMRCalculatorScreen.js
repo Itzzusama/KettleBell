@@ -15,7 +15,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { COLORS } from "../../utils/COLORS";
 import fonts from "../../assets/fonts";
@@ -24,71 +24,76 @@ import CustomButton from "../../components/CustomButton";
 import { useSelector } from "react-redux";
 
 const ACTIVITY_LEVELS = [
-  { key: "sedentary", label: "Sedentary (little to no exercise)", factor: 1.2 },
-  { key: "light", label: "Lightly active (1–3 days/week)", factor: 1.375 },
-  { key: "moderate", label: "Moderately active (3–5 days/week)", factor: 1.55 },
-  { key: "very", label: "Very active (6–7 days/week)", factor: 1.725 },
-  { key: "extra", label: "Extra active (physical job or 2x/day)", factor: 1.9 },
+  { key: "sedentary", label: "Sedentary (Little or no exercise)", factor: 1.2 },
+  { key: "light", label: "Light (Exercise 1-3 times/week)", factor: 1.375 },
+  {
+    key: "moderate",
+    label: "Moderate (Exercise 3-5 times/week)",
+    factor: 1.55,
+  },
+  { key: "active", label: "Active (Exercise 6-7 times/week)", factor: 1.725 },
+  {
+    key: "veryActive",
+    label: "Very Active (Hard exercise daily)",
+    factor: 1.9,
+  },
 ];
 
 // Helper to map possible profile values to our keys
 const normalizeActivity = (value) => {
   if (!value) return null;
-  const v = String(value).toLowerCase(); // e.g. "Moderate" -> "moderate"
-  const found = ACTIVITY_LEVELS.find((a) => a.key === v);
-  return found ? found.key : null;
+  const v = String(value).toLowerCase().replace(/\s+/g, "");
+
+  const aliases = {
+    veryactive: "veryActive",
+    active: "active",
+    moderate: "moderate",
+    light: "light",
+    sedentary: "sedentary",
+  };
+
+  return aliases[v] || null;
 };
 
 export default function BMRCalculatorScreen() {
   const { userData } = useSelector((state) => state.users);
   const navigation = useNavigation();
+  const route = useRoute();
 
-  // Mandatory for BMR
-  const [sex, setSex] = useState("male"); // "male" | "female"
+  const clientInfo = route.params?.clientInfo || userData;
 
-  // Units + inputs
-  const [unit, setUnit] = useState("metric"); // "metric" | "imperial"
+  const [sex, setSex] = useState("male");
+  const [unit, setUnit] = useState("metric");
   const [age, setAge] = useState("");
-  const [height, setHeight] = useState(""); // cm or inches
-  const [weight, setWeight] = useState(""); // kg or lbs
+  const [height, setHeight] = useState(""); // cm or in
+  const [weight, setWeight] = useState(""); // kg or lb
 
-  // Optional TDEE section
   const [includeTDEE, setIncludeTDEE] = useState(false);
   const [activity, setActivity] = useState("sedentary");
   const [showActivity, setShowActivity] = useState(false);
 
-  // Results
   const [result, setResult] = useState(null);
 
-  // ⬇️ Prefill from userData.basicInfo when available
+  // Prefill values from clientInfo
   useEffect(() => {
-    if (!userData) return;
+    if (!clientInfo) return;
 
-    const basic = userData?.basicInfo || {};
+    const basic = clientInfo?.basicInfo || {};
     if (basic?.gender) {
       const g = String(basic.gender).toLowerCase();
       setSex(g === "female" ? "female" : "male");
     }
-    if (typeof basic?.age !== "undefined" && basic.age !== null) {
-      setAge(String(basic.age));
-    }
-    if (typeof basic?.height !== "undefined" && basic.height !== null) {
-      setHeight(String(basic.height)); // assuming cm
-    }
-    if (typeof basic?.weight !== "undefined" && basic.weight !== null) {
-      setWeight(String(basic.weight)); // assuming kg
-    }
+    if (basic?.age != null) setAge(String(basic.age));
+    if (basic?.height != null) setHeight(String(basic.height));
+    if (basic?.weight != null) setWeight(String(basic.weight));
 
-    // OPTIONAL: map profile activity if present
     const profAct = normalizeActivity(
-      userData?.fitnessBackground?.activityLevel
+      clientInfo?.fitnessBackground?.activityLevel
     );
     if (profAct) {
       setActivity(profAct);
-      // If you want to auto-enable TDEE when profile has activity:
-      // setIncludeTDEE(true);
     }
-  }, [userData]);
+  }, [clientInfo]);
 
   const activityFactor = useMemo(() => {
     return ACTIVITY_LEVELS.find((a) => a.key === activity)?.factor ?? 1.2;
@@ -127,7 +132,6 @@ export default function BMRCalculatorScreen() {
         return false;
       }
     } else {
-      // imperial
       if (heightNum < 40 || heightNum > 90) {
         Alert.alert(
           "Invalid height",
@@ -147,10 +151,7 @@ export default function BMRCalculatorScreen() {
   };
 
   const toMetric = ({ w, h }) => {
-    // lbs → kg, in → cm
-    const kg = w * 0.45359237;
-    const cm = h * 2.54;
-    return { kg, cm };
+    return { kg: w * 0.45359237, cm: h * 2.54 };
   };
 
   const calculate = () => {
@@ -160,7 +161,6 @@ export default function BMRCalculatorScreen() {
     const heightNum = Number(height);
     const weightNum = Number(weight);
 
-    // Convert to metric if needed
     let cm = heightNum;
     let kg = weightNum;
     if (unit === "imperial") {
@@ -169,16 +169,13 @@ export default function BMRCalculatorScreen() {
       cm = conv.cm;
     }
 
-    // Mifflin–St Jeor (sex is required)
     const bmr =
       sex === "male"
         ? 10 * kg + 6.25 * cm - 5 * ageNum + 5
         : 10 * kg + 6.25 * cm - 5 * ageNum - 161;
 
-    // Always set BMR
     const next = { bmr: Math.round(bmr) };
 
-    // Only compute TDEE & targets if enabled
     if (includeTDEE) {
       const tdee = bmr * activityFactor;
       next.tdee = Math.round(tdee);
@@ -190,7 +187,6 @@ export default function BMRCalculatorScreen() {
   };
 
   const reset = () => {
-    // Reset only inputs/results; keep gender & includeTDEE for usability
     setAge("");
     setHeight("");
     setWeight("");
@@ -199,7 +195,6 @@ export default function BMRCalculatorScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -215,7 +210,7 @@ export default function BMRCalculatorScreen() {
         contentContainerStyle={{ paddingBottom: hp(4) }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Sex selector (REQUIRED) */}
+        {/* Gender selector */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Gender</Text>
           <View style={styles.tabRow}>
@@ -236,7 +231,7 @@ export default function BMRCalculatorScreen() {
           </View>
         </View>
 
-        {/* Unit selector */}
+        {/* Units */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Units</Text>
           <View style={styles.tabRow}>
@@ -295,7 +290,7 @@ export default function BMRCalculatorScreen() {
           </View>
         </View>
 
-        {/* Optional: Activity level (TDEE) */}
+        {/* Activity */}
         <View style={styles.section}>
           <View style={styles.includeRow}>
             <Text style={styles.sectionTitle}>Include Activity (TDEE)</Text>
@@ -363,7 +358,7 @@ export default function BMRCalculatorScreen() {
           )}
         </View>
 
-        {/* Actions */}
+        {/* Buttons */}
         <View style={styles.actionsRow}>
           <CustomButton
             title="Calculate"

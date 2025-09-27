@@ -19,6 +19,7 @@ import ResetSuccessFull from "../../screens/auth/resetSuccessFully";
 
 import AccountCreated from "../../screens/auth/accountCreated";
 import RouteName from "../RouteName";
+import UnverifiedUser from "../../screens/auth/UnverifiedUser";
 
 const Stack = createNativeStackNavigator();
 
@@ -36,12 +37,11 @@ const routeMapping = [
 
 export const AuthStack = () => {
   const { currentSection, userData } = useSelector((state) => state.progress);
-  console.log(userData);
   const isOnBoarding = useSelector((state) => state.authConfigs.isOnBoarding);
   const initialRouteName = isOnBoarding
     ? RouteName.ONBOARDING_SCREEN
     : userData?.email
-    ? routeMapping[currentSection] || RouteName.ONBOARDING_SCREEN
+    ? routeMapping[currentSection]
     : RouteName.ONBOARDING_SCREEN;
 
   return (
@@ -89,6 +89,10 @@ export const AuthStack = () => {
       <Stack.Screen
         name={RouteName.Account_Created}
         component={AccountCreated}
+      />
+      <Stack.Screen
+        name={RouteName.UNVERIFIED_USER}
+        component={UnverifiedUser}
       />
     </Stack.Navigator>
   );

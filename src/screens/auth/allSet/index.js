@@ -25,6 +25,7 @@ import ProgressBar from "../../../components/progressBar";
 import RouteName from "../../../navigation/RouteName/index";
 import { baseUrl } from "../../../services/api";
 import {
+  clearProgressData,
   previousSection,
   resetProgress,
   setCurrentSection,
@@ -34,7 +35,7 @@ import {
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
 import { clearUserData } from "../../../store/slices/usersSlice";
-import { setOnBoarding } from "../../../store/slices/AuthConfig";
+import { setOnBoarding, setToken } from "../../../store/slices/AuthConfig";
 
 export default function AllSet() {
   const { t } = useTranslation();
@@ -104,16 +105,21 @@ export default function AllSet() {
         }
       );
 
-      toast.showToast({
-        type: "success",
-        message: response.data.message || "Setup completed successfully!",
-        duration: 4000,
-      });
-      console.log(response?.data?.user?.onboardingCompleted);
-
       dispatch(setOnBoarding(response?.data?.user?.onboardingCompleted));
       dispatch(setSetupComplete(true));
-      navigation.navigate(RouteName.MainStack);
+      if (created) {
+        toast.showToast({
+          type: "success",
+          message: response.data.message || "Setup completed successfully!",
+          duration: 4000,
+        });
+        navigation.navigate(RouteName.MainStack);
+      } else {
+        dispatch(setToken(""));
+        dispatch(resetProgress());
+        dispatch(clearProgressData());
+        navigation.navigate(RouteName.UNVERIFIED_USER);
+      }
     } catch (error) {
       console.error(
         "Failed to update user details:",
@@ -174,7 +180,7 @@ export default function AllSet() {
 
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={t("AllSet.button")}
+            title={created ? "Update Profile" : t("AllSet.button")}
             onPress={handleStartJourney}
             loading={loading}
             disabled={loading}

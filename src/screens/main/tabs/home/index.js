@@ -32,6 +32,7 @@ import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 import { coachInfo } from "../../../../utils/coachInfo";
 import StatsSection from "../molecules/StatsSection";
+import MealPlanCard from "../../../../components/MealPlanCard";
 
 const { width } = Dimensions.get("window");
 
@@ -41,10 +42,11 @@ const Home = () => {
   const { userData } = useSelector((state) => state.users);
   const clientId = userData?._id;
   const profileImageUri = userData?.avatar;
+  const [loading, setLoading] = useState(true);
   const userName = userData?.name || "User";
   const [stats, setStats] = useState({});
   const [workdata, setWorkoutPlans] = useState([]);
-
+  const [mealPlans, setMealPlans] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { unseenNoti } = useSelector((state) => state?.authConfigs);
 
@@ -78,10 +80,12 @@ const Home = () => {
       ]);
 
       setWorkoutPlans(workoutRes?.data?.data?.workoutPlans || []);
+      setMealPlans(workoutRes?.data?.data?.mealPlans);
     } catch (error) {
-      console.error("Error fetching data:", error);
-
       setWorkoutPlans([]);
+      setMealPlans([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,15 +135,19 @@ const Home = () => {
             onPress={() => navigation.navigate(RouteName.Notifications)}
             style={styles.iconButton}
           >
-            <Ionicons name="notifications-outline" size={wp(6)} color="#FFF" />
+            <Ionicons
+              name="notifications-outline"
+              size={wp(6.5)}
+              color="#FFF"
+            />
             {unseenNoti > 0 && <View style={styles.notificationDot} />}
           </TouchableOpacity>
-          <TouchableOpacity style={styles.profileButton}>
+          <View style={styles.profileButton}>
             <Image
               source={{ uri: profileImageUri }}
               style={styles.profileImage}
             />
-          </TouchableOpacity>
+          </View>
         </View>
       </View>
       <ScrollView
@@ -156,83 +164,137 @@ const Home = () => {
         }
       >
         <StatsSection stats={stats} />
-
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>
-              {t("Home.active_workout_plan_title")}
+        {!loading && workdata?.length === 0 && mealPlans?.length === 0 ? (
+          <View style={styles.noDataCard}>
+            <Ionicons
+              name="sparkles-outline"
+              size={wp(12)}
+              color={COLORS.primaryColor}
+            />
+            <Text style={styles.noDataTitle}>No Plans Yet 🎯</Text>
+            <Text style={styles.noDataText}>
+              Your coach hasn’t assigned you any workout or meal plans yet.
+              Please check back later.
             </Text>
-          </View>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.scrollViewContent,
-              (!workdata?.data || workdata.data.length === 0) &&
-                styles.emptyScrollViewContent,
-            ]}
-          >
-            {workdata?.length > 0 ? (
-              workdata.map((workout, index) => (
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  key={workout.id}
-                  onPress={() =>
-                    navigation.navigate(RouteName.WorkoutPlans_Details, {
-                      workoutId: workout?.workoutPlan?._id,
-                    })
-                  }
-                  style={[
-                    styles.workoutCard,
-                    styles.workoutCardScrollable,
-                    index > 0 && { marginLeft: wp(3) },
-                  ]}
-                >
-                  <Image
-                    source={{
-                      uri:
-                        workout?.workoutPlan?.images?.[0] ||
-                        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
-                    }}
-                    style={styles.workoutImage}
-                    resizeMode="cover"
-                    defaultSource={require("../../../../assets/images/onboarding1.png")}
-                    onError={({ nativeEvent: { error } }) => {
-                      console.log("Image load error:", error);
-                    }}
-                  />
-                  <LinearGradient
-                    colors={["transparent", "rgba(0,0,0,0.8)"]}
-                    style={styles.workoutOverlay}
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() =>
+                navigation.navigate("InboxScreen", { client: coachInfo() })
+              }
+            >
+              <Text style={styles.actionButtonText}>Message Coach</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <View style={styles.sectionContainer}>
+              {workdata?.length > 0 && (
+                <>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>
+                      {t("Home.active_workout_plan_title")}
+                    </Text>
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[
+                      styles.scrollViewContent,
+                      {
+                        marginBottom: mealPlans?.length == 0 ? 40 : 0,
+                      },
+                      (!workdata?.data || workdata.data.length === 0) &&
+                        styles.emptyScrollViewContent,
+                    ]}
                   >
-                    <View style={styles.workoutInfo}>
-                      <Text
-                        style={styles.workoutTitle}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
+                    {workdata.map((workout, index) => (
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        key={workout.id}
+                        onPress={() =>
+                          navigation.navigate(RouteName.WorkoutPlans_Details, {
+                            workoutId: workout?.workoutPlan?._id,
+                          })
+                        }
+                        style={[
+                          styles.workoutCard,
+                          styles.workoutCardScrollable,
+                          index > 0 && { marginLeft: wp(3) },
+                        ]}
                       >
-                        {workout?.workoutPlan?.name}
-                      </Text>
-                      <View style={styles.workoutMeta}>
-                        <Text style={styles.workoutDuration}>
-                          {workout?.workoutPlan?.numberOfWeeks}{" "}
-                          {workout?.workoutPlan?.numberOfWeeks === 1
-                            ? "week"
-                            : "weeks"}
-                        </Text>
-                      </View>
-                    </View>
-                  </LinearGradient>
-                </TouchableOpacity>
-              ))
-            ) : (
-              <View style={styles.noWorkoutsContainer}>
-                <Text style={styles.noWorkoutsText}>No workouts found</Text>
-              </View>
-            )}
-          </ScrollView>
-        </View>
+                        <Image
+                          source={{
+                            uri:
+                              workout?.workoutPlan?.images?.[0] ||
+                              "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
+                          }}
+                          style={styles.workoutImage}
+                          resizeMode="cover"
+                          defaultSource={require("../../../../assets/images/onboarding1.png")}
+                          onError={({ nativeEvent: { error } }) => {
+                            console.log("Image load error:", error);
+                          }}
+                        />
+                        <LinearGradient
+                          colors={["transparent", "rgba(0,0,0,0.8)"]}
+                          style={styles.workoutOverlay}
+                        >
+                          <View style={styles.workoutInfo}>
+                            <Text
+                              style={styles.workoutTitle}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
+                              {workout?.workoutPlan?.name}
+                            </Text>
+                            <View style={styles.workoutMeta}>
+                              <Text style={styles.workoutDuration}>
+                                {workout?.workoutPlan?.numberOfWeeks}{" "}
+                                {workout?.workoutPlan?.numberOfWeeks === 1
+                                  ? "week"
+                                  : "weeks"}
+                              </Text>
+                            </View>
+                          </View>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </>
+              )}
+            </View>
+
+            <View style={styles.sectionContainer}>
+              {mealPlans?.length > 0 && (
+                <>
+                  <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>
+                      {t("Nutrition.active_meal_plan_title")}
+                    </Text>
+                  </View>
+                  <FlatList
+                    data={mealPlans}
+                    renderItem={({ item }) => (
+                      <MealPlanCard
+                        item={item}
+                        onPress={() =>
+                          navigation.navigate(RouteName.Recipe_Time, {
+                            mealPlan: item?.mealPlan,
+                          })
+                        }
+                      />
+                    )}
+                    keyExtractor={(item) => item._id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.mealList}
+                  />
+                </>
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -267,18 +329,18 @@ const styles = StyleSheet.create({
   img: { width: hp(4), height: hp(4), resizeMode: "contain" },
   welcomeText: { color: "#FFF", fontSize: wp(4), fontFamily: fonts.medium },
   headerRight: { flexDirection: "row", alignItems: "center" },
-  iconButton: { padding: wp(2), marginRight: wp(2), position: "relative" },
+  iconButton: { padding: wp(2), marginRight: wp(0.5), position: "relative" },
   notificationDot: {
     position: "absolute",
     top: wp(1.5),
-    right: wp(1.5),
+    right: 9,
     width: wp(2),
     height: wp(2),
     borderRadius: wp(5),
     backgroundColor: "#4CAF50",
   },
   profileButton: { marginLeft: wp(2) },
-  profileImage: { width: wp(10), height: wp(10), borderRadius: wp(5) },
+  profileImage: { width: wp(8), height: wp(8), borderRadius: wp(5) },
 
   searchContainer: { paddingHorizontal: wp(4), marginBottom: hp(2) },
   searchBar: {
@@ -330,7 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: hp(2),
+    marginBottom: hp(1),
   },
   seeAllButton: {
     paddingHorizontal: wp(3),
@@ -387,10 +449,10 @@ const styles = StyleSheet.create({
   },
 
   sectionContainer: { paddingHorizontal: wp(5) },
-  sectionTitle: { color: "#FFF", fontSize: wp(4.5), fontFamily: fonts.medium },
+  sectionTitle: { color: "#FFF", fontSize: wp(4), fontFamily: fonts.medium },
 
   workoutCardScrollable: { width: wp(85), marginRight: wp(3) },
-  scrollViewContent: { paddingVertical: hp(1), paddingBottom: 60 },
+  scrollViewContent: { paddingVertical: hp(1), marginBottom: 10 },
   emptyScrollViewContent: {
     flexGrow: 1,
     justifyContent: "center",
@@ -414,7 +476,7 @@ const styles = StyleSheet.create({
   workoutCard: {
     borderRadius: wp(4),
     overflow: "hidden",
-    marginBottom: hp(2),
+
     position: "relative",
     height: hp(25),
   },
@@ -494,6 +556,57 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
   },
   durationContainer: { flexDirection: "row", alignItems: "center" },
+  noDataCard: {
+    backgroundColor: "rgba(45, 45, 47, 0.9)",
+    borderRadius: wp(5),
+    paddingVertical: hp(2),
+    paddingHorizontal: wp(6),
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 5,
+    marginHorizontal: wp(5),
+    marginBottom: 50,
+  },
+  noDataTitle: {
+    fontSize: wp(5),
+    fontFamily: fonts.semiBold,
+    color: "#FFF",
+    marginTop: hp(2),
+    marginBottom: hp(0.3),
+  },
+  noDataText: {
+    fontSize: wp(3.2),
+    color: "#ddd",
+    textAlign: "center",
+    marginBottom: hp(0.5),
+    fontFamily: fonts.regular,
+  },
+  noDataSubText: {
+    fontSize: wp(3.2),
+    color: "#aaa",
+    textAlign: "center",
+    marginBottom: hp(2),
+    fontFamily: fonts.regular,
+  },
+  actionButton: {
+    backgroundColor: COLORS.primaryColor,
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(5),
+    borderRadius: wp(3),
+    marginTop: hp(1.5),
+  },
+  actionButtonText: {
+    color: "#FFF",
+    fontSize: wp(3.5),
+    fontFamily: fonts.medium,
+  },
+  mealList: {
+    paddingRight: wp(4),
+    marginBottom: 60,
+  },
 });
 
 export default Home;

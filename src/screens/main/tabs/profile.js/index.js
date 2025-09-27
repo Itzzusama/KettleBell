@@ -215,7 +215,7 @@ export default function Profile() {
                   color="#FFD700"
                 />
               ),
-              label: t("Profile.health_items.fitness_level"),
+              label: "Activity Level",
               value: userData?.fitnessBackground?.activityLevel || "N/A",
             },
           ].map((item, index) => (

@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#FFF",
-    fontSize: wp(4.7),
+    fontSize: wp(4),
     marginBottom: hp(1.5),
     fontFamily: fonts.medium,
   },

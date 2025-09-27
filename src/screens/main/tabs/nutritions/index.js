@@ -28,6 +28,7 @@ import RouteName from "../../../../navigation/RouteName";
 import { GetApiRequest } from "../../../../services/api";
 import { COLORS } from "../../../../utils/COLORS";
 import { useSelector } from "react-redux";
+import MealPlanCard from "../../../../components/MealPlanCard";
 
 export default function Nutritions() {
   const navigation = useNavigation();
@@ -77,44 +78,6 @@ export default function Nutritions() {
     fetchStats();
     fetchInitialData();
   }, []);
-
-  const renderMealPlan = ({ item }) => {
-    return (
-      <TouchableOpacity
-        style={styles.mealCard}
-        onPress={() =>
-          navigation.navigate(RouteName.Recipe_Time, {
-            mealPlan: item?.mealPlan,
-          })
-        }
-        activeOpacity={0.8}
-      >
-        <Image
-          source={{
-            uri:
-              item?.mealPlan?.banner ||
-              item.mealPlan?.images[0] ||
-              "/placeholder.svg?height=200&width=300",
-          }}
-          style={styles.mealImage}
-        />
-        <View style={styles.mealOverlay}>
-          <View style={styles.tagContainer}>
-            <Text style={styles.mealTitle} numberOfLines={1}>
-              {item?.mealPlan?.name}
-            </Text>
-          </View>
-          <View style={styles.mealContent}>
-            <View style={styles.mealInfo}>
-              <Text style={styles.clientText} numberOfLines={1}>
-                {item?.mealPlan?.description || `${item.servings} servings`}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   const renderRecommendedRecipe = ({ item }) => (
     <TouchableOpacity
@@ -247,7 +210,16 @@ export default function Nutritions() {
           {mealPlans.length > 0 ? (
             <FlatList
               data={mealPlans}
-              renderItem={renderMealPlan}
+              renderItem={({ item }) => (
+                <MealPlanCard
+                  item={item}
+                  onPress={() =>
+                    navigation.navigate(RouteName.Recipe_Time, {
+                      mealPlan: item?.mealPlan,
+                    })
+                  }
+                />
+              )}
               keyExtractor={(item) => item._id}
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -255,7 +227,9 @@ export default function Nutritions() {
             />
           ) : (
             <View style={styles.noDataContainer}>
-              <Text style={styles.noDataText}>No meal plans available</Text>
+              <Text style={styles.noDataText}>
+                Your coach hasn’t assigned you any meal plans yet.
+              </Text>
             </View>
           )}
         </View>
@@ -418,7 +392,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: "#FFF",
-    fontSize: wp(4.7),
+    fontSize: wp(4),
     fontFamily: fonts.medium,
   },
   viewAllText: {
@@ -429,40 +403,13 @@ const styles = StyleSheet.create({
   mealList: {
     paddingRight: wp(4),
   },
-  mealCard: {
-    width: wp(60),
-    height: hp(25),
-    borderRadius: wp(4),
-    marginRight: wp(3),
-    overflow: "hidden",
-    backgroundColor: "rgba(45, 45, 47, 1)",
-  },
-  mealImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
-  mealOverlay: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    height: hp(10),
-    padding: wp(3),
-    justifyContent: "space-between",
-  },
+
   tagContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  mealTitle: {
-    color: "#FFF",
-    fontSize: wp(3.4),
-    fontFamily: fonts.medium,
-    marginBottom: hp(0.5),
-  },
+
   tagText: {
     backgroundColor: "#FEC635",
     color: "#000",
@@ -517,11 +464,13 @@ const styles = StyleSheet.create({
     paddingVertical: hp(3),
     backgroundColor: "rgba(45, 45, 47, 1)",
     borderRadius: wp(4),
+    paddingHorizontal: 20,
   },
   noDataText: {
     color: "#888",
     fontSize: wp(3.5),
     fontFamily: fonts.regular,
+    textAlign: "center",
   },
   recommendedList: {
     paddingRight: wp(4),

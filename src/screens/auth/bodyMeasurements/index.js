@@ -141,45 +141,6 @@ export default function BodyMeasurements() {
             }}
           >
             {({ handleChange, handleSubmit, values, errors, touched }) => {
-              // Show toast for validation errors
-              useEffect(() => {
-                if (touched.chest && errors.chest) {
-                  toast.showToast({
-                    type: "error",
-                    message: errors.chest,
-                    duration: 4000,
-                  });
-                }
-                if (touched.waist && errors.waist) {
-                  toast.showToast({
-                    type: "error",
-                    message: errors.waist,
-                    duration: 4000,
-                  });
-                }
-                if (touched.hips && errors.hips) {
-                  toast.showToast({
-                    type: "error",
-                    message: errors.hips,
-                    duration: 4000,
-                  });
-                }
-                if (touched.thighs && errors.thighs) {
-                  toast.showToast({
-                    type: "error",
-                    message: errors.thighs,
-                    duration: 4000,
-                  });
-                }
-                if (touched.arms && errors.arms) {
-                  toast.showToast({
-                    type: "error",
-                    message: errors.arms,
-                    duration: 4000,
-                  });
-                }
-              }, [errors, touched]);
-
               return (
                 <>
                   <Text style={styles.label}>Chest (cm)</Text>

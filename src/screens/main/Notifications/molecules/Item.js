@@ -66,13 +66,15 @@ const Item = ({ title, time, desc, onCardPress, type }) => {
 
       <View style={styles.container}>
         <View style={styles.row}>
-          <CustomText
-            label={title}
-            fontFamily={fonts.medium}
-            fontSize={16}
-            color={COLORS.white}
-            width={"85%"}
-          />
+          <View style={{ width: "80%" }}>
+            <CustomText
+              label={title}
+              fontFamily={fonts.medium}
+              fontSize={16}
+              color={COLORS.white}
+            />
+          </View>
+
           <CustomText
             label={time}
             fontFamily={fonts.medium}
@@ -116,7 +118,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    width: "81%",
+    width: "75%",
+    marginRight: 20,
   },
   row: {
     flexDirection: "row",

@@ -62,7 +62,7 @@ const Notifications = () => {
           !loading && (
             <NoData
               title={"No Notification"}
-              desc={"All New Notifications Will Appear here"}
+              subtitle={"All New Notifications Will Appear here"}
               marginTop={170}
               iconName="notifications-off-sharp"
             />

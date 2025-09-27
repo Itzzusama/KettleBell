@@ -262,12 +262,31 @@ export default function ClientScreen() {
               {/* Footer actions */}
               <View style={styles.cardFooter}>
                 {!client.isVerified ? (
-                  <TouchableOpacity
-                    style={[styles.footerButtonPrimary]}
-                    onPress={() => verifyClient(client.id)}
-                  >
-                    <Text style={styles.footerButtonText}>Verify Client</Text>
-                  </TouchableOpacity>
+                  <>
+                    <TouchableOpacity
+                      style={[
+                        styles.footerButton,
+                        {
+                          backgroundColor: COLORS.primaryColor,
+                        },
+                      ]}
+                      onPress={() => verifyClient(client.id)}
+                    >
+                      <Text style={styles.footerButtonText}>Verify</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.footerButton,
+                        {
+                          backgroundColor: COLORS.primaryColor,
+                        },
+                      ]}
+                      onPress={() => deleteClient(client.id)}
+                    >
+                      <Text style={styles.footerButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  </>
                 ) : (
                   <>
                     <TouchableOpacity
