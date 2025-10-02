@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app-name",
-    "slug": "app-name",
+    "name": "KettleFlow",
+    "slug": "KettleFlow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/images/Logo.png",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.appname",
+      "bundleIdentifier": "com.kettleflow.app",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true,
@@ -30,7 +30,7 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.appname"
+      "package": "com.kettleflow.app"
     },
     "web": {
       "bundler": "metro",

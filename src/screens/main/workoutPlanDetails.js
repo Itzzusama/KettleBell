@@ -168,22 +168,31 @@ const WorkoutPlanDetails = ({ route }) => {
                 <View style={styles.dumbleContainer}>
                   <Image source={Images.dumble} style={styles.dumbleImage} />
                 </View>
-                <View>
+                <View style={{ flex: 1 }}>
                   <Text style={styles.dayTitle}>{day.name || "N/A"}</Text>
-                  <Text style={styles.dayDescription}>
-                    {day.description || "N/A"}
-                  </Text>
-                  <View style={styles.dayMeta}>
-                    <View style={styles.metaItem}>
-                      <Image
-                        source={Images.dumble}
-                        style={styles.dumbleImage2}
-                      />
-                      <Text style={styles.metaText}>
-                        Exercises:{" "}
-                        {day.exercisesCount || day.exercises?.length || 0}
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.dayDescription}>
+                        {day.description || "N/A"}
                       </Text>
+                      <View style={styles.dayMeta}>
+                        <View style={styles.metaItem}>
+                          <Image
+                            source={Images.dumble}
+                            style={styles.dumbleImage2}
+                          />
+                          <Text style={styles.metaText}>
+                            Exercises:{" "}
+                            {day.exercisesCount || day.exercises?.length || 0}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
+                    <Image
+                      source={day.image ? { uri: day.image } : Images.women}
+                      style={styles.exercisePreview}
+                      resizeMode="contain"
+                    />
                   </View>
                 </View>
               </View>
@@ -196,11 +205,6 @@ const WorkoutPlanDetails = ({ route }) => {
                   color={COLORS.white}
                 />
               </Animated.View>
-              <Image
-                source={day.image ? { uri: day.image } : Images.women}
-                style={styles.exercisePreview}
-                resizeMode="contain"
-              />
             </View>
           </View>
         </TouchableOpacity>
@@ -508,7 +512,7 @@ const styles = StyleSheet.create({
   },
   dayDescription: {
     color: "#B0B0B0",
-    fontSize: wp(2.3),
+    fontSize: wp(2.5),
     marginBottom: hp(1),
     fontFamily: fonts.regular,
   },
@@ -531,7 +535,6 @@ const styles = StyleSheet.create({
     width: wp(15),
     height: wp(15),
     borderRadius: wp(3.5),
-    marginTop: hp(1),
   },
   exerciseList: {
     paddingHorizontal: wp(3.5),

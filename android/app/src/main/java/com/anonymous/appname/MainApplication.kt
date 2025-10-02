@@ -1,4 +1,4 @@
-package com.anonymous.appname
+package com.kettleflow.app
 
 import android.app.Application
 import android.content.res.Configuration

@@ -1,5 +1,5 @@
 {
-  "scheme": "exp+app-name",
+  "scheme": "exp+KettleFlow",
   "hostType": "lan",
   "lanType": "ip",
   "devClient": true,

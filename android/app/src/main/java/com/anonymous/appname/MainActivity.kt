@@ -1,4 +1,4 @@
-package com.anonymous.appname
+package com.kettleflow.app
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

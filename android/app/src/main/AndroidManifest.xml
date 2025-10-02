@@ -26,7 +26,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="appname"/>
-        <data android:scheme="exp+app-name"/>
+        <data android:scheme="exp+KettleFlow"/>
       </intent-filter>
     </activity>
   </application>
