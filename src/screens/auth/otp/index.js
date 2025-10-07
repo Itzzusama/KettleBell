@@ -190,11 +190,11 @@ export default function Otp() {
                 {t("Otp.subtitle")}{" "}
                 <Text style={styles.emailText}>{email || ""}</Text>
               </Text>
-              {otpFromParams && (
+              {/* {otpFromParams && (
                 <Text style={styles.text}>
                   <Text style={styles.emailText}>{otpFromParams || ""}</Text>
                 </Text>
-              )}
+              )} */}
               <View style={styles.otpContainer}>
                 {Array(4)
                   .fill(0)

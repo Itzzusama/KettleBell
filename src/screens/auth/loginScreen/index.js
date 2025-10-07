@@ -53,8 +53,8 @@ export default function Login() {
   const toast = useToast();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const [email, setEmail] = useState("coach@fitnessapp.com");
-  const [password, setPassword] = useState("Coach123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");

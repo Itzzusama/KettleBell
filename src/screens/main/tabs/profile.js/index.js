@@ -7,6 +7,7 @@ import {
   FontAwesome5,
   Ionicons,
   MaterialCommunityIcons,
+  Octicons,
 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import {
   Dimensions,
   Image,
+  Linking,
   Modal,
   Pressable,
   SafeAreaView,
@@ -307,7 +309,20 @@ export default function Profile() {
             {
               icon: <Feather name="unlock" size={18} color="#FFD700" />,
               label: t("Profile.settings_items.privacy_policy"),
-              onPress: () => {},
+              onPress: () => {
+                Linking.openURL(
+                  "https://fitness.tacosdecrema.com/privacy-policy"
+                );
+              },
+            },
+            {
+              icon: <Octicons name="info" size={18} color="#FFD700" />,
+              label: t("Terms & Conditions"),
+              onPress: () => {
+                Linking.openURL(
+                  "https://fitness.tacosdecrema.com/terms-conditions"
+                );
+              },
             },
             {
               icon: (
