@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "appname.app"
-               BlueprintName = "appname"
-               ReferencedContainer = "container:appname.xcodeproj">
+               BuildableName = "KettleFlow.app"
+               BlueprintName = "KettleFlow"
+               ReferencedContainer = "container:KettleFlow.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,15 +33,15 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "appnameTests.xctest"
-               BlueprintName = "appnameTests"
-               ReferencedContainer = "container:appname.xcodeproj">
+               BuildableName = "KettleFlowTests.xctest"
+               BlueprintName = "KettleFlowTests"
+               ReferencedContainer = "container:KettleFlow.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "appname.app"
-            BlueprintName = "appname"
-            ReferencedContainer = "container:appname.xcodeproj">
+            BuildableName = "KettleFlow.app"
+            BlueprintName = "KettleFlow"
+            ReferencedContainer = "container:KettleFlow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "appname.app"
-            BlueprintName = "appname"
-            ReferencedContainer = "container:appname.xcodeproj">
+            BuildableName = "KettleFlow.app"
+            BlueprintName = "KettleFlow"
+            ReferencedContainer = "container:KettleFlow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

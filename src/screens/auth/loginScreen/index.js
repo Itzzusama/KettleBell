@@ -195,7 +195,7 @@ export default function Login() {
                 }}
                 secureTextEntry={true}
                 leftIcon={Icons.lockIcon}
-                marginBottom={hp(2)}
+                marginBottom={1}
                 error={passwordError}
               />
             </View>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.medium,
   },
   inputContainer: {
-    marginBottom: hp(2),
+    marginBottom: hp(0.8),
   },
   forgotPasswordContainer: {
     alignSelf: "flex-end",

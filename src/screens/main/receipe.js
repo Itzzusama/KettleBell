@@ -80,7 +80,7 @@ export default function YourRecipesScreen() {
             recipe.image ||
             "/placeholder.svg?height=300&width=400",
           tag: recipe.category?.name || "Recipe",
-          client: recipe.description || `${recipe.servings} servings`,
+          client: `${recipe.servings} servings`,
           duration: recipe.prepTime ? `${recipe.prepTime}min` : "15min",
           banner: recipe.banner,
           ingredients: recipe.ingredients,
@@ -145,9 +145,6 @@ export default function YourRecipesScreen() {
             <Text style={styles.recipeTitle} numberOfLines={2}>
               {item.title}
             </Text>
-            <View style={styles.tagContainer}>
-              <Text style={styles.tagText}>{item.tag}</Text>
-            </View>
           </View>
           <View style={styles.recipeDetails}>
             <View style={styles.clientInfo}>
@@ -155,6 +152,7 @@ export default function YourRecipesScreen() {
                 {item.client}
               </Text>
             </View>
+
             <View style={styles.durationContainer}>
               <Ionicons name="time-outline" size={wp(4)} color="#FEC635" />
               <Text style={styles.durationText}>{item.duration}</Text>
@@ -355,7 +353,7 @@ const styles = StyleSheet.create({
   },
   recipeCard: {
     width: wp(45),
-    height: hp(26),
+    height: hp(24),
     borderRadius: wp(3),
     overflow: "hidden",
     position: "relative",
@@ -384,25 +382,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: "rgba(0, 0, 0, 0.7)",
-    height: hp(11),
+    height: hp(9),
     padding: wp(2.5),
   },
   recipeContent: {
-    flex: 1,
     justifyContent: "space-between",
   },
   recipeTitle: {
     color: "#FFF",
     fontSize: wp(3.8),
     fontFamily: fonts.medium,
-    lineHeight: wp(4.8),
+
     maxWidth: wp(27),
   },
   recipeDetails: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: hp(0.5),
+    marginTop: 10,
   },
   clientInfo: {
     flexDirection: "row",
