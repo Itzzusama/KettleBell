@@ -16,12 +16,19 @@ import {
   View,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import fonts from "../../../assets/fonts";
 import CustomButton from "../../../components/CustomButton";
 import ExpoImagePicker from "../../../components/imagePicker";
-import { GetApiRequest, PostApiRequest, PutApiRequest } from "../../../services/api";
+import {
+  GetApiRequest,
+  PostApiRequest,
+  PutApiRequest,
+} from "../../../services/api";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
 
@@ -32,7 +39,9 @@ export default function AddRecipes() {
   const [preTime, setPreTime] = useState("");
   const [cookTime, setCookTime] = useState("");
   const [servings, setServings] = useState("");
-  const [ingredients, setIngredients] = useState([{ quantity: "", unit: "", name: "" }]);
+  const [ingredients, setIngredients] = useState([
+    { quantity: "", unit: "", name: "" },
+  ]);
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
@@ -67,16 +76,22 @@ export default function AddRecipes() {
       setCookTime(recipe.cookTime?.toString() || "");
       setServings(recipe.servings?.toString() || "");
       setIngredients(
-        recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0
+        recipe.ingredients &&
+          Array.isArray(recipe.ingredients) &&
+          recipe.ingredients.length > 0
           ? recipe.ingredients
           : [{ quantity: "", unit: "", name: "" }]
       );
-      setCalories(recipe.näutrition?.calories?.toString() || "");
+      setCalories(recipe.nutrition?.calories?.toString() || "");
       setProtein(recipe.nutrition?.protein?.toString() || "");
       setCarbs(recipe.nutrition?.carbs?.toString() || "");
       setFat(recipe.nutrition?.fat?.toString() || "");
       setTags(recipe.tags && Array.isArray(recipe.tags) ? recipe.tags : []);
-      setSteps(recipe.instructions && Array.isArray(recipe.instructions) ? recipe.instructions : []);
+      setSteps(
+        recipe.instructions && Array.isArray(recipe.instructions)
+          ? recipe.instructions
+          : []
+      );
       setSelectedImage(recipe.banner);
       setSelectedCategory(recipe.category?._id || recipe.category || "");
     }
@@ -106,7 +121,10 @@ export default function AddRecipes() {
 
   const addStep = () => {
     if (instruction.trim()) {
-      setSteps((prevSteps) => [...prevSteps.filter((step) => step.trim()), instruction.trim()]);
+      setSteps((prevSteps) => [
+        ...prevSteps.filter((step) => step.trim()),
+        instruction.trim(),
+      ]);
       setInstruction("");
     }
   };
@@ -124,7 +142,9 @@ export default function AddRecipes() {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await GetApiRequest("api/recipe-categories/my-categories");
+      const response = await GetApiRequest(
+        "api/recipe-categories/my-categories"
+      );
       let categoriesData = [];
 
       if (Array.isArray(response)) {
@@ -229,7 +249,10 @@ export default function AddRecipes() {
       let res;
       if (isEditMode) {
         // Update recipe
-        res = await PutApiRequest(`api/recipes/${recipe._id || recipe.id}`, recipeData);
+        res = await PutApiRequest(
+          `api/recipes/${recipe._id || recipe.id}`,
+          recipeData
+        );
       } else {
         // Create new recipe
         res = await PostApiRequest("api/recipes", recipeData);
@@ -237,7 +260,9 @@ export default function AddRecipes() {
 
       if (res.status === 200 || res.status === 201) {
         toast.showToast({
-          message: isEditMode ? "Recipe updated successfully" : "Recipe created successfully",
+          message: isEditMode
+            ? "Recipe updated successfully"
+            : "Recipe created successfully",
           type: "success",
           duration: 3000,
         });
@@ -248,7 +273,10 @@ export default function AddRecipes() {
       }
     } catch (error) {
       console.error("Recipe error:", error);
-      Alert.alert("Error", error.message || `Failed to ${isEditMode ? "update" : "create"} recipe`);
+      Alert.alert(
+        "Error",
+        error.message || `Failed to ${isEditMode ? "update" : "create"} recipe`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -261,11 +289,18 @@ export default function AddRecipes() {
 
   return (
     <SafeAreaView style={[styles.container, { paddingBottom: insets.bottom }]}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={hp(3)} color={COLORS.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
@@ -274,11 +309,17 @@ export default function AddRecipes() {
         <View style={styles.headerSpacer} />
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Banner Upload Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("AddRecipe.dec1")}</Text>
-          <ExpoImagePicker onSave={handleImageSelected} initialImage={selectedImage} />
+          <ExpoImagePicker
+            onSave={handleImageSelected}
+            initialImage={selectedImage}
+          />
         </View>
 
         {/* Recipe Name */}
@@ -328,7 +369,9 @@ export default function AddRecipes() {
             zIndex={2000}
             zIndexInverse={1000}
             loading={categories.length === 0}
-            ActivityIndicatorComponent={() => <Text style={styles.dropdownText}>Loading categories...</Text>}
+            ActivityIndicatorComponent={() => (
+              <Text style={styles.dropdownText}>Loading categories...</Text>
+            )}
           />
         </View>
 
@@ -374,7 +417,9 @@ export default function AddRecipes() {
         {/* Ingredients */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>{t("AddRecipe.ingredients")}</Text>
+            <Text style={styles.sectionTitle}>
+              {t("AddRecipe.ingredients")}
+            </Text>
             <TouchableOpacity style={styles.addButton} onPress={addIngredient}>
               <Text style={styles.addButtonText}>{t("AddRecipe.addbtn")}</Text>
             </TouchableOpacity>
@@ -386,7 +431,9 @@ export default function AddRecipes() {
                 placeholder="0"
                 placeholderTextColor={COLORS.gray2}
                 value={ingredient.quantity}
-                onChangeText={(value) => updateIngredient(index, "quantity", value)}
+                onChangeText={(value) =>
+                  updateIngredient(index, "quantity", value)
+                }
                 keyboardType="numeric"
               />
               <TextInput
@@ -424,7 +471,9 @@ export default function AddRecipes() {
                 />
               </View>
               <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionLabel}>{t("AddRecipe.protein")} (g)</Text>
+                <Text style={styles.nutritionLabel}>
+                  {t("AddRecipe.protein")} (g)
+                </Text>
                 <TextInput
                   style={[styles.textInput, styles.nutritionInput]}
                   placeholder="0"
@@ -437,7 +486,9 @@ export default function AddRecipes() {
             </View>
             <View style={styles.nutritionRow}>
               <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionLabel}>{t("AddRecipe.carb")} (g)</Text>
+                <Text style={styles.nutritionLabel}>
+                  {t("AddRecipe.carb")} (g)
+                </Text>
                 <TextInput
                   style={[styles.textInput, styles.nutritionInput]}
                   placeholder="0"
@@ -448,7 +499,9 @@ export default function AddRecipes() {
                 />
               </View>
               <View style={styles.nutritionItem}>
-                <Text style={styles.nutritionLabel}>{t("AddRecipe.fat")} (g)</Text>
+                <Text style={styles.nutritionLabel}>
+                  {t("AddRecipe.fat")} (g)
+                </Text>
                 <TextInput
                   style={[styles.textInput, styles.nutritionInput]}
                   placeholder="0"
@@ -474,13 +527,19 @@ export default function AddRecipes() {
               onChangeText={setNewTag}
             />
             <TouchableOpacity style={styles.tagAddButton} onPress={addTag}>
-              <Text style={{ color: COLORS.white }}>{t("AddRecipe.addbtn")}</Text>
+              <Text style={{ color: COLORS.white }}>
+                {t("AddRecipe.addbtn")}
+              </Text>
             </TouchableOpacity>
           </View>
           {tags.length > 0 && (
             <View style={styles.tagsContainer}>
               {tags.map((tag, index) => (
-                <TouchableOpacity key={index} style={styles.tag} onPress={() => removeTag(tag)}>
+                <TouchableOpacity
+                  key={index}
+                  style={styles.tag}
+                  onPress={() => removeTag(tag)}
+                >
                   <Text style={styles.tagText}>{tag}</Text>
                 </TouchableOpacity>
               ))}
@@ -491,7 +550,9 @@ export default function AddRecipes() {
         {/* Instruction Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("AddRecipe.instruction")}</Text>
-          <Text style={styles.instructionSubtitle}>{t("AddRecipe.description")}</Text>
+          <Text style={styles.instructionSubtitle}>
+            {t("AddRecipe.description")}
+          </Text>
 
           {/* Display existing steps */}
           {steps
@@ -500,7 +561,10 @@ export default function AddRecipes() {
               <View key={index} style={styles.stepContainer}>
                 <Text style={styles.stepNumber}>{index + 1}.</Text>
                 <Text style={styles.stepText}>{step}</Text>
-                <TouchableOpacity onPress={() => removeStep(index)} style={styles.removeStepButton}>
+                <TouchableOpacity
+                  onPress={() => removeStep(index)}
+                  style={styles.removeStepButton}
+                >
                   <Ionicons name="close" size={16} color="#FF4444" />
                 </TouchableOpacity>
               </View>
@@ -520,14 +584,24 @@ export default function AddRecipes() {
 
           {/* Add step button */}
           <TouchableOpacity style={styles.addStepButton} onPress={addStep}>
-            <Text style={styles.addStepButtonText}>{t("AddRecipe.addstep")}</Text>
+            <Text style={styles.addStepButtonText}>
+              {t("AddRecipe.addstep")}
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Create/Update Recipe Button */}
         <View style={styles.createButton}>
           <CustomButton
-            title={isLoading ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Edit Recipe" : "Add Recipe")}
+            title={
+              isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                ? "Edit Recipe"
+                : "Add Recipe"
+            }
             onPress={handleRecipe}
             disabled={isLoading}
             loading={isLoading}

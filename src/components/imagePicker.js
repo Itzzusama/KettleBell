@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 import {
@@ -13,84 +12,67 @@ import {
 } from "react-native";
 import { heightPercentageToDP } from "react-native-responsive-screen";
 import fonts from "../assets/fonts";
-import { baseUrl } from "../services/api";
 import { COLORS } from "../utils/COLORS";
 
-export default function ExpoImagePicker({
-  onSave,
-  initialImage = null,
-}) {
+// ✅ Firebase modular imports
+import { getApp } from "@react-native-firebase/app";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "@react-native-firebase/storage";
+
+export default function ExpoImagePicker({ onSave, initialImage = null }) {
   const [selectedImage, setSelectedImage] = useState(initialImage);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
-  const uploadImage = async (imageUri) => {
+  // 🔥 Firebase upload handler
+  const uploadImageToFirebase = async (imageUri) => {
     try {
       setIsUploading(true);
 
-      // Create FormData for the upload
-      const formData = new FormData();
+      // Get reference to Firebase Storage
+      const app = getApp();
+      const storage = getStorage(app);
 
-      // Get file name from URI
-      const filename = imageUri.split('/').pop();
-      const fileExtension = filename.split('.').pop();
-      const mimeType = `image/${fileExtension}`;
+      // File name and path
+      const filename = imageUri.split("/").pop();
+      const folder = "profiles";
+      const storageRef = ref(storage, `${folder}/${filename}`);
 
-      // Append image file
-      formData.append('image', {
-        uri: imageUri,
-        type: mimeType,
-        name: filename,
+      // Convert image to blob
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      // Upload with progress listener
+      const uploadTask = uploadBytesResumable(storageRef, blob);
+
+      await new Promise((resolve, reject) => {
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log(`Uploading: ${progress.toFixed(0)}%`);
+          },
+          (error) => reject(error),
+          () => resolve()
+        );
       });
 
-      // Append additional fields
-      formData.append('type', 'profile');
-      formData.append('folder', 'profiles');
+      // Get final download URL
+      const downloadUrl = await getDownloadURL(storageRef);
 
-      // Make the API call using axios
-      const response = await axios.post(`${baseUrl}api/upload/image`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        timeout: 30000, // 30 seconds timeout
-      });
+      setUploadedImageUrl(downloadUrl);
+      if (onSave) onSave(downloadUrl);
 
-      const result = response.data;
-      if (result.success) {
-        // Upload successful
-        setUploadedImageUrl(result.data.url);
-
-        // Call parent callbacks
-        if (onSave) {
-          onSave(result.data.url);
-        }
-
-        return result;
-      } else {
-        throw new Error(result.message);
-      }
-
+      console.log("✅ Uploaded successfully:", downloadUrl);
+      return downloadUrl;
     } catch (error) {
-      console.error('Upload error:', error);
-
-      // Handle axios errors
-      let errorMessage = "Failed to upload image. Please try again.";
-
-      if (error.response) {
-        // Server responded with error status
-        errorMessage = error.response.data?.message || `Upload failed with status ${error.response.status}`;
-      } else if (error.request) {
-        // Network error
-        errorMessage = "Network error. Please check your connection and try again.";
-      } else if (error.code === 'ECONNABORTED') {
-        // Timeout error
-        errorMessage = "Upload timed out. Please try again.";
-      } else {
-        // Other errors
-        errorMessage = error.message || errorMessage;
-      }
-
-      Alert.alert("Upload Failed", errorMessage);
+      console.error("🔥 Firebase upload error:", error);
+      Alert.alert("Upload Failed", error.message || "Something went wrong");
       throw error;
     } finally {
       setIsUploading(false);
@@ -98,9 +80,8 @@ export default function ExpoImagePicker({
   };
 
   const pickImage = async () => {
-    // Launch image picker - SINGLE IMAGE ONLY
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: "images",
       allowsEditing: true,
       quality: 0.8,
       allowsMultipleSelection: false,
@@ -110,12 +91,10 @@ export default function ExpoImagePicker({
       const imageUri = result.assets[0].uri;
       setSelectedImage(imageUri);
 
-      // Upload the image first
       try {
-        await uploadImage(imageUri);
-      } catch (error) {
-        // Error already handled in uploadImage function
-        // Don't call onImageSelected since upload failed
+        await uploadImageToFirebase(imageUri);
+      } catch {
+        // Already handled in uploadImageToFirebase
       }
     }
   };
@@ -123,10 +102,8 @@ export default function ExpoImagePicker({
   const retryUpload = async () => {
     if (selectedImage) {
       try {
-        await uploadImage(selectedImage);
-      } catch (error) {
-        // Error already handled in uploadImage function
-      }
+        await uploadImageToFirebase(selectedImage);
+      } catch {}
     }
   };
 
@@ -146,9 +123,11 @@ export default function ExpoImagePicker({
       >
         {selectedImage ? (
           <View style={styles.imageContainer}>
-            <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+            <Image
+              source={{ uri: selectedImage }}
+              style={styles.selectedImage}
+            />
 
-            {/* Loading overlay */}
             {isUploading && (
               <View style={styles.loadingOverlay}>
                 <ActivityIndicator size="large" color={COLORS.primaryColor} />
@@ -156,16 +135,17 @@ export default function ExpoImagePicker({
               </View>
             )}
 
-            {/* Success indicator */}
             {uploadedImageUrl && !isUploading && (
               <View style={styles.successOverlay}>
                 <Ionicons name="checkmark-circle" size={30} color="#4CAF50" />
               </View>
             )}
 
-            {/* Retry button if upload failed */}
             {!isUploading && !uploadedImageUrl && (
-              <TouchableOpacity style={styles.retryButton} onPress={retryUpload}>
+              <TouchableOpacity
+                style={styles.retryButton}
+                onPress={retryUpload}
+              >
                 <Ionicons name="refresh" size={20} color="#FF6B6B" />
                 <Text style={styles.retryText}>Retry Upload</Text>
               </TouchableOpacity>
@@ -194,12 +174,6 @@ export default function ExpoImagePicker({
 
 const styles = StyleSheet.create({
   container: {},
-  sectionTitle: {
-    fontSize: heightPercentageToDP(1.8),
-    color: "white",
-    fontFamily: fonts.medium,
-    marginBottom: heightPercentageToDP(1.5),
-  },
   uploadArea: {
     height: heightPercentageToDP(20),
     borderWidth: 2,
@@ -241,11 +215,6 @@ const styles = StyleSheet.create({
     color: "#999",
     fontFamily: fonts.regular,
     fontSize: 12,
-  },
-  uploadFormats: {
-    color: "#666",
-    fontSize: 12,
-    fontFamily: fonts.regular,
   },
   selectedImage: {
     width: "100%",

@@ -200,7 +200,7 @@ export default function ClientWorkoutPlan() {
           "workouts"
         );
       }
-
+      console.log("--->", modalDays[selectedDay]);
       const updatePayload = {
         dayOfWeek: modalDays[selectedDay],
         name: workoutName,
@@ -208,12 +208,12 @@ export default function ClientWorkoutPlan() {
         image: imageUrl,
         isActive: true,
       };
-      // Update existing workout
+
       const response = await PutApiRequest(
         `api/workout-plans/${item.id}/daily-workouts/${modalDays[selectedDay]}`,
         updatePayload
       );
-      console.log("Workout updated successfully:", response.data);
+
       toast.showToast({
         type: "success",
         message: "Workout updated successfully",

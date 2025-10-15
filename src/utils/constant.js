@@ -1,40 +1,43 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { baseUrl } from "../services/api";
-export const uploadAndGetUrl = async (
-  file,
-  type = "profile",
-  folder = "profiles"
-) => {
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "@react-native-firebase/storage";
+import { getApp } from "@react-native-firebase/app";
+
+export const uploadAndGetUrl = async (file, folder = "profiles") => {
   try {
-    const token = await AsyncStorage.getItem("token");
+    const app = getApp(); // Ensure app initialized
+    const storage = getStorage(app);
 
-    const formData = new FormData();
-    formData.append("image", {
-      uri: file.path || file.fileCopyUri || "",
-      type: "image/jpeg",
-      name: "photo.jpg",
-    });
-    formData.append("type", type);
-    formData.append("folder", folder);
-    const res = await axios.post(
-      `${baseUrl}api/upload/image`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
+    const fileName = `photo_${Date.now()}.jpg`;
+    const storageRef = ref(storage, `${folder}/${fileName}`);
+
+    const response = await fetch(file.path || file.fileCopyUri);
+    const blob = await response.blob();
+
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    await new Promise((resolve, reject) => {
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // console.log(snapshot.bytesTransferred, "of", snapshot.totalBytes);
         },
-      }
-    );
+        (error) => reject(error),
+        () => resolve()
+      );
+    });
 
-    return res?.data?.data?.url;
-  } catch (err) {
-    console.log("================err", err.response.data);
+    const downloadUrl = await getDownloadURL(storageRef);
+
+    return downloadUrl;
+  } catch (error) {
+    console.log("🔥 Firebase upload error:", error);
+    throw error;
   }
 };
-
-
 export const modalDays = {
   monday: "Monday",
   tuesday: "Tuesday",
@@ -43,4 +46,4 @@ export const modalDays = {
   friday: "Friday",
   saturday: "Saturday",
   sunday: "Sunday",
-}
+};

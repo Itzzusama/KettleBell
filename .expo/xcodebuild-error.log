@@ -1,0 +1,7 @@
+** BUILD FAILED **
+
+
+The following build commands failed:
+	PhaseScriptExecution [CP]\ Check\ Pods\ Manifest.lock /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-08A4A3CD28434E44B6B9DE2E.sh (in target 'KettleFlow' from project 'KettleFlow')
+	Building project KettleFlow with scheme KettleFlow and configuration Debug
+(2 failures)

@@ -1,0 +1,178 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -project /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj -configuration Debug -scheme KettleFlow -destination id=D6B5BC19-271A-48B7-8F06-83F2BFCDB366
+
+User defaults from command line:
+    IDEPackageSupportUseBuiltinSCM = YES
+
+Prepare packages
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'KettleFlow' in project 'KettleFlow' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow/Images.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 97d991a7141ac9b27616ca5e68e358b0
+Build description path: /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/XCBuildData/97d991a7141ac9b27616ca5e68e358b0.xcbuilddata
+CreateBuildDirectory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    builtin-create-build-directory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products
+
+CreateBuildDirectory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    builtin-create-build-directory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.0.sdk /Users/apple/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.0-22A3362-db63dc9361471f152f572502bdbfe70a.sdkstatcache
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.0.sdk -o /Users/apple/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator18.0-22A3362-db63dc9361471f152f572502bdbfe70a.sdkstatcache
+
+CreateBuildDirectory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    builtin-create-build-directory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow-92a07fe747908ba8a4dfb8d8c1360139-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow-92a07fe747908ba8a4dfb8d8c1360139-VFS-iphonesimulator/all-product-headers.yaml
+
+CreateBuildDirectory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow.xcodeproj
+    builtin-create-build-directory /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-00DD1BFF1BD5951E006B06BC.sh (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-00DD1BFF1BD5951E006B06BC.sh
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-08A4A3CD28434E44B6B9DE2E.sh (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-08A4A3CD28434E44B6B9DE2E.sh
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-generated-files.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-generated-files.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-own-target-headers.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-all-non-framework-target-headers.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-800E24972A6A228C8D4807E9.sh (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-800E24972A6A228C8D4807E9.sh
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-project-headers.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-project-headers.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-all-target-headers.hmap (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/7187679823f38a2a940e0043cdf9d637-common-args.resp (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/7187679823f38a2a940e0043cdf9d637-common-args.resp
+-target x86_64-apple-ios15.1-simulator '-std=gnu99' -fmodules -gmodules '-fmodules-cache-path=/Users/apple/Library/Developer/Xcode/DerivedData/ModuleCache.noindex' -fpascal-strings -O0 -fno-common '-DDEBUG=1' '-DFB_SONARKIT_ENABLED=1' -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator18.0.sdk -fasm-blocks -g -iquote /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-generated-files.hmap -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-own-target-headers.hmap -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-all-target-headers.hmap -iquote /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-project-headers.hmap -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator/include -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources-normal/x86_64 -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources/x86_64 -I/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources -F/Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow_const_extract_protocols.json (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow-OutputFileMap.json (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.LinkFileList (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.LinkFileList
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.SwiftFileList (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.SwiftFileList
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.SwiftConstValuesFileList (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Objects-normal/x86_64/KettleFlow.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.DependencyMetadataFileList (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-DebugDylibPath-normal-x86_64.txt (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-DebugDylibPath-normal-x86_64.txt
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-DebugDylibInstallName-normal-x86_64.txt (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow-DebugDylibInstallName-normal-x86_64.txt
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources/Entitlements-Simulated.plist (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources/Entitlements-Simulated.plist
+
+WriteAuxiliaryFile /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources/KettleFlow_vers.c (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    write-file /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/DerivedSources/KettleFlow_vers.c
+
+MkDir /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator/KettleFlow.app (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    /bin/mkdir -p /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Products/Debug-iphonesimulator/KettleFlow.app
+
+ProcessProductPackaging /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow/KettleFlow.entitlements /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    
+    Entitlements:
+    
+    {
+}
+    
+    builtin-productPackagingUtility /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow/KettleFlow.entitlements -entitlements -format xml -o /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent
+
+ProcessProductPackaging /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow/KettleFlow.entitlements /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "43U9MSN8TK.com.kettleflow.app";
+}
+    
+    builtin-productPackagingUtility /Users/apple/Desktop/Codexa/KettleBell/ios/KettleFlow/KettleFlow.entitlements -entitlements -format xml -o /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent
+
+ProcessProductPackagingDER /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent.der (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    /usr/bin/derq query -f xml -i /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent -o /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app-Simulated.xcent.der --raw
+
+ProcessProductPackagingDER /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent.der (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    /usr/bin/derq query -f xml -i /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent -o /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/KettleFlow.app.xcent.der --raw
+
+PhaseScriptExecution [CP]\ Check\ Pods\ Manifest.lock /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-08A4A3CD28434E44B6B9DE2E.sh (in target 'KettleFlow' from project 'KettleFlow')
+    cd /Users/apple/Desktop/Codexa/KettleBell/ios
+    /bin/sh -c /Users/apple/Library/Developer/Xcode/DerivedData/KettleFlow-dkuiliygacohzzcsbrnyfnlnzkos/Build/Intermediates.noindex/KettleFlow.build/Debug-iphonesimulator/KettleFlow.build/Script-08A4A3CD28434E44B6B9DE2E.sh
+diff: /Podfile.lock: No such file or directory
+error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.
+
+note: Run script build phase 'Bundle React Native code and images' will be run during every build because the option to run the script phase "Based on dependency analysis" is unchecked. (in target 'KettleFlow' from project 'KettleFlow')

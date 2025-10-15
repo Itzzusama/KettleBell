@@ -49,7 +49,7 @@ export default function CreateExercise() {
   const day = route.params?.day || null;
 
   const onExerciseAdded = route.params?.onExerciseAdded || null;
-
+  console.log(exerciseData);
   const [exerciseName, setExerciseName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState("");
@@ -81,6 +81,8 @@ export default function CreateExercise() {
         exerciseData.category?._id || exerciseData.category || null
       );
       setDescription(exerciseData.description || "");
+      setSets(exerciseData?.sets?.toString());
+      setReps(exerciseData?.reps?.toString());
       setSelectedDifficulty(exerciseData.difficulty || "Beginner");
       setSelectedImages(exerciseData.images || []);
       setSelectedEquipment(

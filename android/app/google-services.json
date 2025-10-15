@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "738910945949",
+    "project_id": "kettleflowapp",
+    "storage_bucket": "kettleflowapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738910945949:android:ff3026273dbf24f62cca74",
+        "android_client_info": {
+          "package_name": "com.kettleflow.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB7I7Iw3xwzNdh9qyKHmL74tyHD8l6opg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
