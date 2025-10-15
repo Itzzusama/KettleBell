@@ -20,11 +20,12 @@ import { useNavigation } from "@react-navigation/native";
 import CustomInput from "../../components/CustomInput";
 import { useDispatch, useSelector } from "react-redux";
 import * as ImagePicker from "expo-image-picker";
-import { baseUrl, PutApiRequest } from "../../services/api";
-import axios from "axios";
+import { PutApiRequest } from "../../services/api";
 import CustomButton from "../../components/CustomButton";
 import { useToast } from "../../utils/Toast/toastContext";
 import { setUserData } from "../../store/slices/usersSlice";
+import { uploadAndGetUrl } from "../../utils/constant"; // ✅ Firebase upload helper
+
 const EditProfile = () => {
   const navigation = useNavigation();
   const toast = useToast();
@@ -34,9 +35,10 @@ const EditProfile = () => {
   const [uploadedImageUrl, setUploadedImageUrl] = useState(
     userData?.avatar || ""
   );
-  const dispatch = useDispatch();
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
   const [name, setName] = useState(userData?.name || "");
   const [email, setEmail] = useState(userData?.email || "");
   const [phone, setPhone] = useState(userData?.phone || "");
@@ -47,7 +49,6 @@ const EditProfile = () => {
 
   const validateForm = () => {
     let valid = true;
-
     if (!name.trim()) {
       setNameError("Name is required");
       valid = false;
@@ -72,38 +73,22 @@ const EditProfile = () => {
     return valid;
   };
 
+  // ✅ Upload image to Firebase using uploadAndGetUrl()
   const uploadImage = async (imageUri) => {
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      const filename = imageUri.split("/").pop();
-      const fileExtension = filename.split(".").pop();
-      const mimeType = `image/${fileExtension}`;
 
-      formData.append("image", {
-        uri: imageUri,
-        type: mimeType,
-        name: filename,
-      });
-      formData.append("type", "profile");
-      formData.append("folder", "profiles");
+      const file = { path: imageUri }; // uploadAndGetUrl expects a file object
+      const url = await uploadAndGetUrl(file, "profile", "profiles");
 
-      const response = await axios.post(
-        `${baseUrl}api/upload/image`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-
-      const result = response.data;
-      if (result.success) {
-        console.log(result.data.url);
-        setUploadedImageUrl(result.data.url);
+      if (url) {
+        setUploadedImageUrl(url);
+        console.log("✅ Uploaded Image URL:", url);
       } else {
-        throw new Error(result.message);
+        throw new Error("Failed to get uploaded image URL");
       }
     } catch (error) {
+      console.error("Upload error:", error);
       Alert.alert("Upload Failed", "Please try again later.");
     } finally {
       setIsUploading(false);
@@ -121,13 +106,16 @@ const EditProfile = () => {
     if (!result.canceled && result.assets[0]) {
       const imageUri = result.assets[0].uri;
       setSelectedImage(imageUri);
+
       try {
         await uploadImage(imageUri);
       } catch (error) {}
     }
   };
+
   const handleSave = async () => {
     if (!validateForm()) return;
+
     try {
       setLoading(true);
       const payLoad = {
@@ -152,6 +140,7 @@ const EditProfile = () => {
       setLoading(false);
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -184,10 +173,15 @@ const EditProfile = () => {
               }}
               style={styles.profileImage}
             />
+
             <View style={styles.editIconContainer}>
               <FontAwesome name="pencil" size={14} color="white" />
             </View>
           </TouchableOpacity>
+
+          {isUploading && (
+            <Text style={{ color: "#999", marginTop: 8 }}>Uploading...</Text>
+          )}
         </View>
 
         <CustomInput
@@ -231,7 +225,7 @@ const EditProfile = () => {
           title={"Save Changes"}
           onPress={handleSave}
           loading={loading}
-          disabled={loading}
+          disabled={loading || isUploading}
           marginTop={40}
         />
       </ScrollView>
@@ -295,17 +289,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-  },
-  saveButton: {
-    backgroundColor: COLORS.primaryColor,
-    paddingVertical: hp(1.8),
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: hp(3),
-  },
-  saveButtonText: {
-    color: "#FFF",
-    fontSize: hp(2),
-    fontFamily: fonts.medium,
   },
 });

@@ -14,7 +14,6 @@ import { heightPercentageToDP } from "react-native-responsive-screen";
 import fonts from "../assets/fonts";
 import { COLORS } from "../utils/COLORS";
 
-// ✅ Firebase modular imports
 import { getApp } from "@react-native-firebase/app";
 import {
   getStorage,
@@ -28,25 +27,16 @@ export default function ExpoImagePicker({ onSave, initialImage = null }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
 
-  // 🔥 Firebase upload handler
   const uploadImageToFirebase = async (imageUri) => {
     try {
       setIsUploading(true);
-
-      // Get reference to Firebase Storage
       const app = getApp();
       const storage = getStorage(app);
-
-      // File name and path
       const filename = imageUri.split("/").pop();
       const folder = "profiles";
       const storageRef = ref(storage, `${folder}/${filename}`);
-
-      // Convert image to blob
       const response = await fetch(imageUri);
       const blob = await response.blob();
-
-      // Upload with progress listener
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
       await new Promise((resolve, reject) => {
@@ -61,8 +51,6 @@ export default function ExpoImagePicker({ onSave, initialImage = null }) {
           () => resolve()
         );
       });
-
-      // Get final download URL
       const downloadUrl = await getDownloadURL(storageRef);
 
       setUploadedImageUrl(downloadUrl);
