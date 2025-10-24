@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 20,
     paddingVertical: 10,
-    paddingTop: hp(6),
   },
   backIcon: {
     width: 40,

@@ -84,7 +84,7 @@ export default function Nutritions() {
       style={styles.recommendedCard}
       activeOpacity={0.8}
       onPress={() => {
-        navigation.navigate(RouteName.Receipe_Detail, {
+        navigation.navigate(RouteName.Client_Recipe_Detail, {
           recipeId: item._id,
         });
       }}
@@ -473,8 +473,8 @@ const styles = StyleSheet.create({
     paddingRight: wp(4),
   },
   recommendedCard: {
-    width: wp(60),
-    height: hp(25),
+    width: 220,
+    height: 220,
     borderRadius: wp(4),
     marginRight: wp(3),
     overflow: "hidden",

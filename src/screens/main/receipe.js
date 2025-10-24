@@ -87,6 +87,7 @@ export default function YourRecipesScreen() {
           instructions: recipe.instructions,
           nutrition: recipe.nutrition,
           originalData: recipe,
+          thumbnail: recipe.thumbnail,
         }));
 
         dispatch(fetchRecipesSuccess(formattedRecipes));
@@ -132,7 +133,7 @@ export default function YourRecipesScreen() {
       }}
       activeOpacity={0.8}
     >
-      <Image source={{ uri: item.image }} style={styles.recipeImage} />
+      <Image source={{ uri: item.thumbnail }} style={styles.recipeImage} />
       <View style={styles.recipeOverlay}>
         <View style={styles.recipeContent}>
           <View

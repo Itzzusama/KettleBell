@@ -65,31 +65,28 @@ const Item = ({ title, time, desc, onCardPress, type }) => {
       <View style={styles.iconWrapper}>{renderIcon()}</View>
 
       <View style={styles.container}>
-        <View style={styles.row}>
-          <View style={{ width: "80%" }}>
-            <CustomText
-              label={title}
-              fontFamily={fonts.medium}
-              fontSize={16}
-              color={COLORS.white}
-            />
-          </View>
-
+        <CustomText
+          label={time}
+          fontFamily={fonts.medium}
+          fontSize={10}
+          color={"#5C5C60"}
+        />
+        <CustomText
+          label={title}
+          fontFamily={fonts.medium}
+          fontSize={16}
+          color={COLORS.white}
+        />
+        <View style={{ width: "80%" }}>
           <CustomText
-            label={time}
-            fontFamily={fonts.medium}
-            fontSize={10}
+            label={desc}
+            marginBottom={15}
+            marginTop={5}
             color={"#5C5C60"}
+            fontSize={16}
+            lineHeight={22}
           />
         </View>
-        <CustomText
-          label={desc}
-          marginBottom={15}
-          marginTop={5}
-          color={"#5C5C60"}
-          fontSize={16}
-          lineHeight={22}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -100,10 +97,10 @@ export default Item;
 const styles = StyleSheet.create({
   mainContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    width: "100%",
     marginBottom: 20,
-    paddingVertical: hp(3.2),
-    paddingHorizontal: wp(4),
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     backgroundColor: "#242427",
     borderRadius: wp(4),
     borderWidth: 1,
@@ -118,8 +115,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   container: {
-    width: "75%",
-    marginRight: 20,
+    marginHorizontal: 12,
+    flex: 1,
   },
   row: {
     flexDirection: "row",
