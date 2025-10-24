@@ -131,19 +131,6 @@ export default function ClientMeal() {
 
   const RecipeCard = ({ recipe }) => {
     const getImageSource = () => {
-      if (
-        recipe.images &&
-        Array.isArray(recipe.images) &&
-        recipe.images.length > 0
-      ) {
-        return recipe.images[0];
-      }
-      if (recipe.banner) {
-        return recipe.banner;
-      }
-      if (recipe.image) {
-        return recipe.image;
-      }
       // Fallback placeholder image
       return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center";
     };
@@ -159,7 +146,7 @@ export default function ClientMeal() {
         activeOpacity={0.8}
       >
         <Image
-          source={{ uri: imageSource }}
+          source={{ uri: recipe.thumbnail || imageSource }}
           style={styles.recipeImage}
           defaultSource={{
             uri: "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=300&fit=crop&crop=center",

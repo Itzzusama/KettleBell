@@ -1,5 +1,3 @@
-"use client";
-
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
@@ -35,6 +33,8 @@ import {
 import { COLORS } from "../../../utils/COLORS";
 import { uploadAndGetUrl } from "../../../utils/constant";
 import { useToast } from "../../../utils/Toast/toastContext";
+import { uploadThumbnail } from "../../../utils/Toast/uploadThumbnail";
+import ThumbnailPicker from "../../../components/ThumbnailPicker";
 
 export default function CreateExercise() {
   const { t } = useTranslation();
@@ -49,16 +49,17 @@ export default function CreateExercise() {
   const day = route.params?.day || null;
 
   const onExerciseAdded = route.params?.onExerciseAdded || null;
-  console.log(exerciseData);
   const [exerciseName, setExerciseName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [description, setDescription] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("Beginner");
   const [instruction, setInstruction] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
+  const [thumbnail, setThumbnail] = useState("");
   const [sets, setSets] = useState(0);
   const [reps, setReps] = useState(0);
   const [steps, setSteps] = useState([]);
+
   const [selectedEquipment, setSelectedEquipment] = useState([]);
   const [selectedMuscles, setSelectedMuscles] = useState([]);
   const [equipmentInput, setEquipmentInput] = useState("");
@@ -85,6 +86,7 @@ export default function CreateExercise() {
       setReps(exerciseData?.reps?.toString());
       setSelectedDifficulty(exerciseData.difficulty || "Beginner");
       setSelectedImages(exerciseData.images || []);
+      setThumbnail(exerciseData.thumbnail || "");
       setSelectedEquipment(
         exerciseData.equipment?.filter((item) => item.trim()) || []
       );
@@ -226,7 +228,6 @@ export default function CreateExercise() {
       const remoteImages = images.filter((image) => image.startsWith("http"));
       const allImages = [...remoteImages, ...validUrls];
 
-      console.log("All images processed successfully:", allImages);
       return allImages;
     } catch (error) {
       console.log("Error in uploadAllImages:", error);
@@ -380,7 +381,7 @@ export default function CreateExercise() {
           return;
         }
       }
-
+      const thumbnailUrl = await uploadThumbnail(thumbnail);
       const payload = {
         name: exerciseName.trim(),
         description: description.trim(),
@@ -393,8 +394,9 @@ export default function CreateExercise() {
         sets: sets,
         reps: reps,
         duration: Number.parseInt(duration),
+        thumbnail: thumbnailUrl,
       };
-      console.log(payload);
+
       let response;
 
       if (isEditMode && exerciseData) {
@@ -511,6 +513,12 @@ export default function CreateExercise() {
               </View>
             )}
           </View>
+
+          <ThumbnailPicker
+            thumbnail={thumbnail}
+            setThumbnail={setThumbnail}
+            title="Workout Thumbnail"
+          />
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
@@ -862,7 +870,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgb(34, 34, 37)",
-    marginBottom: hp(2),
   },
   placeholderContainer: {
     alignItems: "center",

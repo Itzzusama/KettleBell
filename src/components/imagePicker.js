@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     right: 10,
     backgroundColor: "rgba(255, 255, 255, 0.9)",
     borderRadius: 20,
-    padding: 5,
+    padding: 3,
   },
   retryButton: {
     position: "absolute",

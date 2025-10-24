@@ -91,10 +91,7 @@ export default function Nutritions() {
     >
       <Image
         source={{
-          uri:
-            item.banner ||
-            item.image ||
-            "/placeholder.svg?height=200&width=300",
+          uri: item.thumbnail || "/placeholder.svg?height=200&width=300",
         }}
         style={styles.recommendedImage}
       />

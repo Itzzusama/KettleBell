@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { Ionicons } from "@expo/vector-icons"
-import { useNavigation, useRoute } from "@react-navigation/native"
-import { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Image,
@@ -14,99 +14,107 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from "react-native"
-import { heightPercentageToDP as hp, widthPercentageToDP as wp } from "react-native-responsive-screen"
-import fonts from "../../../assets/fonts"
-import { GetApiRequest } from "../../../services/api"
-import { COLORS } from "../../../utils/COLORS"
-import { useToast } from "../../../utils/Toast/toastContext"
+} from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import fonts from "../../../assets/fonts";
+import { GetApiRequest } from "../../../services/api";
+import { COLORS } from "../../../utils/COLORS";
+import { useToast } from "../../../utils/Toast/toastContext";
 
 export default function ClientRecipeDetail() {
-  const navigation = useNavigation()
-  const route = useRoute()
-  const { t } = useTranslation()
-  const toast = useToast()
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { t } = useTranslation();
+  const toast = useToast();
 
   // State management
-  const [recipe, setRecipe] = useState(null)
-  const [loading, setLoading] = useState(false)
+  const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Get recipe from navigation params or fetch from API
   useEffect(() => {
-    const recipeFromParams = route.params?.recipe
+    const recipeFromParams = route.params?.recipe;
     if (recipeFromParams) {
-      setRecipe(recipeFromParams)
+      setRecipe(recipeFromParams);
     } else {
       // If no recipe passed, you might want to fetch it by ID
-      const recipeId = route.params?.recipeId
+      const recipeId = route.params?.recipeId;
       if (recipeId) {
-        fetchRecipeById(recipeId)
+        fetchRecipeById(recipeId);
       }
     }
-  }, [route.params])
+  }, [route.params]);
 
   // Fetch recipe by ID if needed
   const fetchRecipeById = async (recipeId) => {
     try {
-      setLoading(true)
-      const res = await GetApiRequest(`api/recipes/${recipeId}`)
+      setLoading(true);
+      const res = await GetApiRequest(`api/recipes/${recipeId}`);
 
       if (res && res.data) {
-        setRecipe(res.data.data || res.data)
+        setRecipe(res.data.data || res.data);
       } else {
         toast.showToast({
           type: "error",
           message: "Failed to load recipe details",
           duration: 4000,
-        })
-        navigation.goBack()
+        });
+        navigation.goBack();
       }
     } catch (error) {
-      console.log("Error fetching recipe:", error)
+      console.log("Error fetching recipe:", error);
       toast.showToast({
         type: "error",
         message: "Failed to load recipe details",
         duration: 4000,
-      })
-      navigation.goBack()
+      });
+      navigation.goBack();
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Helper function to get recipe image
   const getRecipeImage = () => {
-    if (!recipe) return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=400&fit=crop&crop=center"
+    if (!recipe)
+      return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=400&fit=crop&crop=center";
 
-    if (recipe.images && Array.isArray(recipe.images) && recipe.images.length > 0) {
-      return recipe.images[0]
+    if (
+      recipe.images &&
+      Array.isArray(recipe.images) &&
+      recipe.images.length > 0
+    ) {
+      return recipe.images[0];
     }
     if (recipe.banner) {
-      return recipe.banner
+      return recipe.banner;
     }
     if (recipe.image) {
-      return recipe.image
+      return recipe.image;
     }
-    return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=400&fit=crop&crop=center"
-  }
+    return "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400&h=400&fit=crop&crop=center";
+  };
 
   // Helper function to format time
   const formatTime = (time) => {
-    if (!time) return "N/A"
+    if (!time) return "N/A";
     if (typeof time === "number") {
-      return `${time} min`
+      return `${time} min`;
     }
-    return time
-  }
+    return time;
+  };
 
   // Helper function to format servings
   const formatServings = (servings) => {
-    if (!servings) return "N/A"
+    if (!servings) return "N/A";
     if (typeof servings === "number") {
-      return `${servings} ${servings === 1 ? "person" : "people"}`
+      return `${servings} ${servings === 1 ? "person" : "people"}`;
     }
-    return servings
-  }
+    return servings;
+  };
 
   const renderIngredient = (item, index) => (
     <View key={item._id || item.id || index} style={styles.ingredientItem}>
@@ -118,54 +126,83 @@ export default function ClientRecipeDetail() {
         {item.name || item.ingredient || "Unknown ingredient"}
       </Text>
     </View>
-  )
+  );
 
   const renderInstruction = (instruction, index) => (
     <View
       key={index}
-      style={[styles.instructionItem, index < (recipe?.instructions?.length || 0) - 1 && styles.instructionBorder]}
+      style={[
+        styles.instructionItem,
+        index < (recipe?.instructions?.length || 0) - 1 &&
+          styles.instructionBorder,
+      ]}
     >
       <Text style={styles.instructionText}>
-        {index + 1}. {typeof instruction === "string" ? instruction : instruction.step || instruction.description || ""}
+        {index + 1}.{" "}
+        {typeof instruction === "string"
+          ? instruction
+          : instruction.step || instruction.description || ""}
       </Text>
     </View>
-  )
+  );
 
   // Loading state
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primaryColor} />
           <Text style={styles.loadingText}>Loading recipe...</Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   // Error state - no recipe data
   if (!recipe) {
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent
+        />
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={wp(15)} color={COLORS.gray3} />
+          <Ionicons
+            name="alert-circle-outline"
+            size={wp(15)}
+            color={COLORS.gray3}
+          />
           <Text style={styles.errorText}>Recipe not found</Text>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
             <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent
+      />
 
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Ionicons name="arrow-back" size={wp(6)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
@@ -181,12 +218,17 @@ export default function ClientRecipeDetail() {
       >
         {/* Recipe Image */}
         <View style={styles.imageContainer}>
-          <Image source={{ uri: getRecipeImage() }} style={styles.recipeImage} />
+          <Image
+            source={{ uri: getRecipeImage() }}
+            style={styles.recipeImage}
+          />
         </View>
 
         {/* Recipe Info */}
         <View style={styles.recipeInfo}>
-          <Text style={styles.recipeTitle}>{recipe.name || recipe.title || "Untitled Recipe"}</Text>
+          <Text style={styles.recipeTitle}>
+            {recipe.name || recipe.title || "Untitled Recipe"}
+          </Text>
           <Text style={styles.recipeDescription}>
             {recipe.description || "No description available for this recipe."}
           </Text>
@@ -197,11 +239,19 @@ export default function ClientRecipeDetail() {
             {/* Prep Time */}
             <View style={styles.infoRow}>
               <View style={styles.iconContainer}>
-                <Ionicons name="time-outline" size={wp(5)} color={COLORS.primaryColor} />
+                <Ionicons
+                  name="time-outline"
+                  size={wp(5)}
+                  color={COLORS.primaryColor}
+                />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t("ClientRecipeDetail.time")}</Text>
-                <Text style={styles.infoValue}>{formatTime(recipe.prepTime || recipe.preparationTime)}</Text>
+                <Text style={styles.infoLabel}>
+                  {t("ClientRecipeDetail.time")}
+                </Text>
+                <Text style={styles.infoValue}>
+                  {formatTime(recipe.prepTime || recipe.preparationTime)}
+                </Text>
               </View>
             </View>
 
@@ -210,11 +260,19 @@ export default function ClientRecipeDetail() {
             {/* Cook Time */}
             <View style={styles.infoRow}>
               <View style={styles.iconContainer}>
-                <Ionicons name="flame-outline" size={wp(5)} color={COLORS.primaryColor} />
+                <Ionicons
+                  name="flame-outline"
+                  size={wp(5)}
+                  color={COLORS.primaryColor}
+                />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t("ClientRecipeDetail.cook")}</Text>
-                <Text style={styles.infoValue}>{formatTime(recipe.cookTime || recipe.cookingTime)}</Text>
+                <Text style={styles.infoLabel}>
+                  {t("ClientRecipeDetail.cook")}
+                </Text>
+                <Text style={styles.infoValue}>
+                  {formatTime(recipe.cookTime || recipe.cookingTime)}
+                </Text>
               </View>
             </View>
 
@@ -223,11 +281,19 @@ export default function ClientRecipeDetail() {
             {/* Servings */}
             <View style={styles.infoRow}>
               <View style={styles.iconContainer}>
-                <Ionicons name="people-outline" size={wp(5)} color={COLORS.primaryColor} />
+                <Ionicons
+                  name="people-outline"
+                  size={wp(5)}
+                  color={COLORS.primaryColor}
+                />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t("ClientRecipeDetail.serve")}</Text>
-                <Text style={styles.infoValue}>{formatServings(recipe.servings || recipe.serves)}</Text>
+                <Text style={styles.infoLabel}>
+                  {t("ClientRecipeDetail.serve")}
+                </Text>
+                <Text style={styles.infoValue}>
+                  {formatServings(recipe.servings || recipe.serves)}
+                </Text>
               </View>
             </View>
 
@@ -237,7 +303,11 @@ export default function ClientRecipeDetail() {
                 <View style={styles.divider} />
                 <View style={styles.infoRow}>
                   <View style={styles.iconContainer}>
-                    <Ionicons name="bar-chart-outline" size={wp(5)} color={COLORS.primaryColor} />
+                    <Ionicons
+                      name="bar-chart-outline"
+                      size={wp(5)}
+                      color={COLORS.primaryColor}
+                    />
                   </View>
                   <View style={styles.infoContent}>
                     <Text style={styles.infoLabel}>Difficulty</Text>
@@ -253,16 +323,22 @@ export default function ClientRecipeDetail() {
           {/* Ingredients */}
           {recipe.ingredients && recipe.ingredients.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t("ClientRecipeDetail.Ingredients")}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("ClientRecipeDetail.Ingredients")}
+              </Text>
               <View style={styles.divider2} />
-              <View style={styles.ingredientsList}>{recipe.ingredients.map(renderIngredient)}</View>
+              <View style={styles.ingredientsList}>
+                {recipe.ingredients.map(renderIngredient)}
+              </View>
             </View>
           )}
 
           {/* Nutrition Information */}
           {recipe.nutrition && Object.keys(recipe.nutrition).length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t("ClientRecipeDetail.nutri")}</Text>
+              <Text style={styles.sectionTitle}>
+                {t("ClientRecipeDetail.nutri")}
+              </Text>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -274,7 +350,9 @@ export default function ClientRecipeDetail() {
                   .map(([key, value]) => (
                     <View key={key} style={styles.nutritionBox}>
                       <Text style={styles.nutritionValue}>{value}</Text>
-                      <Text style={styles.nutritionLabel}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
+                      <Text style={styles.nutritionLabel}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </Text>
                     </View>
                   ))}
               </ScrollView>
@@ -285,7 +363,9 @@ export default function ClientRecipeDetail() {
           {recipe.instructions && recipe.instructions.length > 0 && (
             <View style={styles.section}>
               <View style={styles.instructionsContainer}>
-                <Text style={styles.instructionsTitle}>{t("ClientRecipeDetail.Instructions")}</Text>
+                <Text style={styles.instructionsTitle}>
+                  {t("ClientRecipeDetail.Instructions")}
+                </Text>
                 {recipe.instructions.map(renderInstruction)}
               </View>
             </View>
@@ -295,7 +375,7 @@ export default function ClientRecipeDetail() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -332,7 +412,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: "100%",
-    height: hp(30),
+    height: 250,
     paddingHorizontal: wp(4),
   },
   recipeImage: {
@@ -540,4 +620,4 @@ const styles = StyleSheet.create({
     fontSize: wp(4),
     fontFamily: fonts.medium,
   },
-})
+});

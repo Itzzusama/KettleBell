@@ -328,15 +328,15 @@ export default function Plans() {
   const WorkoutCard = ({ item }) => (
     <TouchableOpacity
       style={styles.workoutCard}
-      onPress={() => navigation.navigate(RouteName.Client_Exercise_Detail, { exercise: item })}
+      onPress={() =>
+        navigation.navigate(RouteName.Client_Exercise_Detail, {
+          exercise: item,
+        })
+      }
     >
       <View style={styles.imageContainer}>
         <Image
-          source={
-            item.images && item.images.length > 0
-              ? { uri: item.images[0] }
-              : Images.dumyImg
-          }
+          source={item.thumbnail ? { uri: item.thumbnail } : Images.dumyImg}
           style={styles.workoutImage}
         />
         <View style={styles.iconContainer}>
@@ -356,16 +356,16 @@ export default function Plans() {
       </View>
       <View style={styles.workoutOverlay}>
         <View style={styles.workoutContent}>
-          <Text style={styles.workoutTitle} numberOfLines={2}>{item.name}</Text>
+          <Text style={styles.workoutTitle} numberOfLines={2}>
+            {item.name}
+          </Text>
           <View style={styles.durationContainer}>
             <Ionicons
               name="time-outline"
               size={wp(4)}
               color={COLORS.primaryColor}
             />
-            <Text style={styles.durationText}>
-              {item.duration} hours
-            </Text>
+            <Text style={styles.durationText}>{item.duration} hours</Text>
           </View>
         </View>
       </View>
@@ -384,7 +384,7 @@ export default function Plans() {
       getCategories();
       getMyPlans();
     }, [])
-  )
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -394,7 +394,10 @@ export default function Plans() {
         translucent
       />
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
           <Feather name="arrow-left" size={wp(6.5)} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Exercise</Text>
@@ -518,8 +521,14 @@ export default function Plans() {
 
       <Modal
         isVisible={showAddCategoryModal || showEditCategoryModal}
-        onBackdropPress={() => { setShowAddCategoryModal(false); setShowEditCategoryModal(false) }}
-        onBackButtonPress={() => { setShowAddCategoryModal(false); setShowEditCategoryModal(false) }}
+        onBackdropPress={() => {
+          setShowAddCategoryModal(false);
+          setShowEditCategoryModal(false);
+        }}
+        onBackButtonPress={() => {
+          setShowAddCategoryModal(false);
+          setShowEditCategoryModal(false);
+        }}
         backdropOpacity={0.7}
         animationIn="fadeIn"
         animationOut="fadeOut"
@@ -552,7 +561,9 @@ export default function Plans() {
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalButton, styles.addButton]}
-              onPress={showAddCategoryModal ? handleAddCategory : handleEditCategory}
+              onPress={
+                showAddCategoryModal ? handleAddCategory : handleEditCategory
+              }
               activeOpacity={0.8}
             >
               <Text style={styles.addButtonText}>Add</Text>
@@ -687,8 +698,8 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   workoutCard: {
-    width: wp(42.5),
-    height: hp(26),
+    width: 220,
+    height: 220,
     borderRadius: wp(3),
     overflow: "hidden",
     position: "relative",

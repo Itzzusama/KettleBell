@@ -196,62 +196,50 @@ const Home = () => {
                       {t("Home.active_workout_plan_title")}
                     </Text>
                   </View>
-                  <ScrollView
+
+                  <FlatList
+                    data={workdata}
+                    keyExtractor={(item) => item.id?.toString()}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[
-                      styles.scrollViewContent,
-                      {
-                        marginBottom: mealPlans?.length == 0 ? 40 : 0,
-                      },
-                      (!workdata?.data || workdata.data.length === 0) &&
-                        styles.emptyScrollViewContent,
-                    ]}
-                  >
-                    {workdata.map((workout, index) => (
+                    contentContainerStyle={{ paddingRight: wp(3) }}
+                    renderItem={({ item, index }) => (
                       <TouchableOpacity
                         activeOpacity={0.8}
-                        key={workout.id}
                         onPress={() =>
                           navigation.navigate(RouteName.WorkoutPlans_Details, {
-                            workoutId: workout?.workoutPlan?._id,
+                            workoutId: item?.workoutPlan?._id,
                           })
                         }
                         style={[
                           styles.workoutCard,
                           styles.workoutCardScrollable,
-                          index > 0 && { marginLeft: wp(3) },
+                          index === 0 && { marginLeft: wp(0.5) },
                         ]}
                       >
                         <Image
                           source={{
                             uri:
-                              workout?.workoutPlan?.images?.[0] ||
+                              item?.workoutPlan?.thumbnail ||
                               "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=200&fit=crop",
                           }}
                           style={styles.workoutImage}
                           resizeMode="cover"
                           defaultSource={require("../../../../assets/images/onboarding1.png")}
-                          onError={({ nativeEvent: { error } }) => {
-                            console.log("Image load error:", error);
-                          }}
                         />
+
                         <LinearGradient
                           colors={["transparent", "rgba(0,0,0,0.8)"]}
                           style={styles.workoutOverlay}
                         >
                           <View style={styles.workoutInfo}>
-                            <Text
-                              style={styles.workoutTitle}
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              {workout?.workoutPlan?.name}
+                            <Text style={styles.workoutTitle} numberOfLines={1}>
+                              {item?.workoutPlan?.name}
                             </Text>
                             <View style={styles.workoutMeta}>
                               <Text style={styles.workoutDuration}>
-                                {workout?.workoutPlan?.numberOfWeeks}{" "}
-                                {workout?.workoutPlan?.numberOfWeeks === 1
+                                {item?.workoutPlan?.numberOfWeeks}{" "}
+                                {item?.workoutPlan?.numberOfWeeks === 1
                                   ? "week"
                                   : "weeks"}
                               </Text>
@@ -259,8 +247,8 @@ const Home = () => {
                           </View>
                         </LinearGradient>
                       </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                    )}
+                  />
                 </>
               )}
             </View>
@@ -451,7 +439,7 @@ const styles = StyleSheet.create({
   sectionContainer: { paddingHorizontal: wp(5) },
   sectionTitle: { color: "#FFF", fontSize: wp(4), fontFamily: fonts.medium },
 
-  workoutCardScrollable: { width: wp(85), marginRight: wp(3) },
+  workoutCardScrollable: { width: 220, marginRight: wp(3) },
   scrollViewContent: { paddingVertical: hp(1), marginBottom: 10 },
   emptyScrollViewContent: {
     flexGrow: 1,
@@ -478,7 +466,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
 
     position: "relative",
-    height: hp(25),
+    height: 220,
+    marginBottom: 20,
   },
   workoutImage: { width: "100%", height: "100%" },
   workoutOverlay: {

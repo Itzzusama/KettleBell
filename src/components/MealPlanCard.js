@@ -17,8 +17,7 @@ const MealPlanCard = ({ item, onPress }) => {
       <Image
         source={{
           uri:
-            item?.mealPlan?.banner ||
-            item?.mealPlan?.images?.[0] ||
+            item?.mealPlan?.thumbnail ||
             "/placeholder.svg?height=200&width=300",
         }}
         style={styles.mealImage}
@@ -45,8 +44,8 @@ export default MealPlanCard;
 
 const styles = StyleSheet.create({
   mealCard: {
-    width: wp(60),
-    height: hp(25),
+    width: 220,
+    height: 220,
     borderRadius: wp(4),
     marginRight: wp(3),
     overflow: "hidden",

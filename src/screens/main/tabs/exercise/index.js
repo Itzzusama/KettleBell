@@ -154,7 +154,7 @@ export default function Exercise() {
       <Image
         source={{
           uri:
-            item.images[0] ||
+            item.thumbnail ||
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9n8KUvSF8IZzTvs6t22w1kA4qpaBCyqqrTg&s",
         }}
         style={styles.exerciseImage}
@@ -320,8 +320,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   exerciseCard: {
-    width: wp(44),
-    height: hp(25),
+    width: 220,
+    height: 220,
     borderRadius: wp(4),
     marginBottom: hp(2),
     overflow: "hidden",

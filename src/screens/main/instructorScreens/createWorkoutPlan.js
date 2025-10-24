@@ -26,10 +26,16 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import fonts from "../../../assets/fonts/index";
 import CustomButton from "../../../components/CustomButton";
-import { GetApiRequest, PostApiRequest, PutApiRequest } from "../../../services/api";
+import {
+  GetApiRequest,
+  PostApiRequest,
+  PutApiRequest,
+} from "../../../services/api";
 import { COLORS } from "../../../utils/COLORS";
 import { uploadAndGetUrl } from "../../../utils/constant";
 import { useToast } from "../../../utils/Toast/toastContext";
+import { uploadThumbnail } from "../../../utils/Toast/uploadThumbnail";
+import ThumbnailPicker from "../../../components/ThumbnailPicker";
 
 export default function CreateWorkoutPlans() {
   const { isEdit, item } = useRoute().params;
@@ -56,13 +62,14 @@ export default function CreateWorkoutPlans() {
   const [numberOfWeeks, setNumberOfWeeks] = useState("");
   const [uploadedImages, setUploadedImages] = useState([]);
   const [categoriesState, setCategoriesState] = useState([]);
+  const [thumbnail, setThumbnail] = useState("");
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
+      mediaTypes: "images",
       allowsEditing: false,
       quality: 0.8,
       allowsMultipleSelection: true,
@@ -105,6 +112,7 @@ export default function CreateWorkoutPlans() {
       setNumberOfWeeks(item.numberOfWeeks.toString());
       setSelectedCategory(item.category._id);
       setUploadedImages(item.images);
+      setThumbnail(item.thumbnail);
     } else {
       setWorkoutName("");
       setDescription("");
@@ -221,17 +229,21 @@ export default function CreateWorkoutPlans() {
           return;
         }
       }
-
+      const thumbnailUrl = await uploadThumbnail(thumbnail);
       const payload = {
         name: workoutName.trim(),
         description: description.trim(),
         category: selectedCategory,
         images: uploadedImageUrls,
         numberOfWeeks: Number.parseInt(numberOfWeeks),
+        thumbnail: thumbnailUrl,
       };
 
       if (isEdit && item) {
-        const res = await PutApiRequest(`api/workout-plans/${item._id}`, payload);
+        const res = await PutApiRequest(
+          `api/workout-plans/${item._id}`,
+          payload
+        );
         if (res && res.data) {
           toast.showToast({
             type: "success",
@@ -284,7 +296,9 @@ export default function CreateWorkoutPlans() {
         >
           <Feather name="arrow-left" size={wp(6)} color="#FFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{isEdit ? "Edit Workout Plan" : t("CreateWorkoutPlans.title")}</Text>
+        <Text style={styles.headerTitle}>
+          {isEdit ? "Edit Workout Plan" : t("CreateWorkoutPlans.title")}
+        </Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -357,6 +371,11 @@ export default function CreateWorkoutPlans() {
               </View>
             )}
           </View>
+          <ThumbnailPicker
+            thumbnail={thumbnail}
+            setThumbnail={setThumbnail}
+            title="Workout Thumbnail"
+          />
 
           <View style={styles.formSection}>
             <View style={[styles.inputGroup, { zIndex: 3000 }]}>
@@ -469,7 +488,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
   },
   uploadSection: {
-    marginBottom: hp(3),
+    marginBottom: hp(1.5),
   },
   sectionTitle: {
     color: "#FFF",
@@ -513,7 +532,7 @@ const styles = StyleSheet.create({
     color: "#999",
     fontFamily: fonts.regular,
     fontSize: hp(1.5),
-    textAlign: "center"
+    textAlign: "center",
   },
   uploadFormats: {
     color: "#666",

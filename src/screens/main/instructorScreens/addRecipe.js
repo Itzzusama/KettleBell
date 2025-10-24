@@ -31,6 +31,8 @@ import {
 } from "../../../services/api";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
+import { uploadThumbnail } from "../../../utils/Toast/uploadThumbnail";
+import ThumbnailPicker from "../../../components/ThumbnailPicker";
 
 export default function AddRecipes() {
   const { t } = useTranslation();
@@ -43,6 +45,7 @@ export default function AddRecipes() {
     { quantity: "", unit: "", name: "" },
   ]);
   const [calories, setCalories] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
@@ -92,7 +95,8 @@ export default function AddRecipes() {
           ? recipe.instructions
           : []
       );
-      setSelectedImage(recipe.banner);
+      setThumbnail(recipe?.thumbnail);
+      setSelectedImage(recipe?.banner);
       setSelectedCategory(recipe.category?._id || recipe.category || "");
     }
   }, [isEditMode, recipe]);
@@ -213,7 +217,7 @@ export default function AddRecipes() {
       if (!bannerUrl || !bannerUrl.startsWith("http")) {
         throw new Error("Invalid image URL");
       }
-
+      const thumbnailUrl = await uploadThumbnail(thumbnail);
       const formattedIngredients = ingredients
         .filter((ingredient) => ingredient.name.trim() !== "")
         .map((ingredient) => ({
@@ -243,6 +247,7 @@ export default function AddRecipes() {
         nutrition: nutrition,
         tags: tags.filter((tag) => tag.trim() !== ""),
         instructions: validSteps,
+        thumbnail: thumbnailUrl,
       };
 
       console.log("Recipe data being sent:", recipeData);
@@ -321,7 +326,11 @@ export default function AddRecipes() {
             initialImage={selectedImage}
           />
         </View>
-
+        <ThumbnailPicker
+          thumbnail={thumbnail}
+          setThumbnail={setThumbnail}
+          title="Thumbnail"
+        />
         {/* Recipe Name */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("AddRecipe.desc2")}</Text>
@@ -641,7 +650,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: hp(3),
-    marginTop: hp(2),
   },
   sectionHeader: {
     flexDirection: "row",

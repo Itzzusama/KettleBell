@@ -31,6 +31,8 @@ import {
 } from "../../../services/api"; // Added PutApiRequest
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
+import { uploadThumbnail } from "../../../utils/Toast/uploadThumbnail";
+import ThumbnailPicker from "../../../components/ThumbnailPicker";
 
 export default function CreateMeal() {
   const [mealName, setMealName] = useState("");
@@ -38,6 +40,7 @@ export default function CreateMeal() {
   const [numberOfWeeks, setNumberOfWeeks] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   // Dropdown states
@@ -62,6 +65,7 @@ export default function CreateMeal() {
       setNumberOfWeeks(recipe.numberOfWeeks?.toString() || "");
       setSelectedImage(recipe.banner || recipe.image || null);
       setSelectedCategory(recipe.category?._id || recipe.category || "");
+      setThumbnail(recipe.thumbnail || null);
     }
   }, [isEditMode, recipe]);
 
@@ -151,13 +155,14 @@ export default function CreateMeal() {
       if (!bannerUrl || !bannerUrl.startsWith("http")) {
         throw new Error("Invalid image URL");
       }
-
+      const thumbnailUrl = await uploadThumbnail(thumbnail);
       const mealPlanData = {
         name: mealName.trim(),
         description: description.trim(),
         category: selectedCategory,
         numberOfWeeks: Number.parseInt(numberOfWeeks),
         banner: bannerUrl,
+        thumbnail: thumbnailUrl,
       };
 
       let res;
@@ -235,7 +240,11 @@ export default function CreateMeal() {
             initialImage={selectedImage} // Pass initial image for edit mode
           />
         </View>
-
+        <ThumbnailPicker
+          thumbnail={thumbnail}
+          setThumbnail={setThumbnail}
+          title="Thumbnail"
+        />
         {/* Meal Plan Name */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t("AddMeal.mealname")}</Text>
@@ -355,7 +364,6 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: hp(3),
-    marginTop: hp(2),
   },
   sectionTitle: {
     fontSize: hp(1.7),

@@ -828,9 +828,7 @@ export default function InstructorNutrition() {
   const RecipeCard = ({ recipe }) => {
     const navigation = useNavigation();
     const imageSource =
-      recipe.banner ||
-      recipe.images?.[0] ||
-      recipe.image ||
+      recipe.thumbnail ||
       "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&crop=center";
 
     return (
@@ -865,8 +863,7 @@ export default function InstructorNutrition() {
   const MealPlanCard = ({ mealPlan }) => {
     const navigation = useNavigation();
     const imageSource =
-      mealPlan.banner ||
-      mealPlan.image ||
+      mealPlan.thumbnail ||
       "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop&crop=center";
 
     return (
@@ -1209,8 +1206,8 @@ const styles = StyleSheet.create({
     paddingBottom: hp(2),
   },
   recipeCard: {
-    width: wp(60),
-    height: hp(26),
+    width: 220,
+    height: 220,
     borderRadius: wp(3),
     overflow: "hidden",
     marginRight: wp(3),

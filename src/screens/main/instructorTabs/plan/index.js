@@ -336,11 +336,7 @@ export default function Plans() {
     >
       <View style={styles.imageContainer}>
         <Image
-          source={
-            item.images && item.images.length > 0
-              ? { uri: item.images[0] }
-              : Images.dumyImg
-          }
+          source={item.thumbnail ? { uri: item.thumbnail } : Images.dumyImg}
           style={styles.workoutImage}
         />
         <View style={styles.iconContainer}>
@@ -707,7 +703,6 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     overflow: "hidden",
     position: "relative",
-    marginBottom: hp(2),
   },
   imageContainer: {
     width: "100%",

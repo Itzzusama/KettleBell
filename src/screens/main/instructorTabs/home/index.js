@@ -201,9 +201,7 @@ export default function InstructorHome() {
     >
       <Image
         source={
-          exercise.images && exercise.images.length > 0
-            ? { uri: exercise.images[0] }
-            : Images.dumyImg
+          exercise.thumbnail ? { uri: exercise.thumbnail } : Images.dumyImg
         }
         style={styles.exerciseImage}
       />
@@ -592,8 +590,8 @@ const styles = StyleSheet.create({
     paddingRight: wp(5),
   },
   exerciseCard: {
-    width: wp(60),
-    height: hp(20),
+    width: 220,
+    height: 220,
     borderRadius: wp(4),
     overflow: "hidden",
     position: "relative",
