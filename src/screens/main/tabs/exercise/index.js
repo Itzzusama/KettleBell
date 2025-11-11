@@ -223,7 +223,6 @@ export default function Exercise() {
         />
       </View>
 
-      {/* Exercise Grid */}
       <FlatList
         data={filteredExercises}
         renderItem={renderExercise}
@@ -320,7 +319,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   exerciseCard: {
-    width: 220,
+    width: 180,
     height: 220,
     borderRadius: wp(4),
     marginBottom: hp(2),

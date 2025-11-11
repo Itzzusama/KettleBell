@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ImageFast from "./ImageFast";
 import fonts from "../assets/fonts";
 import { COLORS } from "../utils/COLORS";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const Header = ({
   title,
   hideBackArrow,
@@ -22,14 +22,14 @@ const Header = ({
   marginBottom,
 }) => {
   const navigation = useNavigation();
-
+  const insets = useSafeAreaInsets();
   return (
     <View
       style={[
         styles.mainContainer,
         {
           backgroundColor: backgroundColor || "transparent",
-          marginTop,
+          marginTop: marginBottom || insets.top,
           marginBottom,
         },
       ]}

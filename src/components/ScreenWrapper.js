@@ -12,7 +12,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import ImageFast from "./ImageFast";
 
 import { COLORS } from "../utils/COLORS";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const { width, height } = Dimensions.get("window");
 
 const FocusAwareStatusBar = ({ barStyle, backgroundColor, translucent }) => {
@@ -41,6 +41,7 @@ const ScreenWrapper = ({
   nestedScrollEnabled,
   paddingHorizontal = 16,
 }) => {
+  const insets = useSafeAreaInsets();
   const topInset =
     translucent && Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
 

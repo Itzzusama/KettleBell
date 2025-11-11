@@ -698,7 +698,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   workoutCard: {
-    width: 220,
+    width: 180,
     height: 220,
     borderRadius: wp(3),
     overflow: "hidden",

@@ -41,7 +41,7 @@ export default function CreateNewRecipe() {
   const { recipe: mealPlanId } = route.params;
   const isEditMode = route.params?.editMode || false;
   const mealData = route.params?.mealData || null;
-
+  console.log(mealData);
   const [selectedMealType, setSelectedMealType] = useState("breakfast");
   const [mealName, setMealName] = useState("");
   const [description, setDescription] = useState("");
@@ -168,9 +168,10 @@ export default function CreateNewRecipe() {
         try {
           const uploadedUrl = await uploadAndGetUrl(
             { path: imageUri, uri: imageUri },
-            "nutrition",
-            "nutrition"
+            "workout",
+            "workouts"
           );
+          console.log(uploadedUrl);
           return uploadedUrl;
         } catch (error) {
           console.log("Error uploading image:", error);
@@ -326,7 +327,7 @@ export default function CreateNewRecipe() {
           return;
         }
       }
-
+      console.log(uploadedImageUrls);
       const mealPayload = {
         name: mealName.trim(),
         description: description.trim(),
