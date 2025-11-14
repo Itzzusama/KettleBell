@@ -32,13 +32,18 @@ import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { useDispatch, useSelector } from "react-redux";
 import fonts from "../../../../assets/fonts/index";
 import RouteName from "../../../../navigation/RouteName";
-import { GetApiRequest, PostApiRequest } from "../../../../services/api";
+import {
+  DeleteApiRequest,
+  GetApiRequest,
+  PostApiRequest,
+} from "../../../../services/api";
 import { resetProgress } from "../../../../store/slices/progressSlice";
 import { COLORS } from "../../../../utils/COLORS";
 import { useToast } from "../../../../utils/Toast/toastContext";
 import { coachInfo } from "../../../../utils/coachInfo";
 import { clearUserData, setCreated } from "../../../../store/slices/usersSlice";
 import { setToken } from "../../../../store/slices/AuthConfig";
+import ConfirmationModal from "../../../../components/ConfirmationModal";
 
 const { width } = Dimensions.get("window");
 
@@ -48,7 +53,10 @@ export default function Profile() {
 
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const toast = useToast();
@@ -80,54 +88,29 @@ export default function Profile() {
       navigation.navigate(RouteName.AuthStack);
     }
   };
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      const res = await DeleteApiRequest("api/auth/delete-account");
+      console.log(res);
+      if (res?.data?.success) {
+        toast.showToast({
+          type: "error",
+          message: res.data.message,
+          duration: 2000,
+        });
+      }
+      dispatch(clearUserData());
+      dispatch(setToken(""));
 
-  const LogoutModal = () => (
-    <Modal
-      visible={showLogoutModal}
-      transparent={true}
-      onRequestClose={() => setShowLogoutModal(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <View style={styles.modalIconContainer}>
-              <MaterialCommunityIcons
-                name="logout"
-                size={32}
-                color={COLORS.primaryColor}
-              />
-            </View>
-            <Text style={styles.modalTitle}>Confirm Logout</Text>
-            <Text style={styles.modalSubtitle}>
-              Are you sure you want to logout from your account?
-            </Text>
-          </View>
-
-          <View style={styles.modalActions}>
-            <TouchableOpacity
-              style={[styles.modalButton, styles.cancelButton]}
-              onPress={() => setShowLogoutModal(false)}
-              disabled={isLoggingOut}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.modalButton, styles.logoutButton]}
-              onPress={handleLogout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? (
-                <View style={styles.loader} />
-              ) : (
-                <Text style={styles.logoutButtonText}>Logout</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
+      navigation.navigate(RouteName.AuthStack);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -346,6 +329,17 @@ export default function Profile() {
               label: t("Profile.settings_items.logout"),
               onPress: () => setShowLogoutModal(true),
             },
+            {
+              icon: (
+                <MaterialCommunityIcons
+                  name="delete-outline"
+                  size={18}
+                  color="#FFD700"
+                />
+              ),
+              label: "Delete Account",
+              onPress: () => setShowDeleteModal(true),
+            },
           ].map((item, index) => (
             <TouchableOpacity
               style={styles.menuItem}
@@ -362,8 +356,28 @@ export default function Profile() {
           ))}
         </View>
       </ScrollView>
-
-      <LogoutModal />
+      <ConfirmationModal
+        visible={showLogoutModal}
+        title="Confirm Logout"
+        subtitle="Are you sure you want to logout from your account?"
+        icon="logout"
+        confirmText="Logout"
+        cancelText="Cancel"
+        loading={isLoggingOut}
+        onCancel={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
+      <ConfirmationModal
+        visible={showDeleteModal}
+        title="Delete Account"
+        subtitle="This action cannot be undone. Are you sure you want to delete your account?"
+        icon="delete-alert"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeleting}
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </SafeAreaView>
   );
 }
@@ -479,93 +493,5 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 14,
     fontFamily: fonts.regular,
-  },
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: COLORS.darkGray,
-    borderRadius: 20,
-    padding: 24,
-    width: width * 0.85,
-    maxWidth: 400,
-  },
-  modalHeader: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  modalIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "rgba(255, 215, 0, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: "rgba(255, 215, 0, 0.2)",
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontFamily: fonts.medium,
-    color: "white",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  modalSubtitle: {
-    fontSize: 14,
-    fontFamily: fonts.regular,
-    color: "#888",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  modalActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-  },
-  cancelButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-  },
-  logoutButton: {
-    backgroundColor: COLORS.primaryColor,
-  },
-  cancelButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontFamily: fonts.medium,
-  },
-  logoutButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontFamily: fonts.medium,
-  },
-  loader: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: "white",
-    borderTopColor: "transparent",
-    animationKeyframes: {
-      "0%": { transform: [{ rotate: "0deg" }] },
-      "100%": { transform: [{ rotate: "360deg" }] },
-    },
-    animationDuration: "1s",
-    animationIterationCount: "infinite",
   },
 });
