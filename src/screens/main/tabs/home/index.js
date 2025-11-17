@@ -33,6 +33,7 @@ import { COLORS } from "../../../../utils/COLORS";
 import { coachInfo } from "../../../../utils/coachInfo";
 import StatsSection from "../molecules/StatsSection";
 import MealPlanCard from "../../../../components/MealPlanCard";
+import HealthNote from "../../../../components/HealthNote";
 
 const { width } = Dimensions.get("window");
 
@@ -150,6 +151,7 @@ const Home = () => {
           </View>
         </View>
       </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingBottom: hp(10) }}

@@ -35,6 +35,7 @@ import {
 } from "../../../store/slices/progressSlice";
 import { COLORS } from "../../../utils/COLORS";
 import { useToast } from "../../../utils/Toast/toastContext";
+import HealthNote from "../../../components/HealthNote";
 
 // Yup validation schema
 const BasicInfoSchema = Yup.object().shape({
@@ -234,6 +235,10 @@ export default function BasicInformation() {
                     editable={false}
                     style={styles.bmiInput}
                     placeholder="Calculated BMI"
+                  />
+                  <HealthNote
+                    explanation="BMI is a general indicator of body weight relative to height. It does not replace professional medical assessment."
+                    disclaimer="Consult a healthcare professional for personalized health guidance."
                   />
                   <View style={styles.buttonContainer}>
                     <CustomButton

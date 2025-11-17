@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   Switch,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -22,6 +23,7 @@ import fonts from "../../assets/fonts";
 import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
 import { useSelector } from "react-redux";
+import HealthNote from "../../components/HealthNote";
 
 const ACTIVITY_LEVELS = [
   { key: "sedentary", label: "Sedentary (Little or no exercise)", factor: 1.2 },
@@ -423,12 +425,64 @@ export default function BMRCalculatorScreen() {
                 </>
               )}
 
-              <Text style={styles.noteText}>
-                BMR is your resting energy need.{" "}
-                {includeTDEE
-                  ? "TDEE is your estimated daily maintenance based on activity."
-                  : "Turn on Activity to estimate daily maintenance (TDEE)."}
-              </Text>
+              <View style={{ marginTop: 12 }}>
+                {/* Explanation */}
+                <Text style={styles.noteText}>
+                  BMR (Basal Metabolic Rate) is your estimated resting energy
+                  need. TDEE (Total Daily Energy Expenditure) estimates daily
+                  maintenance based on activity.
+                </Text>
+
+                {/* How it’s calculated */}
+                <Text
+                  style={[styles.noteText, { marginTop: 8, fontWeight: "600" }]}
+                >
+                  How this is calculated
+                </Text>
+                <Text style={styles.noteText}>
+                  This calculator uses the Mifflin–St Jeor equation, a commonly
+                  used formula in clinical nutrition.{" "}
+                  <Text
+                    style={{
+                      color: "#FEC635",
+                      textDecorationLine: "underline",
+                    }}
+                    onPress={() =>
+                      Linking.openURL(
+                        "https://pubmed.ncbi.nlm.nih.gov/2305711/"
+                      )
+                    }
+                  >
+                    View Mifflin–St Jeor study
+                  </Text>
+                </Text>
+
+                <Text
+                  style={{
+                    color: "#FEC635",
+                    textDecorationLine: "underline",
+                  }}
+                  onPress={() =>
+                    Linking.openURL(
+                      "https://my.clevelandclinic.org/health/body/basal-metabolic-rate-bmr"
+                    )
+                  }
+                >
+                  Learn more about BMR
+                </Text>
+
+                {/* Disclaimer */}
+                <Text
+                  style={[
+                    styles.noteText,
+                    { marginTop: 12, fontStyle: "italic", lineHeight: 20 },
+                  ]}
+                >
+                  Disclaimer: This tool is for informational use only and does
+                  not provide medical advice. Consult a healthcare professional
+                  before making changes to diet or exercise.
+                </Text>
+              </View>
             </View>
           </View>
         )}
